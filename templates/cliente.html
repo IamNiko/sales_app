@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift | Cliente</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Professional KPI Grid */
+        .kpi-grid-professional {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card-pro {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card-pro:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .kpi-card-pro::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .kpi-card-pro.facturacion::before {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .kpi-card-pro.premium::before {
+            background: linear-gradient(90deg, #E84752, #c03942);
+        }
+
+        .kpi-card-pro.rebozados::before {
+            background: linear-gradient(90deg, #FF9F0A, #d48806);
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .facturacion .kpi-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .premium .kpi-icon {
+            background: linear-gradient(135deg, #E84752, #c03942);
+        }
+
+        .rebozados .kpi-icon {
+            background: linear-gradient(135deg, #FF9F0A, #d48806);
+        }
+
+        .kpi-label-pro {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #8E96A3;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value-pro {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .kpi-unit-pro {
+            font-size: 0.9rem;
+            color: #8E96A3;
+            font-weight: 500;
+        }
+
+        .kpi-subtitle {
+            font-size: 0.85rem;
+            color: #8E96A3;
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .kpi-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .kpi-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease, background 0.3s ease;
+        }
+
+        .facturacion .kpi-progress-bar {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+        }
+
+        .premium .kpi-progress-bar {
+            background: linear-gradient(90deg, #E84752, #f39c12);
+        }
+
+        .rebozados .kpi-progress-bar {
+            background: linear-gradient(90deg, #FF9F0A, #e67e22);
+        }
+
+        .kpi-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .badge-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .badge-warning {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        @media (max-width: 968px) {
+            .kpi-grid-professional {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .kpi-grid-professional {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="javascript:history.back()">← Volver al Dashboard</a>
+    </nav>
+
+    <div class="container">
+        <div class="client-header">
+            <div>
+                <h1 id="client-name">Cargando...</h1>
+                <div class="meta" id="client-meta"></div>
+            </div>
+        </div>
+
+        <!-- Gauge Section: Facturación $, Premium $, Rebozados KG -->
+        <div class="gauge-grid">
+            <div class="gauge-card">
+                <div class="gauge-label">💰 Facturación $</div>
+                <div id="gauge-fact" class="gauge-container"></div>
+                <div class="gauge-sub" id="gauge-fact-sub">Obj: $0</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">⭐ Premium $</div>
+                <div id="gauge-prem" class="gauge-container"></div>
+                <div class="gauge-sub" id="gauge-prem-sub">Obj: $0</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">🍗 Rebozados KG</div>
+                <div id="gauge-reb" class="gauge-container"></div>
+                <div class="gauge-sub" id="gauge-reb-sub">Obj: 0 kg</div>
+            </div>
+        </div>
+        <style>
+            .gauge-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.25rem;
+                margin-bottom: 2rem;
+            }
+
+            .gauge-card {
+                background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
+                border: 1px solid #222222;
+                border-radius: 16px;
+                padding: 1rem 1rem 0.6rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+                position: relative;
+                overflow: hidden;
+                transition: transform 0.25s ease;
+            }
+
+            .gauge-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #E84752, transparent);
+            }
+
+            .gauge-card:hover {
+                transform: translateY(-3px);
+            }
+
+            .gauge-label {
+                font-size: 0.7rem;
+                font-weight: 800;
+                color: #555;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 0.2rem;
+            }
+
+            .gauge-container {
+                width: 100%;
+                height: 200px;
+            }
+
+            .gauge-sub {
+                font-size: 0.8rem;
+                color: #aaaaaa;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding-bottom: 0.5rem;
+                text-transform: uppercase;
+            }
+
+            @media (max-width: 900px) {
+                .gauge-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+
+        <div class="controls">
+            <style>
+                .controls {
+                    display: flex;
+                    gap: 2rem;
+                    justify-content: center;
+                    margin-bottom: 2rem;
+                    flex-wrap: wrap;
+                }
+
+                .btn-group {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 50px;
+                    padding: 6px;
+                    display: inline-flex;
+                    gap: 4px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .btn {
+                    padding: 10px 24px;
+                    border: none;
+                    background: transparent;
+                    color: #8E96A3;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .btn:hover:not(.active) {
+                    color: white;
+                    background: rgba(255, 255, 255, 0.08);
+                }
+
+                .btn.active {
+                    background: linear-gradient(135deg, #E84752, #c03942);
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(232, 71, 82, 0.4);
+                }
+
+                .btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 0;
+                    height: 0;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.2);
+                    transform: translate(-50%, -50%);
+                    transition: width 0.6s, height 0.6s;
+                }
+
+                .btn:active::before {
+                    width: 300px;
+                    height: 300px;
+                }
+            </style>
+            <div class="btn-group">
+                <button class="btn" data-meses="3">3 Meses</button>
+                <button class="btn active" data-meses="6">6 Meses</button>
+                <button class="btn" data-meses="12">12 Meses</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn active" data-tipo="kg">KG</button>
+                <button class="btn" data-tipo="importe">Pesos ($)</button>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card chart-full">
+                <h3>Evolución de Compras <span id="hist-periodo-label"
+                        style="font-size:0.75rem;color:#8E96A3;font-weight:400;"></span></h3>
+                <div id="chart-historia" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Compras por Categoría <span id="cat-periodo-label"
+                        style="font-size:0.75rem;color:#8E96A3;font-weight:400;"></span></h3>
+                <div id="chart-categorias" class="chart-container" style="height:280px;"></div>
+                <div class="category-legend" id="category-legend"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Top Productos <span id="periodo-label"
+                        style="font-size:0.75rem;color:#8E96A3;font-weight:400;"></span></h3>
+                <div id="chart-productos" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Recurrencia Mensual <span style="font-size:0.75rem;color:#8E96A3;font-weight:400;">compras en los
+                        últimos meses</span></h3>
+                <div id="chart-recurrencia" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Coberturas de Lanzamientos -->
+        <style>
+            .lanz-section {
+                margin-top: 2.5rem;
+            }
+
+            .lanz-title {
+                font-size: 16px;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 16px;
+                border-left: 3px solid #E84752;
+                padding-left: 12px;
+            }
+
+            .lanz-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+            }
+
+            .lanz-card {
+                background: linear-gradient(145deg, #0a0a0a, #111);
+                border: 1px solid #1a1a1a;
+                border-radius: 10px;
+                padding: 14px;
+                text-align: center;
+                transition: transform 0.2s;
+            }
+
+            .lanz-card:hover {
+                transform: translateY(-2px);
+            }
+
+            .lanz-card .lanz-name {
+                font-size: 12px;
+                font-weight: 700;
+                color: #aaa;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+            }
+
+            .lanz-badge {
+                display: inline-block;
+                padding: 3px 10px;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .lanz-badge.comp {
+                background: rgba(52, 199, 89, 0.15);
+                color: #34c759;
+            }
+
+            .lanz-badge.sinc {
+                background: rgba(255, 159, 10, 0.15);
+                color: #ff9f0a;
+            }
+
+            .lanz-badge.noc {
+                background: rgba(232, 71, 82, 0.15);
+                color: #E84752;
+            }
+
+            .lanz-kg {
+                font-size: 20px;
+                font-weight: 800;
+                color: #fff;
+                margin: 8px 0 2px;
+            }
+
+            .lanz-prom {
+                font-size: 11px;
+                color: #555;
+            }
+
+            .lanz-minibar {
+                height: 4px;
+                background: #1a1a1a;
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+            }
+
+            .lanz-minibar-fill {
+                height: 100%;
+                border-radius: 2px;
+            }
+        </style>
+        <div class="lanz-section" id="lanz-section" style="display:none">
+            <div class="lanz-title">Coberturas de Lanzamientos</div>
+            <div class="lanz-grid" id="lanz-grid"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const codCliente = window.location.pathname.split('/').pop();
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendedor = urlParams.get('vendedor');
+
+        let currentMeses = 6;
+        let currentTipo = 'kg';
+        let clienteData = null;
+
+        const BRAND_COLORS = ['#E84752', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#e91e63', '#00bcd4', '#ff5722', '#607d8b', '#8bc34a'];
+
+        function formatPesos(val) {
+            if (!val) return '$0';
+            if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
+            if (val >= 1000) return '$' + (val / 1000).toFixed(0) + 'K';
+            return '$' + Math.round(val).toLocaleString('es-AR');
+        }
+
+        function formatKg(val) {
+            if (!val) return '0 kg';
+            if (val >= 1000) return (val / 1000).toFixed(1).replace('.', ',') + ' t';
+            return Math.round(val).toLocaleString('es-AR') + ' kg';
+        }
+
+        function formatValue(val, tipo) {
+            if (!val) return '0';
+            if (tipo === 'importe') return '$' + Math.round(val).toLocaleString('es-AR');
+            return formatKg(val);
+        }
+
+        function getBadgeClass(pct) {
+            if (pct >= 80) return 'badge-success';
+            if (pct >= 50) return 'badge-warning';
+            return 'badge-danger';
+        }
+
+        async function loadCliente() {
+            let url = `/api/cliente/${codCliente}?meses=${currentMeses}`;
+            if (vendedor) url += `&vendedor=${vendedor}`;
+
+            const response = await fetch(url);
+            clienteData = await response.json();
+
+            if (clienteData.error) { alert(clienteData.error); return; }
+
+            // Header
+            document.getElementById('client-name').textContent = clienteData.cliente?.nom_cliente || 'Cliente';
+            document.getElementById('client-meta').textContent =
+                `Frecuencia: ${clienteData.cliente?.frecuencia || 'N/A'} • Vendedor: ${clienteData.avance?.nom_vendedor || 'N/A'}`;
+
+            renderGauges();
+            renderCharts();
+        }
+
+        function renderGauges() {
+            if (!clienteData.avance) return;
+            const av = clienteData.avance;
+
+            const factActual = av.facturacion_pesos || 0;
+            const factObj = av.objetivo_pesos || 0;
+            const premActual = av.premium_pesos || 0;
+            const premObj = av.objetivo_premium_pesos || 0;
+            const rebActual = av.rebozados_kg || 0;
+            const rebObj = av.objetivo_rebozados_kg || 0;
+
+            renderSingleGauge('gauge-fact', factActual, factObj, formatPesos);
+            renderSingleGauge('gauge-prem', premActual, premObj, formatPesos);
+            renderSingleGauge('gauge-reb', rebActual, rebObj, formatKg);
+
+            document.getElementById('gauge-fact-sub').textContent = `Obj: ${formatPesos(factObj)}`;
+            document.getElementById('gauge-prem-sub').textContent = `Obj: ${formatPesos(premObj)}`;
+            document.getElementById('gauge-reb-sub').textContent = `Obj: ${formatKg(rebObj)}`;
+        }
+
+        function renderSingleGauge(id, actual, objetivo, fmtFn) {
+            const dom = document.getElementById(id);
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
+            const chart = echarts.init(dom);
+
+            const MAX = 130;
+            const pct = objetivo > 0 ? Math.min((actual / objetivo) * 100, MAX) : 0;
+            const pctRaw = objetivo > 0 ? (actual / objetivo) * 100 : 0;
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                series: [{
+                    type: 'gauge',
+                    startAngle: 215,
+                    endAngle: -35,
+                    min: 0,
+                    max: MAX,
+                    radius: '90%',
+                    center: ['50%', '60%'],
+                    splitNumber: 13,
+                    axisLine: {
+                        lineStyle: {
+                            width: 18,
+                            color: [
+                                [0.50, '#1a1a1a'],
+                                [0.65, '#252525'],
+                                [0.77, '#333333'],
+                                [0.84, '#5a0a0a'],
+                                [1.00, '#E84752']
+                            ]
+                        }
+                    },
+                    splitLine: { length: 12, lineStyle: { color: '#404040', width: 2 } },
+                    axisTick: { length: 6, splitNumber: 5, lineStyle: { color: '#303030', width: 1 } },
+                    axisLabel: {
+                        color: '#777', fontSize: 10, distance: 10, fontWeight: '600',
+                        formatter: v => v === 0 ? '0' : v === 100 ? '100%' : v === MAX ? '130%' : ''
+                    },
+                    pointer: {
+                        length: '68%', width: 6,
+                        itemStyle: { color: '#E84752', shadowBlur: 16, shadowColor: 'rgba(232,71,82,0.9)' }
+                    },
+                    anchor: {
+                        show: true, showAbove: true, size: 14,
+                        itemStyle: {
+                            color: '#0a0a0a', borderColor: '#E84752', borderWidth: 2,
+                            shadowBlur: 10, shadowColor: '#E84752'
+                        }
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: [0, '28%'],
+                        formatter: () => `{val|${fmtFn(actual)}}\n{pct|${pctRaw.toFixed(1)}%}`,
+                        rich: {
+                            val: { fontSize: 18, fontWeight: '700', color: '#ffffff', lineHeight: 26 },
+                            pct: { fontSize: 13, color: pct >= 100 ? '#E84752' : '#888', fontWeight: '700', lineHeight: 20 }
+                        }
+                    },
+                    data: [{ value: parseFloat(pct.toFixed(1)) }]
+                }]
+            });
+        }
+
+        function getChart(id) {
+            const dom = document.getElementById(id);
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
+            return echarts.init(dom);
+        }
+
+        function renderCharts() {
+            renderHistoriaChart();
+            renderCategoriasChart();
+            renderProductosChart();
+            renderRecurrenciaChart();
+        }
+
+        function renderHistoriaChart() {
+            const chart = getChart('chart-historia');
+            const allData = clienteData.historia || [];
+            const data = allData.slice(-currentMeses);
+
+            // Update period label
+            if (data.length) {
+                document.getElementById('hist-periodo-label').textContent =
+                    `· ${data[0].year_month} → ${data[data.length - 1].year_month}`;
+            }
+
+            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+            const values = data.map(h => h[field] || h.total_kg || 0);
+            const maxVal = Math.max(...values, 1);
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: '#1a2332',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    textStyle: { color: '#fff', fontSize: 13 },
+                    formatter: params => {
+                        const p = params[0];
+                        return `<strong>${p.axisValue}</strong><br/>${currentTipo === 'importe' ? formatPesos(p.value) : formatKg(p.value)}`;
+                    }
+                },
+                grid: { top: 40, right: 20, bottom: 45, left: 70 },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(h => h.year_month),
+                    axisLabel: { fontSize: 11, color: '#8E96A3', rotate: data.length > 8 ? 30 : 0 },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        fontSize: 11,
+                        color: '#8E96A3',
+                        formatter: v => currentTipo === 'importe'
+                            ? (v >= 1000000 ? '$' + (v / 1000000).toFixed(1) + 'M' : '$' + (v / 1000).toFixed(0) + 'K')
+                            : (v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg')
+                    },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.map(h => {
+                        const val = h[field] || h.total_kg || 0;
+                        const intensity = maxVal > 0 ? val / maxVal : 0;
+                        return {
+                            value: val,
+                            itemStyle: {
+                                color: {
+                                    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                    colorStops: [
+                                        { offset: 0, color: val === maxVal ? '#FF6B6B' : '#E84752' },
+                                        { offset: 1, color: `rgba(232,71,82,${0.3 + intensity * 0.4})` }
+                                    ]
+                                },
+                                borderRadius: [5, 5, 0, 0]
+                            }
+                        };
+                    }),
+                    barWidth: '55%',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#8E96A3',
+                        fontSize: 10,
+                        formatter: params => currentTipo === 'importe'
+                            ? formatPesos(params.value)
+                            : formatKg(params.value)
+                    }
+                }]
+            });
+        }
+
+        function renderCategoriasChart() {
+            const chart = getChart('chart-categorias');
+            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+            const data = (clienteData.categorias || [])
+                .filter(c => (c[field] || 0) > 0)
+                .slice(0, 8);
+
+            const total = data.reduce((s, c) => s + (c[field] || 0), 0);
+
+            // Update label
+            document.getElementById('cat-periodo-label').textContent =
+                `· últimos ${currentMeses} meses`;
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: '#1a2332',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    textStyle: { color: '#fff' },
+                    formatter: p => `<strong>${p.name}</strong><br/>${formatValue(p.value, currentTipo)}<br/>${p.percent.toFixed(1)}% del total`
+                },
+                legend: { show: false },
+                series: [{
+                    type: 'pie',
+                    radius: ['42%', '68%'],
+                    center: ['50%', '50%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderRadius: 5, borderColor: 'rgba(15,20,30,0.8)', borderWidth: 3 },
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: params => {
+                            const pct = total > 0 ? (params.value / total * 100).toFixed(1) : '0';
+                            return `{name|${params.name.substring(0, 12)}}\n{pct|${pct}%}`;
+                        },
+                        rich: {
+                            name: { color: '#8E96A3', fontSize: 10, lineHeight: 16 },
+                            pct: { color: '#fff', fontSize: 12, fontWeight: 'bold', lineHeight: 18 }
+                        }
+                    },
+                    labelLine: { length: 10, length2: 8, lineStyle: { color: 'rgba(255,255,255,0.2)' } },
+                    emphasis: {
+                        itemStyle: { shadowBlur: 15, shadowColor: 'rgba(232,71,82,0.5)' },
+                        scale: true, scaleSize: 5
+                    },
+                    data: data.map((c, i) => ({
+                        value: c[field] || 0,
+                        name: c.categoria,
+                        itemStyle: { color: BRAND_COLORS[i % BRAND_COLORS.length] }
+                    }))
+                }]
+            });
+
+            // Rich legend below chart
+            document.getElementById('category-legend').innerHTML = data.map((c, i) => {
+                const val = c[field] || 0;
+                const pct = total > 0 ? (val / total * 100).toFixed(1) : '0';
+                return `
+                    <div class="legend-item" style="justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04)">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="legend-dot" style="background: ${BRAND_COLORS[i % BRAND_COLORS.length]}; min-width:10px; min-height:10px; border-radius:50%"></div>
+                            <span style="font-size:0.82rem;color:#c0c7d0">${c.categoria}</span>
+                        </div>
+                        <div style="display:flex;gap:12px;align-items:center">
+                            <span style="font-size:0.82rem;color:#fff;font-weight:600">${formatValue(val, currentTipo)}</span>
+                            <span style="font-size:0.78rem;color:#E84752;font-weight:700;min-width:38px;text-align:right">${pct}%</span>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderProductosChart() {
+            const chart = getChart('chart-productos');
+            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+            const data = (clienteData.productos || [])
+                .filter(p => (p[field] || 0) > 0)
+                .slice(0, 12)
+                .reverse();
+
+            // Update period label
+            document.getElementById('periodo-label').textContent = `· últimos ${currentMeses} meses`;
+
+            if (data.length === 0) {
+                chart.setOption({
+                    graphic: [{
+                        type: 'text', left: 'center', top: 'middle',
+                        style: { text: 'Sin datos de productos', fill: '#8E96A3', fontSize: 14 }
+                    }]
+                });
+                return;
+            }
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: '#1a2332',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    textStyle: { color: '#fff' },
+                    formatter: params => {
+                        const p = params[0];
+                        const item = (clienteData.productos || []).find(x => x.nombre_producto.startsWith(p.name.substring(0, 20)));
+                        const veces = item ? ` · ${item.veces_comprado} compras` : '';
+                        return `<strong>${p.name}</strong><br/>${formatValue(p.value, currentTipo)}${veces}`;
+                    }
+                },
+                grid: { top: 8, right: 120, bottom: 8, left: 12, containLabel: true },
+                xAxis: { type: 'value', show: false },
+                yAxis: {
+                    type: 'category',
+                    data: data.map(c => c.nombre_producto.substring(0, 32)),
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: '#8E96A3', fontSize: 10 }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.map((c, i) => ({
+                        value: c[field] || 0,
+                        itemStyle: {
+                            color: {
+                                type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+                                colorStops: [
+                                    { offset: 0, color: BRAND_COLORS[i % BRAND_COLORS.length] },
+                                    { offset: 1, color: BRAND_COLORS[i % BRAND_COLORS.length] + '99' }
+                                ]
+                            },
+                            borderRadius: [0, 5, 5, 0]
+                        }
+                    })),
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: p => formatValue(p.value, currentTipo),
+                        fontSize: 10,
+                        color: '#c0c7d0',
+                        fontWeight: '600'
+                    },
+                    barWidth: 14,
+                    barMinHeight: 4
+                }]
+            });
+        }
+
+        function renderRecurrenciaChart() {
+            const chart = getChart('chart-recurrencia');
+            const allData = clienteData.historia || [];
+            const data = allData.slice(-currentMeses);
+
+            if (data.length === 0) {
+                chart.setOption({
+                    graphic: [{
+                        type: 'text', left: 'center', top: 'middle',
+                        style: { text: 'Sin datos históricos', fill: '#8E96A3', fontSize: 14 }
+                    }]
+                });
+                return;
+            }
+
+            const totalMeses = data.length;
+            const mesesConCompra = data.filter(h => (h.total_kg || 0) > 0).length;
+            const recurrenciaPct = totalMeses > 0 ? Math.round(mesesConCompra / totalMeses * 100) : 0;
+            const avgKg = mesesConCompra > 0
+                ? data.filter(h => h.total_kg > 0).reduce((s, h) => s + h.total_kg, 0) / mesesConCompra
+                : 0;
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: '#1a2332',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    textStyle: { color: '#fff' },
+                    formatter: params => {
+                        const p = params[0];
+                        const compro = p.value > 0;
+                        return `<strong>${p.axisValue}</strong><br/>${compro ? '✅ Compró: ' + formatKg(p.value) : '❌ Sin compra'}`;
+                    }
+                },
+                graphic: [{
+                    type: 'group', left: 'center', top: 10,
+                    children: [
+                        {
+                            type: 'text', style: {
+                                text: `${recurrenciaPct}% recurrencia · ${mesesConCompra}/${totalMeses} meses activos · Promedio: ${formatKg(avgKg)}/mes`,
+                                fill: '#8E96A3', fontSize: 11, textAlign: 'center'
+                            }
+                        }
+                    ]
+                }],
+                grid: { top: 40, right: 20, bottom: 45, left: 70 },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(h => h.year_month),
+                    axisLabel: { fontSize: 10, color: '#8E96A3', rotate: data.length > 8 ? 30 : 0 },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        fontSize: 10, color: '#8E96A3',
+                        formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg'
+                    },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.map(h => {
+                        const val = h.total_kg || 0;
+                        const active = val > 0;
+                        return {
+                            value: val,
+                            itemStyle: {
+                                color: active
+                                    ? {
+                                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                        colorStops: [{ offset: 0, color: '#2ecc71' }, { offset: 1, color: '#1a8a4a' }]
+                                    }
+                                    : 'rgba(231,76,60,0.25)',
+                                borderRadius: [4, 4, 0, 0]
+                            }
+                        };
+                    }),
+                    barWidth: '55%',
+                    markLine: avgKg > 0 ? {
+                        silent: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#f39c12', type: 'dashed', width: 1.5 },
+                        data: [{ yAxis: avgKg, label: { formatter: 'Promedio', color: '#f39c12', fontSize: 10 } }]
+                    } : undefined
+                }]
+            });
+        }
+
+        document.querySelectorAll('.btn[data-meses]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.btn[data-meses]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMeses = parseInt(this.dataset.meses);
+                loadCliente();
+            });
+        });
+
+        document.querySelectorAll('.btn[data-tipo]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.btn[data-tipo]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentTipo = this.dataset.tipo;
+                renderCharts();
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            ['chart-historia', 'chart-categorias', 'chart-productos', 'chart-recurrencia'].forEach(id => {
+                echarts.getInstanceByDom(document.getElementById(id))?.resize();
+            });
+        });
+
+        // ─── Coberturas de Lanzamientos ───────────
+        async function loadCoberturas() {
+            try {
+                const res = await fetch(`/api/cliente/${codCliente}/coberturas`);
+                const data = await res.json();
+                if (!data || !data.length) return;
+
+                document.getElementById('lanz-section').style.display = '';
+                const grid = document.getElementById('lanz-grid');
+                grid.innerHTML = data.map(d => {
+                    const bcls = d.estado === 'COMPRADOR' ? 'comp' : d.estado === 'SIN COMPRA' ? 'sinc' : 'noc';
+                    const barColor = d.estado === 'COMPRADOR' ? '#34c759' : d.estado === 'SIN COMPRA' ? '#ff9f0a' : '#E84752';
+                    const prom = d.promedio_u3 || 1;
+                    const pct = Math.min(100, (d.total_feb / prom) * 100).toFixed(0);
+                    return `<div class="lanz-card">
+                        <div class="lanz-name">${d.lanzamiento}</div>
+                        <span class="lanz-badge ${bcls}">${d.estado}</span>
+                        <div class="lanz-kg">${(d.total_feb || 0).toLocaleString('es-AR', { maximumFractionDigits: 1 })} <span style="font-size:12px;color:#555">KG</span></div>
+                        <div class="lanz-prom">Prom 3M: ${(d.promedio_u3 || 0).toLocaleString('es-AR', { maximumFractionDigits: 1 })} KG</div>
+                        <div class="lanz-minibar"><div class="lanz-minibar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+                    </div>`;
+                }).join('');
+            } catch (e) { console.warn('Coberturas not available', e); }
+        }
+
+        loadCliente();
+        loadCoberturas();
+    </script>
+</body>
+
+</html>

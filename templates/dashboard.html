@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Sales | Dashboard</title>
+    <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .toggle-group {
+            background: rgba(118, 118, 128, 0.12);
+            border-radius: 8px;
+            padding: 2px;
+            display: inline-flex;
+        }
+
+        .btn-toggle {
+            border: none;
+            background: transparent;
+            color: #8E8E93;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle.active {
+            background: #FFF;
+            color: #000;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h1>Swift Sales Intelligence</h1>
+        <div style="display:flex;gap:16px;align-items:center">
+            <a href="#"
+                onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📊
+                Coberturas</a>
+            <a href="/filters">← Cambiar Vista</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h2 id="vendedor-name">Dashboard de Ventas</h2>
+                <div class="meta" id="vendedor-meta">Visualización unificada de rendimiento comercial</div>
+            </div>
+            <div class="month-badge">Febrero 2026</div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="label">Objetivo Mensual</div>
+                <div class="value" id="kpi-objetivo-kg">-</div>
+                <div class="unit">KG</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Facturado</div>
+                <div class="value" id="kpi-facturado-kg">-</div>
+                <div class="unit">KG</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label">Pendiente</div>
+                <div class="value" id="kpi-pendiente-kg">-</div>
+                <div class="unit">KG</div>
+            </div>
+            <div class="kpi-card" id="card-cumplimiento">
+                <div class="label">Cumplimiento</div>
+                <div class="value"><span id="kpi-cumplimiento">-</span>%</div>
+                <div class="unit">vs Objetivo</div>
+            </div>
+        </div>
+
+        <!-- Tachometer Gauges: Facturación $, Premium $, Rebozados KG -->
+        <div class="tach-grid">
+            <div class="tach-card">
+                <div class="tach-title">FACTURACIÓN $</div>
+                <div id="tach-fact" class="tach-container"></div>
+                <div class="tach-sub" id="tach-fact-sub">Obj: —</div>
+            </div>
+            <div class="tach-card">
+                <div class="tach-title">PREMIUM $</div>
+                <div id="tach-prem" class="tach-container"></div>
+                <div class="tach-sub" id="tach-prem-sub">Obj: —</div>
+            </div>
+            <div class="tach-card">
+                <div class="tach-title">REBOZADOS KG</div>
+                <div id="tach-reb" class="tach-container"></div>
+                <div class="tach-sub" id="tach-reb-sub">Obj: —</div>
+            </div>
+        </div>
+        <style>
+            .tach-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .tach-card {
+                background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
+                border: 1px solid #2a2a2a;
+                border-radius: 16px;
+                padding: 1rem 1rem 0.6rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .tach-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #E84752, transparent);
+            }
+
+            .tach-title {
+                font-size: 0.7rem;
+                font-weight: 800;
+                color: #555;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                margin-bottom: 0.2rem;
+            }
+
+            .tach-container {
+                width: 100%;
+                height: 210px;
+            }
+
+            .tach-sub {
+                font-size: 0.8rem;
+                color: #aaaaaa;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding-bottom: 0.5rem;
+                text-transform: uppercase;
+            }
+
+            @media (max-width: 900px) {
+                .tach-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Evolución Diaria (KG) (vs Objetivo)</h3>
+                <div id="chart-avance" class="chart-container"></div>
+            </div>
+            <div class="chart-card day-plan-widget" onclick="goToPlanning()" style="cursor: pointer;">
+                <div>
+                    <div class="day-plan-date">Planificación <span id="plan-date">Hoy</span></div>
+
+                    <div class="day-plan-stat-row">
+                        <span class="day-plan-value" id="plan-clients-count">-</span>
+                        <span class="day-plan-label">Clientes a Visitar</span>
+                    </div>
+
+                    <div class="day-plan-stat-row">
+                        <span class="day-plan-value" id="plan-objective">-</span>
+                        <span class="day-plan-label">Objetivo del Día</span>
+                    </div>
+                </div>
+
+                <button class="day-plan-action">Ver Plan Detallado →</button>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="header">
+                <h3>Detalle de Clientes (<span id="total-clientes">0</span>)</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Cliente</th>
+                        <th>Freq</th>
+                        <th class="text-right">Fact (KG)</th>
+                        <th class="text-right">Obj (KG)</th>
+                        <th class="text-right">Fact ($)</th>
+                        <th class="text-right">Obj ($)</th>
+                        <th>%</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="clients-table">
+                    <!-- JS populated -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let globalClientes = [];
+        let clientMode = 'kg';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendedor = urlParams.get('vendedor');
+        const jefe = urlParams.get('jefe');
+        const zona = urlParams.get('zona');
+
+        const formatKg = (val) => val ? Math.round(val).toLocaleString('es-AR') + ' kg' : '0 kg';
+        const formatKgShort = (val) => val ? Math.round(val).toLocaleString('es-AR') : '0';
+        const formatPesos = (val) => {
+            if (!val) return '0';
+            if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
+            if (val >= 1000) return '$' + (val / 1000).toFixed(0) + 'K';
+            return '$' + Math.round(val).toLocaleString('es-AR');
+        };
+
+        function getStatusClass(pct) {
+            if (pct >= 80) return 'success';
+            if (pct >= 50) return 'warning';
+            return 'danger';
+        }
+
+        function setClientMode(mode) {
+            clientMode = mode;
+            document.querySelectorAll('.btn-toggle').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            renderClientsTable(globalClientes);
+        }
+
+        function goToPlanning() {
+            let params = [];
+            if (vendedor) params.push(`vendedor=${vendedor}`);
+            if (zona) params.push(`zona=${encodeURIComponent(zona)}`);
+            if (jefe) params.push(`jefe=${encodeURIComponent(jefe)}`);
+            window.location.href = `/planning?${params.join('&')}`;
+        }
+
+        async function loadDashboard() {
+            // Allow loading if any filter is present
+            if (!vendedor && !jefe && !zona) { window.location.href = '/filters'; return; }
+
+            let query = '';
+            if (vendedor) query = `vendedor=${vendedor}`;
+            else if (jefe) query = `jefe=${encodeURIComponent(jefe)}`;
+            else if (zona) query = `zona=${encodeURIComponent(zona)}`;
+
+            const response = await fetch(`/api/dashboard?${query}`);
+            const data = await response.json();
+            if (data.error) { alert(data.error); return; }
+
+            // Save for toggle
+            globalClientes = data.clientes || [];
+
+            // Header
+            const type = data.vendedor.type ? `[${data.vendedor.type}] ` : '';
+            document.getElementById('vendedor-name').textContent = type + data.vendedor.nombre;
+
+            let meta = '';
+            if (data.vendedor.zona) meta += data.vendedor.zona;
+            if (data.vendedor.jefe) meta += ` • ${data.vendedor.jefe}`;
+            meta += ` • ${data.vendedor.total_clientes} clientes`;
+
+            document.getElementById('vendedor-meta').textContent = meta;
+
+            // KPIs
+            document.getElementById('kpi-objetivo-kg').textContent = formatKgShort(data.kpis.objetivo);
+            document.getElementById('kpi-facturado-kg').textContent = formatKgShort(data.kpis.facturacion);
+            document.getElementById('kpi-pendiente-kg').textContent = formatKgShort(data.kpis.pendiente);
+
+            const pct = data.kpis.cumplimiento_pct;
+            const card = document.getElementById('card-cumplimiento');
+            card.style.background = pct >= 80 ? 'linear-gradient(135deg, #30D158, #208e3b)' :
+                pct >= 50 ? 'linear-gradient(135deg, #FF9F0A, #d48806)' :
+                    'linear-gradient(135deg, #FF453A, #c0392b)';
+
+            document.getElementById('kpi-cumplimiento').textContent = data.kpis.cumplimiento_pct;
+            document.getElementById('total-clientes').textContent = `${data.clientes.length} clientes`;
+
+            renderBurnChart(data.chart);
+
+            // Populate Plan Widget
+            const date = new Date();
+            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            document.getElementById('plan-date').textContent = `${dayNames[date.getDay()]} ${date.getDate()}`;
+
+            renderClientsTable(globalClientes);
+
+            // Load monetary facturacion + Planning Summary
+            loadFacturacion(query);
+        }
+
+        async function loadFacturacion(query) {
+            try {
+                const id = vendedor || 'global';
+                const response = await fetch(`/api/vendedor/${id}/facturacion?${query}`);
+                const data = await response.json();
+
+                if (data.facturacion) {
+                    const f = data.facturacion;
+                    const o = data.objetivos || {};
+
+                    // Populate Plan Objective (daily estimate)
+                    if (o.objetivo_pesos) {
+                        const dailyObj = o.objetivo_pesos / 20;
+                        const el = document.getElementById('plan-objective');
+                        if (el) el.textContent = formatPesos(dailyObj);
+                    }
+
+                    // Render tachometers with all monetary data
+                    renderDashboardGauges(
+                        f.total_pesos, o.objetivo_pesos,
+                        f.premium_pesos, o.objetivo_premium_pesos,
+                        f.rebozados_kg, o.objetivo_rebozados_kg
+                    );
+                }
+            } catch (e) {
+                console.log('No facturacion data available', e);
+            }
+        }
+
+        function renderDashboardGauges(factAct, factObj, premAct, premObj, rebAct, rebObj) {
+            rendTach('tach-fact', factAct || 0, factObj || 0, formatPesos, 'tach-fact-sub');
+            rendTach('tach-prem', premAct || 0, premObj || 0, formatPesos, 'tach-prem-sub');
+            rendTach('tach-reb', rebAct || 0, rebObj || 0, formatKg, 'tach-reb-sub');
+        }
+
+        function rendTach(id, actual, objetivo, fmtFn, subId) {
+            const dom = document.getElementById(id);
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
+            const chart = echarts.init(dom);
+
+            const MAX = 130;
+            const pct = objetivo > 0 ? Math.min((actual / objetivo) * 100, MAX) : 0;
+            const pctRaw = objetivo > 0 ? (actual / objetivo) * 100 : 0;
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                series: [{
+                    type: 'gauge',
+                    startAngle: 215,
+                    endAngle: -35,
+                    min: 0,
+                    max: MAX,
+                    radius: '90%',
+                    center: ['50%', '60%'],
+                    splitNumber: 13,
+                    axisLine: {
+                        lineStyle: {
+                            width: 18,
+                            color: [
+                                [0.50, '#1a1a1a'],
+                                [0.65, '#252525'],
+                                [0.77, '#333333'],
+                                [0.84, '#5a0a0a'],
+                                [1.00, '#E84752']
+                            ]
+                        }
+                    },
+                    splitLine: { length: 12, lineStyle: { color: '#404040', width: 2 } },
+                    axisTick: { length: 6, splitNumber: 5, lineStyle: { color: '#303030', width: 1 } },
+                    axisLabel: {
+                        color: '#777', fontSize: 10, distance: 10, fontWeight: '600',
+                        formatter: v => v === 0 ? '0' : v === 100 ? '100%' : v === MAX ? '130%' : ''
+                    },
+                    pointer: {
+                        length: '68%', width: 6,
+                        itemStyle: { color: '#E84752', shadowBlur: 16, shadowColor: 'rgba(232,71,82,0.9)' }
+                    },
+                    anchor: {
+                        show: true, showAbove: true, size: 14,
+                        itemStyle: {
+                            color: '#0a0a0a', borderColor: '#E84752', borderWidth: 2,
+                            shadowBlur: 10, shadowColor: '#E84752'
+                        }
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: [0, '28%'],
+                        formatter: () => `{val|${fmtFn(actual)}}\n{pct|${pctRaw.toFixed(1)}%}`,
+                        rich: {
+                            val: { fontSize: 18, fontWeight: '700', color: '#ffffff', lineHeight: 26 },
+                            pct: {
+                                fontSize: 13, color: pct >= 100 ? '#E84752' : '#888',
+                                fontWeight: '700', lineHeight: 20
+                            }
+                        }
+                    },
+                    data: [{ value: parseFloat(pct.toFixed(1)) }]
+                }]
+            });
+
+            if (subId) document.getElementById(subId).textContent = `OBJ: ${fmtFn(objetivo)}`;
+        }
+
+        function renderBurnChart(chartData) {
+            if (!chartData || !chartData.dates) {
+                console.warn('No chart data available');
+                return;
+            }
+
+            const dom = document.getElementById('chart-avance');
+            if (!dom) return;
+
+            const myChart = echarts.init(dom);
+
+            const option = {
+                tooltip: { trigger: 'axis' },
+                legend: { show: false },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', boundaryGap: false, data: chartData.dates },
+                yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
+                series: [
+                    {
+                        name: 'Objetivo',
+                        type: 'line',
+                        data: chartData.ideal,
+                        lineStyle: { type: 'dashed', color: '#999' },
+                        showSymbol: false
+                    },
+                    {
+                        name: 'Real',
+                        type: 'line',
+                        data: chartData.actual,
+                        itemStyle: { color: '#007AFF' },
+                        areaStyle: { color: 'rgba(0,122,255,0.1)' }
+                    },
+                    {
+                        name: 'Proyección',
+                        type: 'line',
+                        data: chartData.projection,
+                        lineStyle: { type: 'dotted', color: '#FF9500' }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+            window.addEventListener('resize', () => myChart.resize());
+        }
+
+        function renderClientsTable(clientes) {
+            const tbody = document.getElementById('clients-table');
+            tbody.innerHTML = clientes.map(c => {
+                const totalKg = (c.facturacion || 0) + (c.pendiente || 0);
+                const objKg = c.objetivo || 0;
+
+                const pct = objKg ? Math.round(totalKg / objKg * 100) : 0;
+                const status = getStatusClass(pct);
+
+                return `
+                    <tr onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'">
+                        <td><strong>${c.nom_cliente || 'N/A'}</strong></td>
+                        <td>${c.frecuencia || '-'}</td>
+                        <td class="text-right">${formatKgShort(c.facturacion || 0)}</td>
+                        <td class="text-right">${formatKgShort(c.objetivo || 0)}</td>
+                        <td class="text-right">${formatPesos(c.facturacion_pesos || 0)}</td>
+                        <td class="text-right">${formatPesos(c.objetivo_pesos || 0)}</td>
+                        <td class="text-right"><strong>${pct}%</strong></td>
+                        <td><span class="status-badge ${status}">${pct}%</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.addEventListener('resize', () => {
+            echarts.getInstanceByDom(document.getElementById('chart-avance'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('chart-clientes'))?.resize();
+        });
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>

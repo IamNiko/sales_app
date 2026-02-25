@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Sales | Coberturas Lanzamientos</title>
+    <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .cob-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cob-card {
+            background: linear-gradient(145deg, #0a0a0a, #111);
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cob-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .cob-card .prod-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cob-card .pct-big {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #E84752, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cob-card .pct-big.high {
+            background: linear-gradient(135deg, #34c759, #7ae582);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cob-card .pct-big.mid {
+            background: linear-gradient(135deg, #ff9f0a, #ffd60a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cob-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .cob-bar {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            margin: 12px 0 8px;
+            overflow: hidden;
+        }
+
+        .cob-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .cob-bar-fill.g {
+            background: linear-gradient(90deg, #34c759, #7ae582);
+        }
+
+        .cob-bar-fill.y {
+            background: linear-gradient(90deg, #ff9f0a, #ffd60a);
+        }
+
+        .cob-bar-fill.r {
+            background: linear-gradient(90deg, #E84752, #ff6b6b);
+        }
+
+        .cob-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .cob-stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .cob-stat .num {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .cob-stat .lbl {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+        }
+
+        /* KPI strip */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-strip .kpi-s {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .kpi-s .k-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .kpi-s .k-lbl {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .kpi-s.green .k-val {
+            color: #34c759;
+        }
+
+        .kpi-s.yellow .k-val {
+            color: #ff9f0a;
+        }
+
+        .kpi-s.red .k-val {
+            color: #E84752;
+        }
+
+        /* Charts row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-box {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 360px;
+        }
+
+        .chart-box h3 {
+            color: #999;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 12px;
+        }
+
+        .chart-box .chart-area {
+            width: 100%;
+            height: 320px;
+        }
+
+        /* Table */
+        .det-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .det-table th {
+            background: #111;
+            color: #666;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .det-table td {
+            padding: 8px 12px;
+            color: #ccc;
+            font-size: 13px;
+            border-bottom: 1px solid #0d0d0d;
+        }
+
+        .det-table tr:hover td {
+            background: #111;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.comp {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+        }
+
+        .badge.sinc {
+            background: rgba(255, 159, 10, 0.15);
+            color: #ff9f0a;
+        }
+
+        .badge.noc {
+            background: rgba(232, 71, 82, 0.15);
+            color: #E84752;
+        }
+
+        /* Filters */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            color: #ccc;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            min-width: 160px;
+        }
+
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            border-color: #E84752;
+            outline: none;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 32px 0 16px;
+            border-left: 3px solid #E84752;
+            padding-left: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cob-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h1>Swift Sales Intelligence</h1>
+        <div style="display:flex;gap:16px;align-items:center">
+            <a
+                href="/dashboard?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">←
+                Dashboard</a>
+            <a href="/filters">Cambiar Vista</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h2>Coberturas de Lanzamientos</h2>
+                <div class="meta">Tracking de adopción y rotación por producto</div>
+            </div>
+            <div class="month-badge">Febrero 2026</div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <select id="filter-producto">
+                <option value="">Todos los productos</option>
+            </select>
+            <input type="text" id="filter-search" placeholder="🔍 Buscar cliente..." />
+        </div>
+
+        <!-- KPI strip -->
+        <div class="kpi-strip">
+            <div class="kpi-s green">
+                <div class="k-val" id="kpi-pct">—</div>
+                <div class="k-lbl">Cobertura Global %</div>
+            </div>
+            <div class="kpi-s green">
+                <div class="k-val" id="kpi-comp">—</div>
+                <div class="k-lbl">Compradores</div>
+            </div>
+            <div class="kpi-s yellow">
+                <div class="k-val" id="kpi-sinc">—</div>
+                <div class="k-lbl">Sin Compra</div>
+            </div>
+            <div class="kpi-s red">
+                <div class="k-val" id="kpi-noc">—</div>
+                <div class="k-lbl">No Comprador</div>
+            </div>
+        </div>
+
+        <!-- Coverage Cards -->
+        <div class="section-title">Cobertura por Producto</div>
+        <div id="cob-cards" class="cob-grid"></div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-box">
+                <h3>% Cobertura por Lanzamiento</h3>
+                <div id="chart-barras" class="chart-area"></div>
+            </div>
+            <div class="chart-box">
+                <h3>Distribución de Estados</h3>
+                <div id="chart-donut" class="chart-area"></div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-box" style="grid-column: span 2;">
+                <h3>Rotación por Categoría (KG) — Mes Actual</h3>
+                <div id="chart-rotacion" class="chart-area"></div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="section-title">Detalle por Cliente</div>
+        <div style="overflow-x:auto; border-radius:12px; margin-bottom:40px;">
+            <table class="det-table" id="det-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Estado</th>
+                        <th>Fact Feb (KG)</th>
+                        <th>Pendiente</th>
+                        <th>Total</th>
+                        <th>Prom Últ 3M</th>
+                    </tr>
+                </thead>
+                <tbody id="det-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const vendedor = params.get('vendedor') || '';
+        const jefe = params.get('jefe') || '';
+        const zona = params.get('zona') || '';
+        let DATA = { resumen: [], detalle: [], rotacion: [] };
+
+        function fmt(n) { return n != null ? n.toLocaleString('es-AR', { maximumFractionDigits: 1 }) : '0'; }
+
+        async function loadData(producto) {
+            const qs = new URLSearchParams({ vendedor, jefe, zona });
+            if (producto) qs.set('producto', producto);
+            const res = await fetch(`/api/coberturas?${qs}`);
+            DATA = await res.json();
+            render(producto);
+        }
+
+        function render(productoFilter) {
+            const r = DATA.resumen;
+            const d = DATA.detalle;
+
+            // Populate product filter
+            const sel = document.getElementById('filter-producto');
+            if (sel.options.length <= 1) {
+                r.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.lanzamiento;
+                    opt.textContent = p.lanzamiento;
+                    sel.appendChild(opt);
+                });
+            }
+
+            // KPIs (aggregate)
+            const totC = r.reduce((a, x) => a + x.compradores, 0);
+            const totS = r.reduce((a, x) => a + x.sin_compra, 0);
+            const totN = r.reduce((a, x) => a + x.no_comprador, 0);
+            const totAll = r.reduce((a, x) => a + x.total_clientes, 0);
+            const pctGlobal = totAll > 0 ? (100 * totC / totAll).toFixed(1) : 0;
+
+            document.getElementById('kpi-pct').textContent = pctGlobal + '%';
+            document.getElementById('kpi-comp').textContent = totC;
+            document.getElementById('kpi-sinc').textContent = totS;
+            document.getElementById('kpi-noc').textContent = totN;
+
+            // Cards
+            const cardsEl = document.getElementById('cob-cards');
+            cardsEl.innerHTML = '';
+            r.forEach(p => {
+                const pct = p.pct_cobertura || 0;
+                const cls = pct >= 50 ? 'high' : pct >= 30 ? 'mid' : '';
+                const barCls = pct >= 50 ? 'g' : pct >= 30 ? 'y' : 'r';
+                cardsEl.innerHTML += `
+                <div class="cob-card">
+                    <div class="prod-name">${p.lanzamiento}</div>
+                    <div class="pct-big ${cls}">${pct}%</div>
+                    <div class="cob-label">Cobertura</div>
+                    <div class="cob-bar"><div class="cob-bar-fill ${barCls}" style="width:${Math.min(pct, 100)}%"></div></div>
+                    <div class="cob-stats">
+                        <div class="cob-stat"><div class="num" style="color:#34c759">${p.compradores}</div><div class="lbl">Compra</div></div>
+                        <div class="cob-stat"><div class="num" style="color:#ff9f0a">${p.sin_compra}</div><div class="lbl">Sin Compra</div></div>
+                        <div class="cob-stat"><div class="num" style="color:#E84752">${p.no_comprador}</div><div class="lbl">No Compra</div></div>
+                    </div>
+                    <div style="margin-top:10px;font-size:12px;color:#555">
+                        Fact: ${fmt(p.total_fact_kg)} KG · Prom 3M: ${fmt(p.total_promedio)} KG
+                    </div>
+                </div>`;
+            });
+
+            // Chart 1: Horizontal bars
+            renderBarChart(r);
+
+            // Chart 2: Donut
+            renderDonut(productoFilter ? r.filter(x => x.lanzamiento === productoFilter) : r);
+
+            // Chart 3: Rotation
+            renderRotation(DATA.rotacion);
+
+            // Table
+            renderTable(d);
+        }
+
+        function renderBarChart(data) {
+            const dom = document.getElementById('chart-barras');
+            const chart = echarts.init(dom);
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: '#111', borderColor: '#222', textStyle: { color: '#ccc' } },
+                grid: { left: '3%', right: '8%', bottom: '3%', top: '3%', containLabel: true },
+                xAxis: { type: 'value', max: 100, axisLabel: { color: '#555', formatter: '{value}%' }, splitLine: { lineStyle: { color: '#1a1a1a' } } },
+                yAxis: { type: 'category', data: data.map(d => d.lanzamiento).reverse(), axisLabel: { color: '#ccc', fontSize: 12 }, axisTick: { show: false }, axisLine: { show: false } },
+                series: [{
+                    type: 'bar', barWidth: 22,
+                    data: data.map(d => ({
+                        value: d.pct_cobertura,
+                        itemStyle: { color: d.pct_cobertura >= 50 ? '#34c759' : d.pct_cobertura >= 30 ? '#ff9f0a' : '#E84752', borderRadius: [0, 4, 4, 0] }
+                    })).reverse(),
+                    label: { show: true, position: 'right', color: '#999', fontSize: 12, formatter: '{c}%' }
+                }]
+            });
+        }
+
+        function renderDonut(data) {
+            const dom = document.getElementById('chart-donut');
+            const chart = echarts.init(dom);
+            const totC = data.reduce((a, x) => a + x.compradores, 0);
+            const totS = data.reduce((a, x) => a + x.sin_compra, 0);
+            const totN = data.reduce((a, x) => a + x.no_comprador, 0);
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { trigger: 'item', backgroundColor: '#111', borderColor: '#222', textStyle: { color: '#ccc' } },
+                legend: { bottom: 10, textStyle: { color: '#888' }, itemWidth: 12, itemHeight: 12 },
+                series: [{
+                    type: 'pie', radius: ['45%', '70%'], center: ['50%', '45%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderRadius: 6, borderColor: '#0a0a0a', borderWidth: 3 },
+                    label: { color: '#ccc', fontSize: 13, formatter: '{b}\n{d}%' },
+                    data: [
+                        { value: totC, name: 'Compradores', itemStyle: { color: '#34c759' } },
+                        { value: totS, name: 'Sin Compra', itemStyle: { color: '#ff9f0a' } },
+                        { value: totN, name: 'No Comprador', itemStyle: { color: '#E84752' } }
+                    ]
+                }]
+            });
+        }
+
+        function renderRotation(data) {
+            if (!data || !data.length) return;
+            const dom = document.getElementById('chart-rotacion');
+            const chart = echarts.init(dom);
+            const cats = data.map(d => d.categoria);
+            const kgs = data.map(d => d.kg);
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis', backgroundColor: '#111', borderColor: '#222', textStyle: { color: '#ccc' },
+                    formatter: p => {
+                        const d = data[p[0].dataIndex];
+                        return `<b>${d.categoria}</b><br/>KG: ${fmt(d.kg)}<br/>$: ${fmt(d.pesos)}<br/>Clientes: ${d.clientes}`;
+                    }
+                },
+                grid: { left: '3%', right: '5%', bottom: '12%', top: '5%', containLabel: true },
+                xAxis: { type: 'category', data: cats, axisLabel: { color: '#888', fontSize: 11, rotate: 35 }, axisTick: { show: false }, axisLine: { lineStyle: { color: '#222' } } },
+                yAxis: { type: 'value', axisLabel: { color: '#555', formatter: v => (v / 1000).toFixed(0) + 'K' }, splitLine: { lineStyle: { color: '#1a1a1a' } } },
+                series: [{
+                    type: 'bar', barWidth: 24,
+                    data: kgs.map((v, i) => ({
+                        value: v,
+                        itemStyle: { color: i < 3 ? '#E84752' : '#333', borderRadius: [4, 4, 0, 0] }
+                    })),
+                    label: { show: true, position: 'top', color: '#666', fontSize: 10, formatter: p => fmt(p.value) }
+                }]
+            });
+        }
+
+        function renderTable(data) {
+            const search = document.getElementById('filter-search').value.toUpperCase();
+            const tbody = document.getElementById('det-body');
+            const filtered = search ? data.filter(d => d.nom_cliente.toUpperCase().includes(search)) : data;
+            tbody.innerHTML = filtered.map(d => {
+                const bcls = d.estado === 'COMPRADOR' ? 'comp' : d.estado === 'SIN COMPRA' ? 'sinc' : 'noc';
+                return `<tr>
+                <td>${d.nom_cliente}</td>
+                <td>${d.lanzamiento}</td>
+                <td><span class="badge ${bcls}">${d.estado}</span></td>
+                <td>${fmt(d.fact_feb)}</td>
+                <td>${fmt(d.pend_feb)}</td>
+                <td>${fmt(d.total_feb)}</td>
+                <td>${fmt(d.promedio_u3)}</td>
+            </tr>`;
+            }).join('');
+        }
+
+        // Events
+        document.getElementById('filter-producto').addEventListener('change', e => loadData(e.target.value));
+        document.getElementById('filter-search').addEventListener('input', () => {
+            const prod = document.getElementById('filter-producto').value;
+            renderTable(DATA.detalle);
+        });
+
+        // Init
+        loadData('');
+    </script>
+</body>
+
+</html>

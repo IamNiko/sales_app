@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Intelligence Dashboard | Sabuesos</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <!-- Vendor Libraries -->
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="vendor/echarts.min.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <h1 class="logo">Sales<span>Intelligence</span></h1>
+            <div class="file-uploader">
+                <label for="excel-file" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    Load Excel
+                </label>
+                <input type="file" id="excel-file" accept=".xlsx, .xls" hidden>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-content container">
+        <!-- Filters Sidebar/Bar -->
+        <section class="filters-bar card">
+            <div class="filter-group">
+                <label>Date Range</label>
+                <select id="filter-date">
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Region</label>
+                <select id="filter-region">
+                    <option value="all">All Regions</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Product</label>
+                <select id="filter-product">
+                    <option value="all">All Products</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Seller</label>
+                <select id="filter-seller">
+                    <option value="all">All Sellers</option>
+                </select>
+            </div>
+            <button id="reset-filters" class="btn btn-outline">Reset</button>
+        </section>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid">
+            <div class="kpi-card card">
+                <h3>Total Sales</h3>
+                <p class="kpi-value" id="kpi-total-sales">$0.00</p>
+                <span class="kpi-trend" id="trend-sales">--</span>
+            </div>
+            <div class="kpi-card card">
+                <h3>Units Sold</h3>
+                <p class="kpi-value" id="kpi-total-units">0</p>
+                <span class="kpi-trend" id="trend-units">--</span>
+            </div>
+            <div class="kpi-card card">
+                <h3>Avg. Ticket</h3>
+                <p class="kpi-value" id="kpi-avg-ticket">$0.00</p>
+            </div>
+            <div class="kpi-card card">
+                <h3>Coverage</h3>
+                <p class="kpi-value" id="kpi-coverage">0%</p>
+                <div class="progress-bar"><div id="coverage-fill" style="width: 0%"></div></div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <section class="charts-grid">
+            <div class="chart-container card">
+                <h3>Sales Performance Over Time</h3>
+                <div id="chart-sales-time" style="height: 350px;"></div>
+            </div>
+            <div class="chart-container card">
+                <h3>Sales by Region</h3>
+                <div id="chart-sales-region" style="height: 300px;"></div>
+            </div>
+            <div class="chart-container card">
+                <h3>Top Products</h3>
+                <div id="chart-sales-product" style="height: 300px;"></div>
+            </div>
+            <div class="chart-container card">
+                <h3>Category Distribution</h3>
+                <div id="chart-sales-category" style="height: 300px;"></div>
+            </div>
+        </section>
+
+        <!-- Detailed View -->
+        <section class="details-section card">
+            <div class="section-header">
+                <h3>Transaction Details</h3>
+                <button id="export-csv" class="btn btn-sm">Export CSV</button>
+            </div>
+            <div class="table-responsive">
+                <table id="details-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Region</th>
+                            <th>Units</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- App Logic -->
+    <script src="assets/js/excel.js"></script>
+    <script src="assets/js/model.js"></script>
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/filters.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

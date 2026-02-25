@@ -1,0 +1,69 @@
+{
+    "fields": {
+        "date": [
+            "fecha",
+            "date",
+            "periodo"
+        ],
+        "customer": [
+            "cliente",
+            "customer",
+            "cuenta"
+        ],
+        "product": [
+            "producto",
+            "product",
+            "sku"
+        ],
+        "category": [
+            "categoria",
+            "category",
+            "linea"
+        ],
+        "units": [
+            "unidades",
+            "units",
+            "cantidad"
+        ],
+        "amount": [
+            "importe",
+            "amount",
+            "monto",
+            "ventas"
+        ],
+        "seller": [
+            "vendedor",
+            "seller",
+            "ejecutivo"
+        ],
+        "region": [
+            "region",
+            "zona",
+            "territorio"
+        ],
+        "channel": [
+            "canal",
+            "channel"
+        ],
+        "launch": [
+            "lanzamiento",
+            "launch"
+        ],
+        "coverage": [
+            "cobertura",
+            "coverage",
+            "% cobertura",
+            "avance"
+        ],
+        "target": [
+            "objetivo",
+            "target",
+            "meta",
+            "quota"
+        ]
+    },
+    "required": [
+        "date",
+        "amount"
+    ]
+}

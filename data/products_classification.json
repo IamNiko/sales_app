@@ -1,0 +1,6350 @@
+{
+  "products": [
+    {
+      "code": "100522124",
+      "name": "AGUJA 3,5/4 KG ENF CLL USA - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522125",
+      "name": "AGUJA 4,5/5,5 KG ENF CLL USA - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522525",
+      "name": "AGUJA 90 VL ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522626",
+      "name": "AGUJA CONG IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520679",
+      "name": "AGUJA CONG PUL CANADA - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520996",
+      "name": "AGUJA CONG PUL CANADA HALAL - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522052",
+      "name": "AGUJA CONG PUL CEE NO HILTON - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519960",
+      "name": "AGUJA CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520490",
+      "name": "AGUJA ENF BALADI ISRAEL JALAK  VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520518",
+      "name": "AGUJA ENF BALADI ISRAEL KOSHER VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519844",
+      "name": "AGUJA ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522385",
+      "name": "AGUJA ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522275",
+      "name": "AGUJA ENF PUL PRO CN  - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100515950",
+      "name": "ASADO \"A\" 13C C/V C/M ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517324",
+      "name": "ASADO \"A\" 13C C/V C/M ENFRIADO NOV SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517645",
+      "name": "ASADO \"C\" 13C S/V S/M ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520426",
+      "name": "ASADO 11C S/V S/M CONGELADO(L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100026244",
+      "name": "ASADO 12C S/V S/M ENF NOV",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100026247",
+      "name": "ASADO 12C S/V S/M ENFRIADO VACA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517686",
+      "name": "ASADO 13C S/V C/M ENFRIADO  A",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517511",
+      "name": "ASADO 13C S/V S/M ENF NOV D",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100011480",
+      "name": "ASADO 13C S/V S/M ENFRIADO  A",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519677",
+      "name": "ASADO 4 COSTILLAS CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010143",
+      "name": "ASADO 5 COSTILLAS CONG CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517741",
+      "name": "ASADO 5C 1,8-2,6 KG MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520430",
+      "name": "ASADO 5C 2,6KG UP CONG (G) SWIFT BLACK ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518044",
+      "name": "ASADO 5C CONG UNIDAD SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013396",
+      "name": "ASADO 6 COSTILLAS CONGELADO CLL RESTAURANT",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517693",
+      "name": "ASADO 8C CONG SWIFT BLACK ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518131",
+      "name": "ASADO A 12C S V S M S F ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100026246",
+      "name": "ASADO A 13C C/V C/M ENFRIADO SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521086",
+      "name": "ASADO B 13C C/V C/M ENFRIADO SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517687",
+      "name": "ASADO B 13C PLANCHA ENFRIADO SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517910",
+      "name": "ASADO BANDERITA CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517596",
+      "name": "ASADO HACHA C/HUESO CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517325",
+      "name": "ASADO NOVILLO 13C S/V S/M CONG (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520678",
+      "name": "ASADO PORCIONADO ENF BALADI ISRAEL JALAK- VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520677",
+      "name": "ASADO PORCIONADO ENF BALADI ISRAEL KOSHER - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516785",
+      "name": "ASADO VQ LIVIANA 12C C/V C/M ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521681",
+      "name": "ASADO _x001C_ B_x001D_  EN TIRAS CONGELADO SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016157",
+      "name": "BAZOS/PAJARILLA CONGELADAS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518907",
+      "name": "BIFE ANCHO C/HUESO CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010343",
+      "name": "BIFE ANCHO EN TROZOS ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100012930",
+      "name": "BIFE ANCHO EN TROZOS ENF CLL ECUADOR",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100523036",
+      "name": "BIFE ANCHO ENF IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011011",
+      "name": "BIFE ANCHO ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520747",
+      "name": "BIFE ANCHO MAD/CONG APBA CHILE \"V\" VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520425",
+      "name": "BIFE ANCHO S/T 2,5 KG UP LIP OFF CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522324",
+      "name": "BIFE ANCHO S/T C/C EN PORCIONES ENF PUL SELECTION MEXICO- VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517063",
+      "name": "BIFE ANCHO S/T EN TROZOS ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519845",
+      "name": "BIFE ANCHO S/TAP 1,6-2,2 KG ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519661",
+      "name": "BIFE ANCHO S/TAP 1,6/2,2 ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519631",
+      "name": "BIFE ANCHO S/TAP 1,6/2,2 KG ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519847",
+      "name": "BIFE ANCHO S/TAP 2,2-2,7 KG ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520448",
+      "name": "BIFE ANCHO S/TAP 2,2-2,7 KG ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519662",
+      "name": "BIFE ANCHO S/TAP 2,2/2,7 ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519632",
+      "name": "BIFE ANCHO S/TAP 2,2/2,7 KG ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521087",
+      "name": "BIFE ANCHO S/TAP 2,5 KG UP  ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519846",
+      "name": "BIFE ANCHO S/TAP 2,7 KG UP ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519634",
+      "name": "BIFE ANCHO S/TAP 2,7 KG UP ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519663",
+      "name": "BIFE ANCHO S/TAP 2,7 KG UP ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518276",
+      "name": "BIFE ANCHO S/TAP 2-2,5 KG ENF CLL CEE NH GF",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521518",
+      "name": "BIFE ANCHO S/TAP CONG 2KG UP PUL PERÚ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519546",
+      "name": "BIFE ANCHO S/TAP EN TROZOS ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519547",
+      "name": "BIFE ANCHO S/TAP EN TROZOS ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519548",
+      "name": "BIFE ANCHO S/TAP EN TROZOS ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516537",
+      "name": "BIFE ANCHO S/TAP EN TROZOS ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519500",
+      "name": "BIFE ANCHO S/TAP ENF PUL PRO CHILE \"V\" ",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518222",
+      "name": "BIFE ANCHO S/TAP ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520334",
+      "name": "BIFE ANCHO S/TAPA CONG CLL ANGUS GF VIETNAM VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520232",
+      "name": "BIFE ANCHO S/TAPA CONG PUL JORDANIA HALAL - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517128",
+      "name": "BIFE ANCHO S/TAPA EN TROZOS ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519566",
+      "name": "BIFE ANCHO S/TAPA EN TROZOS MAD/CONG PUL MEXICO W - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517688",
+      "name": "BIFE ANCHO S/TAPA ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520268",
+      "name": "BIFE ANCHO S/TAPA MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100012916",
+      "name": "BIFE ANCHO SIN TAPA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013142",
+      "name": "BIFE ANCHO SIN TAPA ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519964",
+      "name": "BIFE ANGOSTO C/C CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010349",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519549",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519550",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519551",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522332",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF PUL SELECTION MEXICO - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518225",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516530",
+      "name": "BIFE ANGOSTO C/C EN PORCIONES ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519499",
+      "name": "BIFE ANGOSTO C/C ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519074",
+      "name": "BIFE ANGOSTO C/COR 3,5 - 5KG CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012306",
+      "name": "BIFE ANGOSTO C/COR CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013213",
+      "name": "BIFE ANGOSTO C/COR NOV ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517689",
+      "name": "BIFE ANGOSTO C/CORDÓN ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520273",
+      "name": "BIFE ANGOSTO C/CORDÓN MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516156",
+      "name": "BIFE ANGOSTO CON CORDON EN PORCIONES ENF VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517129",
+      "name": "BIFE ANGOSTO EN PORCIONES ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010632",
+      "name": "BIFE ANGOSTO EN TROZOS ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520516",
+      "name": "BIFE ANGOSTO ENF BALADI ISRAEL JALAK VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010005",
+      "name": "BIFE ANGOSTO ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520751",
+      "name": "BIFE ANGOSTO MAD/CONG APBA CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520688",
+      "name": "BIFE ANGOSTO S/C 3-4 KG  ENF PUL CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519635",
+      "name": "BIFE ANGOSTO S/COR 2 TROZOS ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519664",
+      "name": "BIFE ANGOSTO S/COR 2 TROZOS ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521089",
+      "name": "BIFE ANGOSTO S/COR 3,2 - 4 KG  ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519849",
+      "name": "BIFE ANGOSTO S/COR 3,2-4 KG ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519636",
+      "name": "BIFE ANGOSTO S/COR 3,2/ 4 KG ENF PUL CEE* HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519665",
+      "name": "BIFE ANGOSTO S/COR 3,2/ 4 KG ENF PUL CEE* NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519640",
+      "name": "BIFE ANGOSTO S/COR 3,2/4KG ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519666",
+      "name": "BIFE ANGOSTO S/COR 3,2/4KG ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010246",
+      "name": "BIFE ANGOSTO S/COR 3,2KG UP ENF NOVILLO CLL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519643",
+      "name": "BIFE ANGOSTO S/COR 4 KG UP ENF PUL CEE* HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519668",
+      "name": "BIFE ANGOSTO S/COR 4 KG UP ENF PUL CEE* NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521090",
+      "name": "BIFE ANGOSTO S/COR 4-5 KG  ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519848",
+      "name": "BIFE ANGOSTO S/COR 4KG UP ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520452",
+      "name": "BIFE ANGOSTO S/COR 4KG UP ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520402",
+      "name": "BIFE ANGOSTO S/COR 4KG UP ENF PUL BERVINI CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519641",
+      "name": "BIFE ANGOSTO S/COR 4KG UP ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519667",
+      "name": "BIFE ANGOSTO S/COR 4KG UP ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521091",
+      "name": "BIFE ANGOSTO S/COR 5 KG UP ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520284",
+      "name": "BIFE ANGOSTO S/COR EN PORCIONES ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518592",
+      "name": "BIFE ANGOSTO S/COR EN TROZOS ENF CLL MEXICO",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519567",
+      "name": "BIFE ANGOSTO S/COR EN TROZOS MAD/CONG PUL MEXICO W - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522051",
+      "name": "BIFE ANGOSTO S/CORDON 100 VL CONG PUL CANADA - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521466",
+      "name": "BIFE ANGOSTO S/CORDON CONG CLL ANGUS PALESTINA HALAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520967",
+      "name": "BIFE ANGOSTO S/CORDON ENF CLL ANGUS MEDIO ORIENTE HALAL-VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518009",
+      "name": "BIFE ANGOSTO S/CORDON MAD/CONG CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518046",
+      "name": "BIFE DE CHORIZO EN TROZOS UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010102",
+      "name": "BIFE DE CHORIZO ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522447",
+      "name": "BIFE DE PALETA/ASADO DEL CARNICERO EN TROZOS ENF PUL PRO CHILE \"V\" - VP - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519688",
+      "name": "BIFE DE PALETA/ASADO DEL CARNICERO ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519689",
+      "name": "BIFE DE PALETA/ASADO DEL CARNICERO ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519850",
+      "name": "BIFE DE VACIO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520970",
+      "name": "BIFE DE VACIO ENF CLL ANGUS EMIRATOS ARABES HALAL ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522389",
+      "name": "BIFE DE VACIO ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520310",
+      "name": "BIFE DE VACIO ENF PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520319",
+      "name": "BIFE DE VACIO ENF PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522128",
+      "name": "BIFE DE VACIO ENF PUL PRO CHILE \"V\" W - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517653",
+      "name": "BIFE DE VACÍO ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518750",
+      "name": "BIFES DE TAPA DE CUADRIL ENF SWIFT BLACK ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519831",
+      "name": "BOLA DE LOMO 7,72LB UP CONG PUL USA HALAL - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519043",
+      "name": "BOLA DE LOMO 7,72LB UP CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519042",
+      "name": "BOLA DE LOMO 7,72LB UP ENF PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521468",
+      "name": "BOLA DE LOMO 97 VL CONG PUL CANADA - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012901",
+      "name": "BOLA DE LOMO CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522030",
+      "name": "BOLA DE LOMO CONG PUL CEE - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518916",
+      "name": "BOLA DE LOMO CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519928",
+      "name": "BOLA DE LOMO CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519555",
+      "name": "BOLA DE LOMO EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519556",
+      "name": "BOLA DE LOMO EN PORCIONES ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519557",
+      "name": "BOLA DE LOMO EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516531",
+      "name": "BOLA DE LOMO EN PORCIONES ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519851",
+      "name": "BOLA DE LOMO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522453",
+      "name": "BOLA DE LOMO ENF CLL ANGUS GRAIN FED CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522359",
+      "name": "BOLA DE LOMO ENF CLL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522602",
+      "name": "BOLA DE LOMO ENF IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010009",
+      "name": "BOLA DE LOMO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518331",
+      "name": "BOLA DE LOMO ENF P/VENTA LOCAL PORCIONADA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522179",
+      "name": "BOLA DE LOMO ENF PUL CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519927",
+      "name": "BOLA DE LOMO ENF PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522272",
+      "name": "BOLA DE LOMO ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520810",
+      "name": "BOLA DE LOMO ENF PUL RUSIA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013147",
+      "name": "BOLA DE LOMO ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521369",
+      "name": "BOLA DE LOMO FETEADA CONG SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011562",
+      "name": "BOLA DE LOMO FETEADA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520493",
+      "name": "BRAZUELO ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520521",
+      "name": "BRAZUELO ENF BALADI ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518923",
+      "name": "CARNAZA CUADRADA (UK) CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522417",
+      "name": "CARNAZA CUADRADA 100 VL ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520817",
+      "name": "CARNAZA CUADRADA 8 LB UP CONG PUL CANADA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517968",
+      "name": "CARNAZA CUADRADA C/TAPA DE CUADRIL CONG PLATE CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517917",
+      "name": "CARNAZA CUADRADA CONG MINERVA CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519521",
+      "name": "CARNAZA CUADRADA CONG PUL CN IP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519523",
+      "name": "CARNAZA CUADRADA CONG PUL CN VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519552",
+      "name": "CARNAZA CUADRADA EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519553",
+      "name": "CARNAZA CUADRADA EN PORCIONES ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519554",
+      "name": "CARNAZA CUADRADA EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518332",
+      "name": "CARNAZA CUADRADA EN PORCIONES ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516532",
+      "name": "CARNAZA CUADRADA EN PORCIONES ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519852",
+      "name": "CARNAZA CUADRADA ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013148",
+      "name": "CARNAZA CUADRADA ENF P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521170",
+      "name": "CARNAZA CUADRADA ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522628",
+      "name": "CARNAZA DE PALETA CONG IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012917",
+      "name": "CARNAZA DE PALETA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519056",
+      "name": "CARNAZA DE PALETA CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520491",
+      "name": "CARNAZA DE PALETA ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520519",
+      "name": "CARNAZA DE PALETA ENF BALADI ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519853",
+      "name": "CARNAZA DE PALETA ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522645",
+      "name": "CARNAZA DE PALETA ENF CLL GF CEE NH HALAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010655",
+      "name": "CARNAZA DE PALETA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013143",
+      "name": "CARNAZA DE PALETA ENF P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518336",
+      "name": "CARNAZA DE PALETA ENF P/VENTA LOCAL PORCIONADA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522386",
+      "name": "CARNAZA DE PALETA ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522524",
+      "name": "CARNAZA DE PALETA ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522274",
+      "name": "CARNAZA DE PALETA ENF PUL PRO CN ",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517915",
+      "name": "CARNE PICADA CONGELADA 0,5 kg SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518262",
+      "name": "CARNE PICADA CONGELADA 1 KG SWIFT UNIDAD",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517914",
+      "name": "CARNE PICADA CONGELADA 1,0 kg SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520478",
+      "name": "CARNE PICADA CONGELADA 11 UN X 2 kg SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518263",
+      "name": "CARNE PICADA CONGELADA 2,5 KG SWIFT UNIDAD",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522623",
+      "name": "CARNE PICADA CONGELADA 36 UN x 500 g SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518261",
+      "name": "CARNE PICADA CONGELADA 500G SWIFT UNIDAD",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517913",
+      "name": "CARNE PICADA CONGELADA 7 UN X 2,5 kg SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516533",
+      "name": "CENTRO DE CARNAZA DE PALETA EN PORC ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519694",
+      "name": "CENTRO DE CARNAZA DE PALETA EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519695",
+      "name": "CENTRO DE CARNAZA DE PALETA EN PORCIONES ENF PUL PRO CHILE \"V\" W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517793",
+      "name": "CENTRO DE CARNAZA DE PALETA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519691",
+      "name": "CENTRO DE CARNAZA DE PALETA ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100016025",
+      "name": "CHINCHULIN CONG NOVILLO CLL RESTAURANT",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517592",
+      "name": "CHINCHULIN CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100016336",
+      "name": "CHINCHULIN CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519834",
+      "name": "CHINGOLO CONG CLL ANGUS GF CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518919",
+      "name": "CHINGOLO CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520492",
+      "name": "CHINGOLO ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520520",
+      "name": "CHINGOLO ENF BALADI ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519854",
+      "name": "CHINGOLO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010657",
+      "name": "CHINGOLO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519484",
+      "name": "CHINGOLO ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519485",
+      "name": "CHINGOLO ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519486",
+      "name": "CHINGOLO ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522278",
+      "name": "CHINGOLO ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517125",
+      "name": "CHINGOLO ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516520",
+      "name": "CHINGOLO ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519959",
+      "name": "CHUCK ROLL ENF PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012738",
+      "name": "CIMA-TAPA DE ASADO ENF SWIFT P/VENTA LOCAL ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520649",
+      "name": "COGOTE CONG MF MEXICO SUKARNE BP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520391",
+      "name": "COGOTE CONG PUL CN IP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016306",
+      "name": "COLAS VACUNAS P/TERCEROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520331",
+      "name": "COLITA DE CUADRIL CONG CLL ANGUS GF VIETNAM VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519953",
+      "name": "COLITA DE CUADRIL CONG CLL BRASIL IMPO MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100011586",
+      "name": "COLITA DE CUADRIL CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519769",
+      "name": "COLITA DE CUADRIL CONG PLATE BRASIL MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520005",
+      "name": "COLITA DE CUADRIL CONG PUL BRASIL ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520828",
+      "name": "COLITA DE CUADRIL CONG PUL PERÚ VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520111",
+      "name": "COLITA DE CUADRIL CONG PUL SELECTION BRASIL - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519855",
+      "name": "COLITA DE CUADRIL ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522461",
+      "name": "COLITA DE CUADRIL ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010351",
+      "name": "COLITA DE CUADRIL ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516660",
+      "name": "COLITA DE CUADRIL ENF CLL ECUADOR",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010004",
+      "name": "COLITA DE CUADRIL ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522384",
+      "name": "COLITA DE CUADRIL ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519491",
+      "name": "COLITA DE CUADRIL ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519492",
+      "name": "COLITA DE CUADRIL ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519493",
+      "name": "COLITA DE CUADRIL ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100013149",
+      "name": "COLITA DE CUADRIL ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517139",
+      "name": "COLITA DE CUADRIL ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518246",
+      "name": "COLITA DE CUADRIL ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516521",
+      "name": "COLITA DE CUADRIL ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016148",
+      "name": "CORAZON C/AORTA CONGELADO P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518868",
+      "name": "CORAZON CONG MINERVA FOODS AFRICA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522560",
+      "name": "CORAZON DE CUADRIL 100 VL CONG PUL POLINESIA FRANCESA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521632",
+      "name": "CORAZON DE CUADRIL CLL ANGUS ENF SUIZA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518927",
+      "name": "CORAZON DE CUADRIL CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522005",
+      "name": "CORAZON DE CUADRIL CONG PUL PERU - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519536",
+      "name": "CORAZON DE CUADRIL CONG PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522129",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519563",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519564",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519565",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518221",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516534",
+      "name": "CORAZON DE CUADRIL EN TROZOS ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520555",
+      "name": "CORAZON DE CUADRIL ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519856",
+      "name": "CORAZON DE CUADRIL ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520453",
+      "name": "CORAZON DE CUADRIL ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010250",
+      "name": "CORAZON DE CUADRIL ENF CLL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521088",
+      "name": "CORAZON DE CUADRIL ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521075",
+      "name": "CORAZON DE CUADRIL ENF MADANEY GORME ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519644",
+      "name": "CORAZON DE CUADRIL ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519669",
+      "name": "CORAZON DE CUADRIL ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519497",
+      "name": "CORAZON DE CUADRIL ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522271",
+      "name": "CORAZON DE CUADRIL ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519049",
+      "name": "CORAZON DE CUADRIL S/CUERNITO CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016338",
+      "name": "CORAZÓN CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100523017",
+      "name": "CORAZÓN DE CUADRIL CONG  PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520264",
+      "name": "CORAZÓN DE CUADRIL ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522285",
+      "name": "CORTE C/HUESO VTA AL PERSONAL TIRA VM",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522002",
+      "name": "CUADRADA 90 VL (UK) CONG PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519048",
+      "name": "CUADRADA 97 VL CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522340",
+      "name": "CUADRADA C/PECETO C/TORTUGUITA 97 VL ENF PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012902",
+      "name": "CUADRADA CONG  P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517135",
+      "name": "CUADRADA EN TROZOS ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100523057",
+      "name": "CUADRADA ENF IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010103",
+      "name": "CUADRADA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522266",
+      "name": "CUADRADA ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522273",
+      "name": "CUADRADA ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516394",
+      "name": "CUADRADA FETEADA CONG VENTA LOCAL ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011563",
+      "name": "CUADRADA FETEADA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517792",
+      "name": "CUADRADA SP ENF P/VENTA LOCAL ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519932",
+      "name": "CUADRIL C/TAPA CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013208",
+      "name": "CUADRIL CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010659",
+      "name": "CUADRIL ENFRIADO P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013218",
+      "name": "CUADRIL ENFRIADO SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520003",
+      "name": "CUARTO DELANTERO Y TRASERO INCOMPLETO 85 CL CONG MF USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518465",
+      "name": "CUARTOS DELANTERO Y TRASERO INCOMPLETO 80/20 CONG MF CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522182",
+      "name": "ENTRANA DEL CENTRO ENF SWIFT ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522148",
+      "name": "ENTRANA DEL CENTRO ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520330",
+      "name": "ENTRANA FINA CONG CLL ANGUS GF VIETNAM VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517335",
+      "name": "ENTRANA FINA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519573",
+      "name": "ENTRANA FINA CONG PUL  MEXICO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519469",
+      "name": "ENTRANA FINA ENF CLL ANGUS USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010369",
+      "name": "ENTRANA FINA ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516663",
+      "name": "ENTRANA FINA ENF CLL ECUADOR",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519014",
+      "name": "ENTRANA FINA ENF CLL PANAMA VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010130",
+      "name": "ENTRANA FINA ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517067",
+      "name": "ENTRANA FINA ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520257",
+      "name": "ENTRANA FINA ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013287",
+      "name": "ENTRANA FINA ENF NOVILLO P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519505",
+      "name": "ENTRANA FINA ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519506",
+      "name": "ENTRANA FINA ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519534",
+      "name": "ENTRANA FINA ENF PUL PRO CHILE \"V\" \"CS\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100010689",
+      "name": "ENTRANA FINA ENF SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517145",
+      "name": "ENTRANA FINA ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516538",
+      "name": "ENTRANA FINA ENF TOTTUS CHILE \"V\" ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520750",
+      "name": "ENTRANA FINA MAD/CONG APBA CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518012",
+      "name": "ENTRANA FINA MAD/CONG CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520271",
+      "name": "ENTRANA FINA MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518041",
+      "name": "ENTRANA FINA UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520867",
+      "name": "ENTRANA INTERNA CONG MF MEXICO SUKARNE BP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520422",
+      "name": "ENTRANA INTERNA HASTA 0,800 KG CONG PUL MEXICO SUKARNE - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519462",
+      "name": "FALDA 70/30 CONG EN CAJA P/HAMBURGUESA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010515",
+      "name": "FALDA CONG CON HUESO P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016146",
+      "name": "GANGLIOS LINFATICOS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520868",
+      "name": "GARRON CON HUESO CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016159",
+      "name": "GARRON DE PATA C/CARNE P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519517",
+      "name": "GARRON TRASERO CONG PUL CN HALAL VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016147",
+      "name": "GLANDULAS MAMARIAS CONGELADAS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518291",
+      "name": "GRASA VACUNA REFINADA SWIFT 10 X 500",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518292",
+      "name": "GRASA VACUNA REFINADA SWIFT 12 X 1KG",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518709",
+      "name": "GRASA VACUNA REFINADA SWIFT 1KG",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518708",
+      "name": "GRASA VACUNA REFINADA SWIFT 500G UNIDAD",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016144",
+      "name": "HIGADO C/VESICULA (S/CALCULOS) CONG P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518869",
+      "name": "HIGADO CONG MINERVA FOODS AFRICA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519277",
+      "name": "HIGADO CONG MINERVA FOODS AFRICA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016337",
+      "name": "HIGADO CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519543",
+      "name": "HUACHALOMO EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519544",
+      "name": "HUACHALOMO EN PORCIONES ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519545",
+      "name": "HUACHALOMO EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516528",
+      "name": "HUACHALOMO EN PORCIONES ENF TOTTUS CHILE \"V\" ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519482",
+      "name": "HUACHALOMO ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100016162",
+      "name": "HUESO DE GARRON P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520328",
+      "name": "INSIDE SKIRT CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518870",
+      "name": "LABIO CONG MINERVA FOODS AFRICA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520295",
+      "name": "LABIO CONG MINERVA FOODS AFRICA (15KG)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518892",
+      "name": "LENGUA CONG MINERVA FOODS RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016341",
+      "name": "LENGUA DE NOVILLO CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518885",
+      "name": "LIBRILLO VACUNO SEMICOCIDO CONG NATURAL MINERVA FOODS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520551",
+      "name": "LOMO 1,2 - 1,5 KG ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520553",
+      "name": "LOMO 1,5 KG UP ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516662",
+      "name": "LOMO 3 LB UP S/C ENF CLL ECUADOR",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519459",
+      "name": "LOMO 3/4 LB S/C CONG PUL HALAL EMIRATOS ARABES",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519449",
+      "name": "LOMO 3/4 LB S/C CONG PUL LIBANO HALAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519460",
+      "name": "LOMO 4/5 LB S/C CONG PUL HALAL EMIRATOS ARABES - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519450",
+      "name": "LOMO 4/5 LB S/C CONG PUL LIBANO HALAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519461",
+      "name": "LOMO 5 LB UP S/C CONG PUL HALAL EMIRATOS ARABES - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519452",
+      "name": "LOMO 5 LB UP S/C CONG PUL LIBANO HALAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517130",
+      "name": "LOMO C/C 3 LB UP ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518972",
+      "name": "LOMO C/COR 2/3 LB CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518379",
+      "name": "LOMO C/COR 2/3LB CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010372",
+      "name": "LOMO C/COR 3 LB UP ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519494",
+      "name": "LOMO C/COR 3 LB UP ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519496",
+      "name": "LOMO C/COR 3 LB UP ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100012995",
+      "name": "LOMO C/COR 3/4LB CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518973",
+      "name": "LOMO C/COR 3/4LB CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011008",
+      "name": "LOMO C/COR 3/4LB ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519495",
+      "name": "LOMO C/COR 3LB UP ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518226",
+      "name": "LOMO C/COR 3LB UP ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516522",
+      "name": "LOMO C/COR 3LB UP ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012996",
+      "name": "LOMO C/COR 4/5LB CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518976",
+      "name": "LOMO C/COR 4/5LB CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011009",
+      "name": "LOMO C/COR 4/5LB ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012997",
+      "name": "LOMO C/COR 5LB UP CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011010",
+      "name": "LOMO C/COR 5LB UP ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013150",
+      "name": "LOMO C/CORDON ENF P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517635",
+      "name": "LOMO C/CORDON ENF P/VENTA LOCAL - RECHAZOS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518359",
+      "name": "LOMO EN TROZOS ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520550",
+      "name": "LOMO HASTA 1,2 KG ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521465",
+      "name": "LOMO S/C 4/5 LB CONG CLL ANGUS PALESTINA HALAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520260",
+      "name": "LOMO S/C 4/5 LB ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520276",
+      "name": "LOMO S/COR 1,6-2,3 KG MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517690",
+      "name": "LOMO S/COR 1,6-2,3 kg ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520873",
+      "name": "LOMO S/COR 2/3 LB CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518974",
+      "name": "LOMO S/COR 2/3LB CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519857",
+      "name": "LOMO S/COR 3/4 LB ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520454",
+      "name": "LOMO S/COR 3/4 LB ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521155",
+      "name": "LOMO S/COR 3/4LB ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519645",
+      "name": "LOMO S/COR 3/4LB ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519670",
+      "name": "LOMO S/COR 3/4LB ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519568",
+      "name": "LOMO S/COR 3/4LB MAD/CONG PUL MEXICO W - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520342",
+      "name": "LOMO S/COR 4/5 LB CONG PUL PALESTINA HALAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519858",
+      "name": "LOMO S/COR 4/5 LB ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520455",
+      "name": "LOMO S/COR 4/5 LB ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010248",
+      "name": "LOMO S/COR 4/5LB ENF CLL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521156",
+      "name": "LOMO S/COR 4/5LB ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519646",
+      "name": "LOMO S/COR 4/5LB ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519671",
+      "name": "LOMO S/COR 4/5LB ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519569",
+      "name": "LOMO S/COR 4/5LB MAD/CONG PUL MEXICO W - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519860",
+      "name": "LOMO S/COR 5 LB UP ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519570",
+      "name": "LOMO S/COR 5 LB UP MAD/CONG PUL MEXICO W - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521159",
+      "name": "LOMO S/COR 5LB UP ENF CLL CEE NH GF - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519647",
+      "name": "LOMO S/COR 5LB UP ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519672",
+      "name": "LOMO S/COR 5LB UP ENF PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010668",
+      "name": "LOMO S/COR ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520813",
+      "name": "LOMO S/CORDON 3/4 LB CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520825",
+      "name": "LOMO S/CORDON 3/4 lb CONG PUL PERÚ VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520826",
+      "name": "LOMO S/CORDON 4/5 LB CONG PUL PERÚ VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520814",
+      "name": "LOMO S/CORDON 4/5 LB CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520969",
+      "name": "LOMO S/CORDON 4/5 LB ENF CLL ANGUS EMIRATOS ARABES HALAL -VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520815",
+      "name": "LOMO S/CORDON 5 LB UP CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518050",
+      "name": "LOMO UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518348",
+      "name": "MARUCHA (AL ROJO) ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100523016",
+      "name": "MARUCHA CONG  PUL USA ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519836",
+      "name": "MARUCHA CONG CLL ANGUS GF CN",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518935",
+      "name": "MARUCHA CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519386",
+      "name": "MARUCHA CONG PUL CN VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520235",
+      "name": "MARUCHA CONG PUL JORDANIA HALAL - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522450",
+      "name": "MARUCHA EN TROZOS ENF PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518357",
+      "name": "MARUCHA EN TROZOS ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520495",
+      "name": "MARUCHA ENF BALADI ISRAEL JALAK (LM - SELECTED)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520523",
+      "name": "MARUCHA ENF BALADI ISRAEL KOSHER (LM - SELECTED)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519861",
+      "name": "MARUCHA ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519829",
+      "name": "MARUCHA ENF EN TROZOS PUL PRO CHILE CS \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100010656",
+      "name": "MARUCHA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522387",
+      "name": "MARUCHA ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519480",
+      "name": "MARUCHA ENF PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519481",
+      "name": "MARUCHA ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522276",
+      "name": "MARUCHA ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519868",
+      "name": "MARUCHA FINA AL ROJO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517595",
+      "name": "MARUCHA FINA AL ROJO ENF SWIFT BLACK ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010050",
+      "name": "MASTER BEEF CONG CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100012915",
+      "name": "MATAMBRE CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010546",
+      "name": "MATAMBRE ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013144",
+      "name": "MATAMBRE ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517143",
+      "name": "MATAMBRE ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520272",
+      "name": "MATAMBRE MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520894",
+      "name": "MATAMBRE PORCIONADO SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519470",
+      "name": "MEDIALUNA DE VACIO ENF CLL ANGUS USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517644",
+      "name": "MEDIALUNA DE VACÍO ENF CLL USA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100016158",
+      "name": "MEDULA ESPINAL CONGELADA P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519006",
+      "name": "MEMBRANA DE ENTRANA CONG MF HONG KONG",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521441",
+      "name": "MOLLEJA DE COGOTE CONG GOL TRADE ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016121",
+      "name": "MOLLEJA DE COGOTE CONG SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016168",
+      "name": "MOLLEJA DE COGOTE CONGELADA P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016023",
+      "name": "MOLLEJA DE CORAZON CONG CLL RESTAURANT",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521410",
+      "name": "MOLLEJA DE CORAZON CONG GOL TRADE ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521440",
+      "name": "MOLLEJA DE CORAZON CONG GOL TRADE ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016120",
+      "name": "MOLLEJA DE CORAZON CONG SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517593",
+      "name": "MOLLEJA DE CORAZON CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519675",
+      "name": "MONDONGO NATURAL SEMICOCIDO S/BONETE CONG MINERVA FOODS PERU",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518884",
+      "name": "MONDONGO NATURAL SEMICOCIDO S/BONETE MINERVA FOODS CONG OD",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016267",
+      "name": "MONDONGO SEMICOCIDO BQ CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517694",
+      "name": "MÁSTER BEEF CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517998",
+      "name": "NALGA (ACUERDO DE PRECIOS)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519874",
+      "name": "NALGA C/TAPA 90 VL CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522288",
+      "name": "NALGA C/TAPA 97 VL CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522339",
+      "name": "NALGA C/TAPA 97 VL ENF PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520812",
+      "name": "NALGA C/TAPA ENF PUL RUSIA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522321",
+      "name": "NALGA C/TAPA ENF PUL SELECTION MEXICO - VP ",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519970",
+      "name": "NALGA DE ADENTRO C/T CONG PUL CEE NO HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519752",
+      "name": "NALGA DE ADENTRO C/T CONG PUL CN IP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519697",
+      "name": "NALGA DE ADENTRO C/TAP EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519699",
+      "name": "NALGA DE ADENTRO C/TAP EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519698",
+      "name": "NALGA DE ADENTRO C/TAP EN PORCIONES ENF PUL PRO CHILE \"V\" W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518330",
+      "name": "NALGA DE ADENTRO C/TAP EN PORCIONES ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010008",
+      "name": "NALGA DE ADENTRO C/TAP ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522281",
+      "name": "NALGA DE ADENTRO C/TAPA ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522741",
+      "name": "NALGA DE ADENTRO CON TAPA  ENF IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519054",
+      "name": "NALGA DE ADENTRO S/T 100VL CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518937",
+      "name": "NALGA DE ADENTRO S/T CONG PUL CN",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522382",
+      "name": "NALGA DE ADENTRO S/T ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519700",
+      "name": "NALGA DE ADENTRO S/T ENF PUL PRO CHILE \"V\" ",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519055",
+      "name": "NALGA DE ADENTRO S/T ENF PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519862",
+      "name": "NALGA DE ADENTRO S/TAP 3,5 KG UP ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522452",
+      "name": "NALGA DE ADENTRO S/TAP 3,5 KG UP ENF CLL ANGUS GRAIN FED CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522497",
+      "name": "NALGA DE ADENTRO S/TAP 4,0 - 5,0Kg CONG PUL CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522491",
+      "name": "NALGA DE ADENTRO S/TAP 5,0Kg UP CONG PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520231",
+      "name": "NALGA DE ADENTRO S/TAP CONG PUL CEE - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521348",
+      "name": "NALGA DE ADENTRO S/TAPA 97 VL ENF CLL USA - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013207",
+      "name": "NALGA DE ADENTRO S/TAPA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012202",
+      "name": "NALGA DE ADENTRO S/TAPA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013151",
+      "name": "NALGA DE ADENTRO S/TAPA ENF P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516924",
+      "name": "NALGA DE ADENTRO S/TAPA ENF P/VENTA LOCAL PORCIONADA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100523042",
+      "name": "NALGA DE ADENTRO SIN TAPA ENF IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516396",
+      "name": "NALGA DE ADENTRO SIN TAPA FETEADA CONG VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011564",
+      "name": "NALGA S/TAP FETEADA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521469",
+      "name": "NALGA S/TAPA 100 VL CONG PUL CANADA - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522198",
+      "name": "NALGA S/TAPA CONG MF INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519364",
+      "name": "NALGA S/TAPA CONG PUL JORDANIA HALAL - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522171",
+      "name": "NALGA S/TAPA ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522264",
+      "name": "NALGA S/TAPA ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016149",
+      "name": "OJO C/NERVIO OPTICO CONG P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521519",
+      "name": "OJO DE BIFE ANCHO ENF BALADI BADATZ ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520489",
+      "name": "OJO DE BIFE ANCHO ENF BALADI ISRAEL JALAK (LM- SELECTED)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520517",
+      "name": "OJO DE BIFE ANCHO ENF BALADI ISRAEL KOSHER (LM- SELECTED)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010127",
+      "name": "OJO DE BIFE ANCHO ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518047",
+      "name": "OJO DE BIFE E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016150",
+      "name": "OVARIOS CONGELADOS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521180",
+      "name": "PALETA 97 VL CONG PUL CANADA - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519912",
+      "name": "PALETA 97 VL CONG PUL MEXICO VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518981",
+      "name": "PALETA C/MARUCHA/CHINGOLO CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011613",
+      "name": "PALETA ENF P/VENTA LOCAL ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517671",
+      "name": "PALETA SWIFT (ACUERDO DE PRECIOS)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016151",
+      "name": "PANCREAS CONGELADO P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520347",
+      "name": "PECETO 100 VL CONG PUL CANADA ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522265",
+      "name": "PECETO 95 VL ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522492",
+      "name": "PECETO 97 VL 1,6 KG UP CONG PUL CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518946",
+      "name": "PECETO A LA TELA 1,5 KG UP CONG PUL CHINA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520802",
+      "name": "PECETO AL ROJO ENF CLL ANGUS CEE 481 - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522460",
+      "name": "PECETO AL ROJO ENF CLL ANGUS GRAIN FED CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010012",
+      "name": "PECETO CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013158",
+      "name": "PECETO CONG P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516925",
+      "name": "PECETO EN TROZOS ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517137",
+      "name": "PECETO EN TROZOS ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518358",
+      "name": "PECETO EN TROZOS ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519863",
+      "name": "PECETO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010000",
+      "name": "PECETO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518333",
+      "name": "PECETO ENF P/VENTA LOCAL PORCIONADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522383",
+      "name": "PECETO ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519474",
+      "name": "PECETO ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519475",
+      "name": "PECETO ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522282",
+      "name": "PECETO ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518984",
+      "name": "PECETO ENF PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013152",
+      "name": "PECETO ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012319",
+      "name": "PECETO FETEADO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517138",
+      "name": "PECETO FETEADO ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518048",
+      "name": "PECETO FETEADO UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519540",
+      "name": "PECETO MAD/CONG PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518985",
+      "name": "PECETO TL CONG PUL RUSIA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522527",
+      "name": "PECHO 80 VL ENF CLL USA PFG",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520282",
+      "name": "PECHO 90 VL CONG PUL CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522523",
+      "name": "PECHO 90 VL ENF PUL INTERCOMPANY",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522847",
+      "name": "PECHO 90 VL ENF PUL SELECTION MEXICO",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519058",
+      "name": "PECHO 97 VL CONG PUL USA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522627",
+      "name": "PECHO CONG IMPORTADO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519561",
+      "name": "PECHO EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520348",
+      "name": "PECHO EN PORCIONES ENF PUL PRO CHILE \"V\" W - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520395",
+      "name": "PECHO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520496",
+      "name": "PECHO ENF NOVILLO SALADO BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520524",
+      "name": "PECHO ENF NOVILLO SALADO BALADI ISRAEL KOSHER",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519483",
+      "name": "PECHO ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522279",
+      "name": "PECHO ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522178",
+      "name": "PECHO MAD/CONG PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522147",
+      "name": "PENES CONG MINERVA FOODS HONG KONG",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016152",
+      "name": "PLACENTA CONGELADA P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016125",
+      "name": "PULMON CONG P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519864",
+      "name": "PULPON DE VACIO ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522459",
+      "name": "PULPON DE VACIO ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522390",
+      "name": "PULPON DE VACIO ENF PUL CEE NH - VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518344",
+      "name": "PUNTA DE ESPALDA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013371",
+      "name": "PUNTA DE ESPALDA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522136",
+      "name": "RABO CONG MINERVA FOODS CURACAO IP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518073",
+      "name": "RABO CONG MINERVA HK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016339",
+      "name": "RABO CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519343",
+      "name": "RACK DE BIFE ANCHO C/HUESO MAD/CONG CLL ANGUS HALAL LIBANO VP",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517597",
+      "name": "RACK DE BIFE ANCHO C/HUESO SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013166",
+      "name": "RECORTE 60/40 CONG SWIFT PARA TERCEROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013323",
+      "name": "RECORTE 70/30 CONGELADO P/HAMBURGUESA EN CAJA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100027565",
+      "name": "RECORTE 80/20 CONG EN CAJA P/HAMBURGUESA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013352",
+      "name": "RECORTE REPROCESO CONG P/TERMOPROCESO EN CAJA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013053",
+      "name": "RECORTES 70/30 CONG SWIFT PARA TERCEROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518058",
+      "name": "RECORTES 80/20 CONG SWIFT PARA TERCEROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517742",
+      "name": "RIBS CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518872",
+      "name": "RIÑON CONG MINERVA FOODS AFRICA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517594",
+      "name": "RIÑON CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100016167",
+      "name": "RIÑON CONGELADO P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519316",
+      "name": "RIÑON DESGRASADO CONG MINERVA FOODS AFRICA PESO FIJO",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016024",
+      "name": "RIÑON NOVILLO CONG CLL RESTAURANT",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100016335",
+      "name": "RIÑON NOVILLO CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012904",
+      "name": "ROAST BEEF CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518335",
+      "name": "ROAST BEEF EN PORCIONES ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010818",
+      "name": "ROAST BEEF ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013141",
+      "name": "ROAST BEEF ENF SWIFT(L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519498",
+      "name": "ROBADO DELANTERO/TRASERO INCOMPLETO 90/10 CL CONG MF CN BP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100026223",
+      "name": "RUEDA C/COLITA NOV",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016166",
+      "name": "SANGRE CONGELADA P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016163",
+      "name": "SESO CONGELADO P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519558",
+      "name": "SOBRECOSTILLA EN PORCIONES ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519559",
+      "name": "SOBRECOSTILLA EN PORCIONES ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519560",
+      "name": "SOBRECOSTILLA EN PORCIONES ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516529",
+      "name": "SOBRECOSTILLA EN PORCIONES ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519487",
+      "name": "SOBRECOSTILLA ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100016154",
+      "name": "SUPRARRENALES CONGELADAS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010049",
+      "name": "T-BONE CONG CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517695",
+      "name": "T-BONE CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517838",
+      "name": "T-BONE PORCIÓN CONG SWIFT BLACK ",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518051",
+      "name": "T-BONE UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520497",
+      "name": "TAPA DE AGUJA ENF BALADI ISRAEL JALAK VP VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520525",
+      "name": "TAPA DE AGUJA ENF BALADI ISRAEL KOSHER VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010654",
+      "name": "TAPA DE AGUJA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012905",
+      "name": "TAPA DE ASADO CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518334",
+      "name": "TAPA DE ASADO EN PORCIONES ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517142",
+      "name": "TAPA DE ASADO EN PORCIONES ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517790",
+      "name": "TAPA DE ASADO EN TROZOS ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010839",
+      "name": "TAPA DE ASADO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013146",
+      "name": "TAPA DE ASADO ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521673",
+      "name": "TAPA DE BIFE 90VL CONG MF USA BP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522446",
+      "name": "TAPA DE BIFE ANCHO EN TROZOS ENF PUL PRO CHILE \"V\" - W - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100013036",
+      "name": "TAPA DE BIFE ANCHO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519488",
+      "name": "TAPA DE BIFE ANCHO ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519489",
+      "name": "TAPA DE BIFE ANCHO ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519490",
+      "name": "TAPA DE BIFE ANCHO ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516526",
+      "name": "TAPA DE BIFE ANCHO ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522175",
+      "name": "TAPA DE BIFE ANCHO MAD/CONG PUL PRO CHILE \"V\" - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520597",
+      "name": "TAPA DE BIFE CONG BALADI ISRAEL JALAK VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521371",
+      "name": "TAPA DE BIFE CONG PUL USA VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520501",
+      "name": "TAPA DE BIFE ENF BALADI ISRAEL JALAK VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520542",
+      "name": "TAPA DE BIFE ENF BALADI ISRAEL KOSHER VP",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518238",
+      "name": "TAPA DE CUADRIL 0,7-1,5KG CONG APBA BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519648",
+      "name": "TAPA DE CUADRIL 0,9/1,5KG ENF PUL CEE HILTON",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519771",
+      "name": "TAPA DE CUADRIL 1,1/1,5KG CONG PLATE BRASIL MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100518245",
+      "name": "TAPA DE CUADRIL 1,5KG UP CONG BRASIL APBA MF UB",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519951",
+      "name": "TAPA DE CUADRIL 1,5KG UP CONG CLL BRASIL IMPO MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519772",
+      "name": "TAPA DE CUADRIL 1,5KG UP CONG PLATE BRASIL MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100521478",
+      "name": "TAPA DE CUADRIL 1,5KG UP MAD/CONG CLL BLACK BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517185",
+      "name": "TAPA DE CUADRIL CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520006",
+      "name": "TAPA DE CUADRIL CONG PUL PRO BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520680",
+      "name": "TAPA DE CUADRIL DESDE 1,5 KG CONG CLL BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520673",
+      "name": "TAPA DE CUADRIL DESDE 1,5 KG CONG PUL BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520557",
+      "name": "TAPA DE CUADRIL ENF BALADI ISRAEL JALAK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519865",
+      "name": "TAPA DE CUADRIL ENF CLL ANGUS CEE 481",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520457",
+      "name": "TAPA DE CUADRIL ENF CLL ANGUS CEE NH",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100013176",
+      "name": "TAPA DE CUADRIL ENF CLL CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010479",
+      "name": "TAPA DE CUADRIL ENF CLL ECUADOR",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010128",
+      "name": "TAPA DE CUADRIL ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517426",
+      "name": "TAPA DE CUADRIL ENF CLL SENEGAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518380",
+      "name": "TAPA DE CUADRIL ENF P/VENTA LOCAL (A)    ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011520",
+      "name": "TAPA DE CUADRIL ENF P/VENTA LOCAL (B).   ",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519502",
+      "name": "TAPA DE CUADRIL ENF PUL PRO CHILE \"V\" ",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519503",
+      "name": "TAPA DE CUADRIL ENF PUL PRO CHILE \"V\"  \"W\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517140",
+      "name": "TAPA DE CUADRIL ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518242",
+      "name": "TAPA DE CUADRIL ENF TOTTUS BLACK CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517651",
+      "name": "TAPA DE CUADRIL ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520114",
+      "name": "TAPA DE CUADRIL HASTA 1,5 KG  CONG PUL SELECTION BRASIL - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100520211",
+      "name": "TAPA DE CUADRIL HASTA 1,5 KG CONG CLL BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520672",
+      "name": "TAPA DE CUADRIL HASTA 1,5 KG CONG PUL BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521481",
+      "name": "TAPA DE CUADRIL HASTA 1,5KG UP MAD/CONG CLL BLACK BRASIL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100520749",
+      "name": "TAPA DE CUADRIL MAD/CONG APBA CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520277",
+      "name": "TAPA DE CUADRIL MAD/CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100012986",
+      "name": "TAPA DE NALGA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010688",
+      "name": "TAPA DE NALGA ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013153",
+      "name": "TAPA DE NALGA ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518879",
+      "name": "TENDON CONG MINERVA FOODS HK",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016155",
+      "name": "TESTICULOS CONGELADOS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016156",
+      "name": "TIROIDES CONGELADAS P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517839",
+      "name": "TOMAHAWK CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518045",
+      "name": "TOMAHAWK UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100011672",
+      "name": "TORTUGUITA C/BANANITA ENF NOV P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519774",
+      "name": "TORTUGUITA EN TROZO ENF TOTTUS CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519476",
+      "name": "TORTUGUITA ENF PUL PRO CHILE \"V\"",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519477",
+      "name": "TORTUGUITA ENF PUL PRO CHILE \"V\" - W",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100519479",
+      "name": "TORTUGUITA ENF PUL PRO CHILE \"V\" CS",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100016009",
+      "name": "TRAQUEA CONG P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520865",
+      "name": "TRAQUEA CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517054",
+      "name": "TRIMMING 60/40 CONG P/HAMBURGUESA EN CAJA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016222",
+      "name": "TRIPA GORDA CONG SWIFT VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520207",
+      "name": "VACIO (RED MEAT)CONG CLL BRASIL MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010432",
+      "name": "VACIO CONG NOVILLO P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013157",
+      "name": "VACIO CONG P/VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518227",
+      "name": "VACIO EN PORCIONES NOV ENFRIADO PARA VENTA LOCAL (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517831",
+      "name": "VACIO EN PORCIONES NOV SWIFT",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010141",
+      "name": "VACIO ENF CLL RESTAURANT LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100010001",
+      "name": "VACIO ENF P/VENTA LOCAL",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100013155",
+      "name": "VACIO ENF SWIFT (L)",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517692",
+      "name": "VACIO FINO ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522280",
+      "name": "VACIO PULPON ENF PUL PRO CN - VP",
+      "category": "BOVINOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517691",
+      "name": "VACIO PULPÓN ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517146",
+      "name": "VACÍO EN PORCIONES ENF SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100519131",
+      "name": "VACÍO FINO CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518043",
+      "name": "VACÍO FINO UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519132",
+      "name": "VACÍO PULPON CONG SWIFT BLACK",
+      "category": "BOVINOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517750",
+      "name": "VACÍO PULPÓN E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518042",
+      "name": "VACÍO PULPÓN UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100016160",
+      "name": "VEJIGA CONGELADA P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519957",
+      "name": "VERGALHO CONGELADO DE BOVINO MF BRASIL MINERVA",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100027726",
+      "name": "BONDIOLA DE CERDO CONGELADA ",
+      "category": "CERDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522395",
+      "name": "CHORIZOS CONGELADOS DE CERDO LIBRE DE GLUTEN SWIFT 12u x 400",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522561",
+      "name": "CHORIZOS CONGELADOS DE CERDO LIBRE DE GLUTEN SWIFT GRANEL",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520837",
+      "name": "CHORIZOS FRESCOS DE CERDO LIBRE DE GLUTEN 12 X 400G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520853",
+      "name": "CHORIZOS FRESCOS DE CERDO LIBRE DE GLUTEN SWIFT 12U X 400G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520854",
+      "name": "CHORIZOS FRESCOS DE CERDO LIBRE DE GLUTEN SWIFT 12U X 400G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520883",
+      "name": "CHORIZOS FRESCOS DE CERDO LIBRE DE GLUTEN SWIFT 12U X 400G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518151",
+      "name": "LARGA LA",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022200",
+      "name": "MORTADELA SWIFT 10 X 300G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022087",
+      "name": "SALCHICHAS  DIA 6X24 X 900 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022085",
+      "name": "SALCHICHAS  SWIFT 24X6 X 225 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522204",
+      "name": "SALCHICHAS  SWIFT 24X6 X 225 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517532",
+      "name": "SALCHICHAS 12X12 SWIFT",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022014",
+      "name": "SALCHICHAS 20X6 DIA",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516731",
+      "name": "SALCHICHAS CONGELADAS SWIFT 12X12X870G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022086",
+      "name": "SALCHICHAS DIA 12X12 X 450 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022039",
+      "name": "SALCHICHAS GASTRONOMICAS SW 10 X 12 X 870 G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022080",
+      "name": "SALCHICHAS LA ANONIMA 12X12 X 450 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022089",
+      "name": "SALCHICHAS LA ANONIMA 24X6 X 225 G  ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022081",
+      "name": "SALCHICHAS LA ANONIMA 6X24 X 900 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522206",
+      "name": "SALCHICHAS LARGAS SWIFT 10X12 X 870 G  ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022058",
+      "name": "SALCHICHAS SIN PIEL 24X6 \"LA BLANCA\" X 190 G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516363",
+      "name": "SALCHICHAS SIN PIEL 24X6 \"LA CRIOLLA\" X 190 G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516849",
+      "name": "SALCHICHAS SIN PIEL 24X6 \"SWIFT KIDS\" X 190 G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522981",
+      "name": "SALCHICHAS SIN PIEL 30X6 \"LA BLANCA\" SIN GLUTEN X 190 g",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516981",
+      "name": "SALCHICHAS SWIFT 12U X 450 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022072",
+      "name": "SALCHICHAS SWIFT 12X12 X 450 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522205",
+      "name": "SALCHICHAS SWIFT 12X12 X 450 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517127",
+      "name": "SALCHICHAS SWIFT X 6 UNID. - 225 G ",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021657",
+      "name": "AL. CONG. PATTY 2.0 SWIFT X 276 UD.",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520976",
+      "name": "AL. CONG. PATTY 6.5 SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021650",
+      "name": "AL.CONG.PATTY DE MEGA SWIFT 2.4 X 251 UD",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021651",
+      "name": "AL.CONG.PATTY DE WHOPPER SWIFT X 144 UD.",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519380",
+      "name": "CLL 1X185",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517670",
+      "name": "CLL 2X80",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516067",
+      "name": "HAMBURGESA DE CARNE DE VACUNO 60X109G PLATE CHILE",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517438",
+      "name": "HAMBURGUESA 12X4X69G SWIFT KIDS",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021647",
+      "name": "HAMBURGUESA 18X4X80G \"LA ANONIMA\"",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021652",
+      "name": "HAMBURGUESA 18X4X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021669",
+      "name": "HAMBURGUESA 18X4X80G DIA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517046",
+      "name": "HAMBURGUESA 1X20X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021676",
+      "name": "HAMBURGUESA 30X250G CLASICA \"XL\" SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517525",
+      "name": "HAMBURGUESA 30X250G CLASICA \"XL\" SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518195",
+      "name": "HAMBURGUESA 4X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021664",
+      "name": "HAMBURGUESA 60X125G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021662",
+      "name": "HAMBURGUESA 60X80G CLASICA SWIFT EXP",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021649",
+      "name": "HAMBURGUESA 6X20X80G \"LA ANONIMA\"  ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021630",
+      "name": "HAMBURGUESA 6X20X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021671",
+      "name": "HAMBURGUESA 6X20X80G DIA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021648",
+      "name": "HAMBURGUESA 8X12X80G \"LA ANONIMA\" ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021631",
+      "name": "HAMBURGUESA 8X12X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517522",
+      "name": "HAMBURGUESA 8X12X80G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517184",
+      "name": "HAMBURGUESA CLASICA 18X4X80G PALADINI",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021659",
+      "name": "HAMBURGUESA CLASICA 60X80G PALADINI",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518223",
+      "name": "HAMBURGUESA CLÁSICA 60X106G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522168",
+      "name": "HAMBURGUESA CLÁSICA 84 X 55G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520324",
+      "name": "HAMBURGUESA DE CARNE DE VACUNO 60X109G PUL CHILE MINERVA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520323",
+      "name": "HAMBURGUESA DE CARNE DE VACUNO 60X109G PUL CHILE WALMART",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520446",
+      "name": "HAMBURGUESA DE VACUNO 84 X 56G PARAMY CHILE",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520851",
+      "name": "HAMBURGUESA GRANEL 276 X 55G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518435",
+      "name": "HAMBURGUESA HM 36X56G MINERVA BR",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021625",
+      "name": "HAMBURGUESA MAS FINA 72X57G PALADINI",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517176",
+      "name": "HAMBURGUESA MOSTAZA   42 X 110G (55GR)",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516789",
+      "name": "HAMBURGUESA MTZ 152 X 110G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520834",
+      "name": "HAMBURGUESA X-TREMA 36 X 185G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518095",
+      "name": "HAMBURGUESA XXL 36X185G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521098",
+      "name": "HAMBURGUESA “FINCA BALCARCE” 18 X 4U X 80G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521104",
+      "name": "HAMBURGUESA “FINCA BALCARCE” 60 X 80 G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021670",
+      "name": "HAMBURGUESAS 12X12X80G DIA ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516207",
+      "name": "HAMBURGUESAS 18X4X120G CLL BRASIL CAP TRADE",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516008",
+      "name": "HAMBURGUESAS 24X240G SWIFT TIPO CASERA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518163",
+      "name": "HAMBURGUESAS 30X160G CLASICAS P3",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021632",
+      "name": "HAMBURGUESAS 30X160G CLASICAS SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517523",
+      "name": "HAMBURGUESAS 30X160G CLASICAS SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518343",
+      "name": "HAMBURGUESAS 30X2X80G CLASICAS SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522825",
+      "name": "HAMBURGUESAS 48X120G SWIFT \"TIPO CASERA\"",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021667",
+      "name": "HAMBURGUESAS 78X120G CABAÑA LAS LILAS",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100516023",
+      "name": "HAMBURGUESAS 78X120G CABAÑA LAS LILAS",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021665",
+      "name": "HAMBURGUESAS 9X8X120G CABAÑA LAS LILAS",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021658",
+      "name": "HAMBURGUESAS CLASICA 12X12X80G PALADINI ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522161",
+      "name": "HAMBURGUESAS DE CARNE VACUNA SUPERCONGELADAS 39X240G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522253",
+      "name": "HAMBURGUESAS DE RES 78X120G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516979",
+      "name": "HAMBURGUESAS X 240G SWIFT \"TIPO CASERA\"",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100518618",
+      "name": "HG LB CHILE",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516325",
+      "name": "MED.DOBLE BURGER X 4 - 21X224G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021677",
+      "name": "MEDALLON 12X4X69G \"LA BLANCA\"",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021503",
+      "name": "MEDALLON 12X4X69G CLASICA SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021653",
+      "name": "MEDALLON 18X4X80G PARRILLERO SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021530",
+      "name": "MEDALLON 40X109G CARNE VACUNA PARRILLERO SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021643",
+      "name": "MEDALLON 42X112G DOBLE BURGER SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021644",
+      "name": "MEDALLON 42X112G LA BLANCA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518346",
+      "name": "MEDALLON 60X109G CARNE VACUNA PARRILLERO SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021514",
+      "name": "MEDALLON 60X69G CARNE VACUNA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516208",
+      "name": "MEDALLON 60X80G PARRILLERO MC",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516191",
+      "name": "MEDALLON 60X80G PROMOFIESTA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516201",
+      "name": "MEDALLON BURGER SWIFT 8X12X69G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521453",
+      "name": "MEDALLON DE CALABAZA Y CHOCLO",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100521173",
+      "name": "MEDALLON DE CARNE VACUNA MARCA REC 30X80G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521454",
+      "name": "MEDALLON DE ESPINACA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021626",
+      "name": "MEDALLON FELA 18X4X57G ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021673",
+      "name": "MEDALLON MCD 10:1 LB X 17,24 KG ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021675",
+      "name": "MEDALLON MCD 4:1 LB X 13,6 KG ",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521349",
+      "name": "MEDALLON VACUNO CON SOJA 60X80G YEYA CUBA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516169",
+      "name": "MEDALLONES 18X4X80G SWIFT RECETA ESPECIAL",
+      "category": "HAMBURGUESAS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021575",
+      "name": "MEDALLONES 60X69G \"SWIFT BURGER\"PARRILLERAS  FAMILY",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021638",
+      "name": "MEDALLONES 60X80G \"SWIFT BURGER\" PARRILLERAS FAMILY",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021627",
+      "name": "MEDALLONES 72X57G FELA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520337",
+      "name": "MEDALLÓN DE CARNE VACUNA 30X160G MEGA BURGER SWIFT",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517679",
+      "name": "MEDALLÓN GASTRO",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516259",
+      "name": "MEDALLÓN GIGANTE GASTRONÓMICO 4X40X113.5G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100523046",
+      "name": "MEDALLÓN YPF 42X112G",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522186",
+      "name": "PUL X6 MINERVA",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522183",
+      "name": "PUL X6 WM",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520962",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520964",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520985",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521004",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521014",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521169",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521208",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521276",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521277",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521279",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521280",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521353",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521463",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521489",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521494",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521548",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521661",
+      "name": "PAPAS PRE COCIDAS SUPERCONGELADAS LIBRES DE GLUTEN 700G X 14 U",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516219",
+      "name": "PAPAS PREFRITAS SUPERCONGELADAS 25X400GR",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516220",
+      "name": "PAPAS PREFRITAS SUPERCONGELADAS 6X2000GR",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516980",
+      "name": "PAPAS PREFRITAS SUPERCONGELADAS SWIFT X 400G",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520902",
+      "name": "X700GR",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522246",
+      "name": "LOMO DE ATUN AL NATURAL SWIFT 170g",
+      "category": "PESCADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522247",
+      "name": "LOMO DE ATUN EN ACEITE SWIFT 170g",
+      "category": "PESCADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100027800",
+      "name": "PECHUGA DE POLLO CONGELADA TERCEROS IMPORTADO",
+      "category": "POLLOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517906",
+      "name": "BOCADITO DE CARNE 16 X 300 G MINERVA",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517907",
+      "name": "BOCADITO DE CARNE 4 X 1,5 MINERVA",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517737",
+      "name": "BOCADITOS DE CARNE \"PLATE\" - 10X760G ",
+      "category": "REBOZADOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517735",
+      "name": "BOCADITOS DE CARNE \"PLATE\" - 12X380G ",
+      "category": "REBOZADOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100516648",
+      "name": "BOCADITOS DE CARNE \"PLATE\" - 4X760G",
+      "category": "REBOZADOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021707",
+      "name": "BOCADITOS DE CARNE \"SWIFT\" - 10X760G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516977",
+      "name": "BOCADITOS DE CARNE \"SWIFT\" - 10X760G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021704",
+      "name": "BOCADITOS DE CARNE \"SWIFT\" - 12X380G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517519",
+      "name": "BOCADITOS DE CARNE \"SWIFT\" - 12X380G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516649",
+      "name": "BOCADITOS DE POLLO \"PLATE\" - 4X760G",
+      "category": "REBOZADOS",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100522130",
+      "name": "BOCADITOS DE POLLO \"SWIFT KIDS\" - 12X400G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021709",
+      "name": "BOCADITOS DE POLLO \"SWIFT\" - 10X760G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516976",
+      "name": "BOCADITOS DE POLLO \"SWIFT\" - 10X760G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021705",
+      "name": "BOCADITOS DE POLLO \"SWIFT\" - 12X380G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517520",
+      "name": "BOCADITOS DE POLLO \"SWIFT\" - 12X380G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021725",
+      "name": "BOCADITOS DE POLLO GASTRONOMICOS \"LA BLANCA\" - X6KG",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522143",
+      "name": "CROQUETA A BASE DE BRÓCOLI Y SOJA PREFRITO SUPERCONGELADO 300G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521358",
+      "name": "CRUNCHIES DE POLLO \"SWIFT\" - 10X760G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521357",
+      "name": "CRUNCHIES DE POLLO \"SWIFT\" - 12X380G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517656",
+      "name": "EMPANITO DE FRANGO MINERVA - 10X700G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517640",
+      "name": "EMPANITOS DE FRANGO MINERVA 4 X 1,5 KG",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100523068",
+      "name": "FORMADOS DE CARNE DE POLLO REBOZADOS PREFRITOS SUPERCONGELADO",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021728",
+      "name": "MEDALLONES DE POLLO \"SWIFT\" - 12X4X80G",
+      "category": "REBOZADOS",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517521",
+      "name": "MEDALLONES DE POLLO \"SWIFT\" - 12X4X80G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522146",
+      "name": "MEDALLONES DE POLLO - 10X8X100G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518160",
+      "name": "MILANESA DE CARNE VACUNA CONGELADA 12UN X 1000GRS",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518158",
+      "name": "MILANESA DE CARNE VACUNA CONGELADA 24UN X 500GRS",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518196",
+      "name": "MILANESAS DE  SOJA RELLENAS CON TOMATE Y QUESO",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518275",
+      "name": "MILANESAS DE CARNE VACUNA CONGELADA GRANEL 5KG",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518427",
+      "name": "MILANESAS DE CARNE VACUNA CONGELADAS 1KG UNIDAD",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518426",
+      "name": "MILANESAS DE CARNE VACUNA CONGELADAS 500G UNIDAD",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518299",
+      "name": "MILANESAS DE SOJA CLASICAS - 290G UNIDAD",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516217",
+      "name": "MILANESAS DE SOJA CLASICAS PREFRITAS",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516215",
+      "name": "MILANESAS DE SOJA RELLENAS CON ESPINACA Y QUESO",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518301",
+      "name": "MILANESAS DE SOJA RELLENAS CON ESPINACA Y QUESO -350G UNIDAD",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516214",
+      "name": "MILANESAS DE SOJA RELLENAS CON JAMON Y QUESO",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518300",
+      "name": "MILANESAS DE SOJA RELLENAS CON JAMON Y QUESO - 20X350G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516216",
+      "name": "MILANESAS DE SOJA RELLENAS CON TOMATE Y QUESO",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521663",
+      "name": "MILANESITAS DE CARNE VACUNA 400G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521455",
+      "name": "NUGGETS DE BROCOLI",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100521457",
+      "name": "NUGGETS DE ESPINACA",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517055",
+      "name": "PALITO DE POLLO \"SWIFT\"  12 X 260 GRS.",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517383",
+      "name": "PALITO DE POLLO \"SWIFT\"  12 X 260 GRS.",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517186",
+      "name": "PALITO DE POLLO \"SWIFT\"  8 X 1 KG..",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "333333",
+      "name": "REBOZADO DE CARNE BRASIL",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517493",
+      "name": "TIRINHA BRASIL X 1,5KG",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517494",
+      "name": "TIRINHA BRASIL X 700G",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518462",
+      "name": "X5000GR (CAL CH)",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518463",
+      "name": "X5000GR (CAL GR)",
+      "category": "REBOZADOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021006",
+      "name": "JAMON DEL DIABLO 24X88G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100517542",
+      "name": "JAMON DEL DIABLO 24X88G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021134",
+      "name": "PATE  DIA 24X90G ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516947",
+      "name": "PATE 24X90G SAFRA PARAGUAY - LOBA (PY)",
+      "category": "UNTABLES",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021027",
+      "name": "PATE DE FOIE 24X90G \"PRIMER PRECIO\"",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522428",
+      "name": "PATE DE FOIE 24X90G BULNEZ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021009",
+      "name": "PATE DE FOIE 24X90G LA BLANCA",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021011",
+      "name": "PATE DE FOIE 24X90G SAFRA",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021000",
+      "name": "PATE DE FOIE 24X90G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517539",
+      "name": "PATE DE FOIE 24X90G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021004",
+      "name": "PATE DE FOIE A LA CREMA 24X88G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517541",
+      "name": "PATE DE FOIE A LA CREMA 24X88G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021012",
+      "name": "PATE DE FOIE AL CHAMPAGNE 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021014",
+      "name": "PATE DE FOIE C/PIMIENTA VERDE 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517545",
+      "name": "PATE DE FOIE C/PIMIENTA VERDE 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021007",
+      "name": "PATE DE FOIE DE POLLO 24X85G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517543",
+      "name": "PATE DE FOIE DE POLLO 24X85G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518545",
+      "name": "PATE DE FOIE S&P",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021013",
+      "name": "PATE DE FOIE TIPO PROVENZAL 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517544",
+      "name": "PATE DE FOIE TIPO PROVENZAL 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021015",
+      "name": "PATE DE SALMON 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517546",
+      "name": "PATE DE SALMON 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517549",
+      "name": "PATE HONGOS 24X85G",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100021055",
+      "name": "PATE HONGOS 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100517548",
+      "name": "PATE JAMON AHUMADO 24X85G ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021054",
+      "name": "PATE JAMON AHUMADO 24X85G SWIFT GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    },
+    {
+      "code": "100522333",
+      "name": "PATÉ DE FOIE PICANTE JAPALEÑO 24X90G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519234",
+      "name": "PATÉ PALADINI",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520325",
+      "name": "PATÉ SAN REMO",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520794",
+      "name": "PICADILLO BON GUSTO ",
+      "category": "UNTABLES",
+      "subcategory": "NICHO",
+      "is_premium": 0
+    },
+    {
+      "code": "100021028",
+      "name": "PICADILLO DE CARNE 24X90G \"PRIMER PRECIO\"",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522425",
+      "name": "PICADILLO DE CARNE 24X90G BULNEZ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021029",
+      "name": "PICADILLO DE CARNE 24X90G INDEGA",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021008",
+      "name": "PICADILLO DE CARNE 24X90G LA BLANCA",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021010",
+      "name": "PICADILLO DE CARNE 24X90G SAFRA",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021044",
+      "name": "PICADILLO DE CARNE 24X90G SAFRA / LICITACION",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021135",
+      "name": "PICADILLO DE CARNE 24X90G SAFRA C/IMPORTADOR - DAVIBOL (BOL)",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520893",
+      "name": "PICADILLO DE CARNE 24X90G SAFRA MARTINAR",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021138",
+      "name": "PICADILLO DE CARNE 24X90G SAFRA PARAGUAY - LOBA (PY)",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516797",
+      "name": "PICADILLO DE CARNE 24X90G SUN",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021001",
+      "name": "PICADILLO DE CARNE 24X90G SWIFT ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517540",
+      "name": "PICADILLO DE CARNE 24X90G SWIFT ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021133",
+      "name": "PICADILLO DE CARNE DIA 24X90G ",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100021045",
+      "name": "PICADILLO DE CARNE PICANTE 24X90G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517547",
+      "name": "PICADILLO DE CARNE PICANTE 24X90G SWIFT",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522277",
+      "name": "PICADILLO DE CARNE PICANTE CHILE CHIPOTLE 24X90 G",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518544",
+      "name": "PICADILLO DE CARNE S&P",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100519233",
+      "name": "PICADILLO PALADINI",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516932",
+      "name": "PICADILLO SAFRA IMPORTADOR FRIGOMERC",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100520326",
+      "name": "PICADILLO SAN REMO",
+      "category": "UNTABLES",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100517846",
+      "name": "SURTIDO GOURMET",
+      "category": "UNTABLES",
+      "subcategory": "PREMIUM",
+      "is_premium": 1
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-02-09T09:24:16.008164",
+    "total_products": 906
+  }
+}

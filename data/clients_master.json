@@ -1,0 +1,440 @@
+{
+  "clients": [
+    {
+      "code": "100013668",
+      "name": "ANTONIO EMILIO PASTOR E HIJOS S R L",
+      "centralizador_code": "100013668",
+      "frequency": null
+    },
+    {
+      "code": "100001241",
+      "name": "AUTOSERVICIO MAY. DIARCO S.A.",
+      "centralizador_code": "100001241",
+      "frequency": null
+    },
+    {
+      "code": "100001258",
+      "name": "BENVENUTTI DANIEL ONOFRE",
+      "centralizador_code": "100001258",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100088613",
+      "name": "BONANZEA OSCAR ANTONIO",
+      "centralizador_code": "100088613",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100001296",
+      "name": "BUEN SOL SOCIEDAD DE RESPONSABILIDAD LIMITADA",
+      "centralizador_code": "100001296",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001295",
+      "name": "BUEN SOL SOCIEDAD DE RESPONSABILIDAD LIMITADA",
+      "centralizador_code": "100001295",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100024035",
+      "name": "CASSINA MAURICIO ROGELIO",
+      "centralizador_code": "100024035",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100057883",
+      "name": "CASSINA MAURICIO ROGELIO (1) AV. BRASIL 1739",
+      "centralizador_code": "100057883",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100081330",
+      "name": "CASTETS Y TANINO SRL",
+      "centralizador_code": "100081330",
+      "frequency": null
+    },
+    {
+      "code": "100081331",
+      "name": "CASTETS Y TANINO SRL (1) 25 DE MAYO 1612",
+      "centralizador_code": "100081331",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100085225",
+      "name": "CERATTI HNOS DISTRIBUCIONES S.A.S.",
+      "centralizador_code": "100085225",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100001582",
+      "name": "CORMORAN S A SERVICIO MAYORIST (5) |GALVEZ Nø446",
+      "centralizador_code": "100001582",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100001431",
+      "name": "CORMORAN S A SERVICIO MAYORISTA ",
+      "centralizador_code": "100001431",
+      "frequency": null
+    },
+    {
+      "code": "100078526",
+      "name": "DANIEL BENVENUTTI S.R.L.",
+      "centralizador_code": "100078526",
+      "frequency": null
+    },
+    {
+      "code": "100001513",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I",
+      "centralizador_code": "100001513",
+      "frequency": null
+    },
+    {
+      "code": "100001787",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (13) |1ø DE MAYO Y ",
+      "centralizador_code": "100001787",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001789",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (15) |BLAS PARERA N",
+      "centralizador_code": "100001789",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001790",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (16) |BVARD. PELEGR",
+      "centralizador_code": "100001790",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001791",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (17) |FRANCIA Y MEN",
+      "centralizador_code": "100001791",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001792",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (18) |FRANCIA Y CAT",
+      "centralizador_code": "100001792",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001793",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (19) |BALCARCE Y AL",
+      "centralizador_code": "100001793",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001782",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (7) |REG.12 DE INFA",
+      "centralizador_code": "100001782",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100001786",
+      "name": "DAVID ROSENTAL E HIJOS SACI(12)S.JERONIMO Y LISAND",
+      "centralizador_code": "100001786",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100065286",
+      "name": "DAVID ROSENTAL E HIJOS SACI(29)S.JERONIMO 2475",
+      "centralizador_code": "100065286",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100080176",
+      "name": "DISPROAL S R L",
+      "centralizador_code": "100080176",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100001593",
+      "name": "DISTRIBUIDORA ANTARTIDA S.A.",
+      "centralizador_code": "100001593",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100085312",
+      "name": "DISTRIBUIDORA MAJOIS S. R. L.",
+      "centralizador_code": "100085312",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100001654",
+      "name": "DON ENRIQUE S.A.",
+      "centralizador_code": "100001654",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100071903",
+      "name": "DON HIGINIO S.R.L.",
+      "centralizador_code": "100071903",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100088497",
+      "name": "DUPONT S.A.",
+      "centralizador_code": "100088497",
+      "frequency": "VIERNES"
+    },
+    {
+      "code": "100084491",
+      "name": "EVOLUTION LIFE SRL",
+      "centralizador_code": "100084491",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100076730",
+      "name": "GARCIA VARELA MARIO JORGE",
+      "centralizador_code": "100076730",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100012958",
+      "name": "GENCO SRL",
+      "centralizador_code": "100012958",
+      "frequency": null
+    },
+    {
+      "code": "100081713",
+      "name": "GERVASONI JUAN MARTIN",
+      "centralizador_code": "100081713",
+      "frequency": null
+    },
+    {
+      "code": "100023315",
+      "name": "GONELLA DANIEL ADRIAN",
+      "centralizador_code": "100023315",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100001891",
+      "name": "HORACIO MARZAL E HIJOS S.R.L.",
+      "centralizador_code": "100001891",
+      "frequency": "VIERNES"
+    },
+    {
+      "code": "100054056",
+      "name": "KEMMERER CARLOS DANIEL",
+      "centralizador_code": "100054056",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100079383",
+      "name": "LENARDUZZI LUCAS",
+      "centralizador_code": "100079383",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100001979",
+      "name": "LIBERTAD S.A.",
+      "centralizador_code": "100001979",
+      "frequency": null
+    },
+    {
+      "code": "100060029",
+      "name": "LIBERTAD S.A. (74) |COLECTORA CONSCRIPTO ZURBRIGGE",
+      "centralizador_code": "100060029",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100066659",
+      "name": "M. J. GIRAUDO S.A.",
+      "centralizador_code": "100066659",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100014014",
+      "name": "MISTURA S A",
+      "centralizador_code": "100014014",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100086144",
+      "name": "MULLER EMILIANO Adrian",
+      "centralizador_code": "100086144",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100089013",
+      "name": "MUY BARATO SA (CASILDA)",
+      "centralizador_code": "100089013",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100088995",
+      "name": "MUY BARATO SA (COLON)",
+      "centralizador_code": "100088995",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100088997",
+      "name": "MUY BARATO SA (G.VILLEGAS)",
+      "centralizador_code": "100088997",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100089006",
+      "name": "MUY BARATO SA (GUALEGUAY)",
+      "centralizador_code": "100089006",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100090151",
+      "name": "MUY BARATO SA (JUNIN)",
+      "centralizador_code": "100090151",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100088998",
+      "name": "MUY BARATO SA (LNCOLN)",
+      "centralizador_code": "100088998",
+      "frequency": "MARTES"
+    },
+    {
+      "code": "100089005",
+      "name": "MUY BARATO SA (NOGOYA)",
+      "centralizador_code": "100089005",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100088996",
+      "name": "MUY BARATO SA (PERGAMINO)",
+      "centralizador_code": "100088996",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100083894",
+      "name": "MUY BARATO SA (VENADO I)",
+      "centralizador_code": "100083894",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100089004",
+      "name": "MUY BARATO SA (VICTORIA)",
+      "centralizador_code": "100089004",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100080254",
+      "name": "MUY BARATO SA CD",
+      "centralizador_code": "100080254",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100002218",
+      "name": "POLAR DISTRIBUCIONES S.A. ",
+      "centralizador_code": "100002218",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100002252",
+      "name": "RED VITAL AGRUPACION DE COLABORACION",
+      "centralizador_code": "100002252",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100064228",
+      "name": "RESSA IVAN",
+      "centralizador_code": "100064228",
+      "frequency": null
+    },
+    {
+      "code": "100079030",
+      "name": "RODRIGUEZ ALVARO FERNANDO",
+      "centralizador_code": "100079030",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100076218",
+      "name": "RUHL RICARDO RUBEN",
+      "centralizador_code": "100076218",
+      "frequency": "JUEVES"
+    },
+    {
+      "code": "100058554",
+      "name": "SAJEL SOCIEDAD ANONIMA",
+      "centralizador_code": "100058554",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100081724",
+      "name": "SAJEL SOCIEDAD ANONIMA (1)RUTA NACIONAL 11 KM 778.4",
+      "centralizador_code": "100081724",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100024889",
+      "name": "SANTA FE ALIMENTOS SRL",
+      "centralizador_code": "100024889",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100009892",
+      "name": "SAUBIDET ECHAZU AYELEN",
+      "centralizador_code": "100009892",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100081714",
+      "name": "SCHREIER FRANCO JESUS",
+      "centralizador_code": "100081714",
+      "frequency": null
+    },
+    {
+      "code": "100062883",
+      "name": "STURTZ HECTOR SANTIAGO",
+      "centralizador_code": "100062883",
+      "frequency": "VIERNES"
+    },
+    {
+      "code": "100089672",
+      "name": "SUCESION DE VILLEGAS CUENCA RAFAEL",
+      "centralizador_code": "100089672",
+      "frequency": "VIERNES"
+    },
+    {
+      "code": "100020828",
+      "name": "SUR SANTAFESINO S.R.L.",
+      "centralizador_code": "100020828",
+      "frequency": null
+    },
+    {
+      "code": "100063728",
+      "name": "T&T DISTRIBUCIONES S.R.L.",
+      "centralizador_code": "100063728",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100063729",
+      "name": "T&T DISTRIBUCIONES S.R.L.(1) RIOJA 2066",
+      "centralizador_code": "100063729",
+      "frequency": "MIERCOLES"
+    },
+    {
+      "code": "100002477",
+      "name": "UNION AGRICOLA DE AVELLANEDA COOP LTDA",
+      "centralizador_code": "100002477",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100002488",
+      "name": "VISINTINI ALFREDO Y ROLANDO",
+      "centralizador_code": "100002488",
+      "frequency": "LUNES"
+    },
+    {
+      "code": "100076315",
+      "name": "ZORZON FABIAN BAUTISTA",
+      "centralizador_code": "100076315",
+      "frequency": "LUNES"
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-02-09T09:24:16.008164",
+    "total_clients": 72
+  }
+}

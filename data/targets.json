@@ -1,0 +1,16 @@
+{
+  "targets": [
+    {
+      "seller_code": "100067806.0",
+      "seller_name": "GENTILE NICOLAS",
+      "period": "2026-02",
+      "target_amount": 499163842.0,
+      "target_premium": 55050592.0,
+      "target_kg": 76942.0
+    }
+  ],
+  "metadata": {
+    "generated_at": "2026-02-09T09:24:16.008164",
+    "total_sellers": 1
+  }
+}

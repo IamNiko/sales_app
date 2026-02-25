@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# SQL
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (Optional: ignore if taking too much space)
+# data/*.xlsx
+# data/*.txt
+
+# Brain/Artifacts (if you want to keep them out of git)
+.gemini/
+brain/
