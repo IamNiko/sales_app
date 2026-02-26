@@ -158,6 +158,97 @@
             color: #e74c3c;
         }
 
+        /* Tier Badges (Sync with Dashboard) */
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+
+        .tier-aaa {
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #000;
+            box-shadow: 0 0 15px rgba(218, 165, 32, 0.5);
+        }
+
+        .tier-aa {
+            background: linear-gradient(135deg, #E5E4E2, #B4B4B4);
+            color: #000;
+        }
+
+        .tier-a {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: #fff;
+        }
+
+        .tier-b {
+            background: #333;
+            color: #888;
+            border: 1px solid #444;
+        }
+
+        .score-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .score-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .score-label {
+            font-size: 0.7rem;
+            color: #8E96A3;
+            text-transform: uppercase;
+        }
+
+        .score-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .score-bar-bg {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: #E84752;
+        }
+
+
         @media (max-width: 968px) {
             .kpi-grid-professional {
                 grid-template-columns: repeat(2, 1fr);
@@ -180,10 +271,39 @@
     <div class="container">
         <div class="client-header">
             <div>
-                <h1 id="client-name">Cargando...</h1>
+                <h1 style="display:inline-block; vertical-align:middle" id="client-name">Cargando...</h1>
+                <span id="client-tier" class="tier-badge"></span>
                 <div class="meta" id="client-meta"></div>
             </div>
+            <div id="score-section" class="score-card" style="display:none">
+                <div class="score-title">🎯 Ponderación Estratégica <span id="total-score-badge"
+                        style="font-size:0.8rem;color:#E84752"></span></div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div class="score-label">Volumen (Avg 12m)</div>
+                        <div class="score-val" id="vol-score-val">0</div>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" id="vol-score-bar" style="width:0%; background:#3498db"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Profundidad Mix (SKU)</div>
+                        <div class="score-val" id="mix-score-val">0</div>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" id="mix-score-bar" style="width:0%; background:#2ecc71"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Lealtad y Rotación</div>
+                        <div class="score-val" id="loy-score-val">0</div>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" id="loy-score-bar" style="width:0%; background:#FF9F0A"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
 
         <!-- Gauge Section: Facturación $, Premium $, Rebozados KG -->
         <div class="gauge-grid">
@@ -511,14 +631,37 @@
 
             if (clienteData.error) { alert(clienteData.error); return; }
 
+            const cl = clienteData.cliente;
+
             // Header
-            document.getElementById('client-name').textContent = clienteData.cliente?.nom_cliente || 'Cliente';
+            document.getElementById('client-name').textContent = cl?.nom_cliente || 'Cliente';
             document.getElementById('client-meta').textContent =
-                `Frecuencia: ${clienteData.cliente?.frecuencia || 'N/A'} • Vendedor: ${clienteData.avance?.nom_vendedor || 'N/A'}`;
+                `Frecuencia: ${cl?.frecuencia || 'N/A'} • Vendedor: ${clienteData.avance?.nom_vendedor || 'N/A'}`;
+
+            // Tier & Score
+            if (cl?.tier) {
+                const tierBadge = document.getElementById('client-tier');
+                tierBadge.textContent = cl.tier;
+                tierBadge.className = `tier-badge tier-${cl.tier.toLowerCase()}`;
+
+                document.getElementById('score-section').style.display = 'block';
+                document.getElementById('total-score-badge').textContent = `Score: ${cl.score}/100`;
+
+                // Details
+                document.getElementById('vol-score-val').textContent = cl.vol_score;
+                document.getElementById('vol-score-bar').style.width = (cl.vol_score / 40 * 100) + '%';
+
+                document.getElementById('mix-score-val').textContent = cl.mix_score;
+                document.getElementById('mix-score-bar').style.width = (cl.mix_score / 30 * 100) + '%';
+
+                document.getElementById('loy-score-val').textContent = cl.loyalty_score;
+                document.getElementById('loy-score-bar').style.width = (cl.loyalty_score / 30 * 100) + '%';
+            }
 
             renderGauges();
             renderCharts();
         }
+
 
         function renderGauges() {
             if (!clienteData.avance) return;

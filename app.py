@@ -220,20 +220,23 @@ def api_dashboard():
     # Sort by total purchase amount (facturacion + pendiente) DESC
     clientes = conn.execute(f"""
         SELECT 
-            cod_cliente,
-            nom_cliente,
-            venta_actual as facturacion,
-            pendiente,
-            objetivo,
-            frecuencia,
-            nom_vendedor
-        FROM fact_avance_cliente_vendedor_month
-        WHERE {where_clause} AND year_month = (
+            av.cod_cliente,
+            av.nom_cliente,
+            av.venta_actual as facturacion,
+            av.pendiente,
+            av.objetivo,
+            av.frecuencia,
+            av.nom_vendedor,
+            s.tier
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        WHERE av.{where_clause} AND av.year_month = (
             SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month
         )
-        ORDER BY (venta_actual + COALESCE(pendiente, 0)) DESC
+        ORDER BY (av.venta_actual + COALESCE(av.pendiente, 0)) DESC
         LIMIT 100
     """, params).fetchall()
+
     
     # Get list of vendors for current filter
     vendor_codes_query = f"""
@@ -258,24 +261,27 @@ def api_dashboard():
         sales_pesos_map = {r['cod_cliente']: r['total_pesos'] for r in sales_rows}
 
     # 4. Get Client List (Top 100)
-    # Include monetary objectives
+    # Include monetary objectives and Tier
     clientes_rows = conn.execute(f"""
         SELECT 
-            cod_cliente,
-            nom_cliente,
-            venta_actual as facturacion,
-            pendiente,
-            objetivo,
-            objetivo_pesos,
-            frecuencia,
-            nom_vendedor
-        FROM fact_avance_cliente_vendedor_month
-        WHERE {where_clause} AND year_month = (
+            av.cod_cliente,
+            av.nom_cliente,
+            av.venta_actual as facturacion,
+            av.pendiente,
+            av.objetivo,
+            av.objetivo_pesos,
+            av.frecuencia,
+            av.nom_vendedor,
+            s.tier
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        WHERE av.{where_clause} AND av.year_month = (
             SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month
         )
-        ORDER BY COALESCE(objetivo, 0) DESC
+        ORDER BY COALESCE(av.objetivo, 0) DESC
         LIMIT 100
     """, params).fetchall()
+
 
     # Calculate Average Price per KG from Vendor Objectives (for missing client $ goals)
     avg_price_per_kg = 0
@@ -611,16 +617,27 @@ def api_cliente(cod_cliente):
     
     conn = get_db()
     
-    # Get client info
+    # Get client info with Tier
     cliente = conn.execute("""
-        SELECT DISTINCT cod_cliente, nom_cliente, frecuencia
-        FROM fact_avance_cliente_vendedor_month
-        WHERE cod_cliente = ?
+        SELECT 
+            av.cod_cliente, 
+            av.nom_cliente, 
+            av.frecuencia,
+            s.tier,
+            s.score,
+            s.vol_score,
+            s.mix_score,
+            s.loyalty_score
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        WHERE av.cod_cliente = ?
+          AND av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
     """, (cod_cliente,)).fetchone()
     
     if not cliente:
         conn.close()
         return jsonify({'error': 'cliente not found'}), 404
+
     
     # Get the current active month from fact_facturacion
     current_ym_row = conn.execute("SELECT MAX(year_month) FROM fact_facturacion").fetchone()

@@ -139,6 +139,8 @@ class SalesETL:
         self.year = year_override or datetime.now().year
         self.os_created_dirs()
         self.conn = sqlite3.connect(self.db_path)
+        self.conn.row_factory = sqlite3.Row
+
         self.run_id = None
         self.target_month = None # YYYY-MM
         self.processed_files = []
@@ -242,6 +244,18 @@ class SalesETL:
                 promedio_u3 REAL DEFAULT 0,
                 PRIMARY KEY (year_month, lanzamiento, cod_cliente, cod_vendedor)
             );
+            CREATE TABLE IF NOT EXISTS fact_client_segmentation (
+                cod_cliente TEXT,
+                year_month TEXT,
+                tier TEXT, -- AAA, AA, A, B
+                score REAL, -- 0-100
+                vol_score REAL,
+                mix_score REAL,
+                loyalty_score REAL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (cod_cliente, year_month)
+            );
+
 
         """);
         # Indexes
@@ -1032,6 +1046,106 @@ class SalesETL:
 
 
 
+    def calculate_segmentation(self):
+        ym = self.target_month
+        if not ym: return
+        
+        logging.info(f"Calculating Portfolio Segmentation for {ym}...")
+        
+        # 1. Get all active clients for the month
+        clients = self.conn.execute("""
+            SELECT DISTINCT cod_cliente 
+            FROM fact_avance_cliente_vendedor_month 
+            WHERE year_month = ?
+        """, (ym,)).fetchall()
+        
+        if not clients: return
+        
+        rows_segmentation = []
+        
+        for c in clients:
+            cod_cli = c['cod_cliente']
+            
+            # --- VOL SCORE (Max 40) ---
+            # Average KG in last 12 months
+            avg_kg_row = self.conn.execute("""
+                SELECT AVG(kg_vendidos) as avg_kg 
+                FROM fact_cliente_historico 
+                WHERE cod_cliente = ?
+            """, (cod_cli,)).fetchone()
+            
+            avg_kg = avg_kg_row['avg_kg'] or 0
+            # If we have current month sales, include them in avg
+            curr_kg_row = self.conn.execute("SELECT SUM(cantidad) FROM fact_facturacion WHERE cod_cliente = ? AND year_month = ?", (cod_cli, ym)).fetchone()
+            curr_kg = curr_kg_row[0] or 0
+            
+            # Real avg
+            total_avg = (avg_kg + curr_kg) / 2 if avg_kg > 0 else curr_kg
+            vol_score = min(total_avg / 8000.0, 1.0) * 40 # 8k KG as AAA threshold
+            
+            # --- MIX SCORE (Max 30) ---
+            # Distinct categories in last 6 months
+            mix_row = self.conn.execute("""
+                SELECT COUNT(DISTINCT p.categoria) as cat_count
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.cod_cliente = ?
+            """, (cod_cli,)).fetchone()
+            
+            cat_count = mix_row['cat_count'] or 0
+            mix_score = min(cat_count / 8.0, 1.0) * 30 # 8+ categories as AAA depth
+            
+            # --- LOYALTY SCORE (Max 30) ---
+            # Logic: Has the client bought the SAME launch category in consecutive months? 
+            # (Rotation detection)
+            # Use lower() for matching as launches are 'Papas' and classification is 'PAPAS'
+            loyalty_row = self.conn.execute("""
+                WITH launch_purchases AS (
+                    SELECT DISTINCT f.year_month, UPPER(p.categoria) as cat
+                    FROM fact_facturacion f
+                    JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                    WHERE f.cod_cliente = ?
+                      AND (
+                           UPPER(p.categoria) IN (SELECT UPPER(lanzamiento) FROM fact_lanzamiento_cobertura)
+                           OR (UPPER(p.categoria) = 'EMBUTIDOS' AND 'CHORIZOS' IN (SELECT UPPER(lanzamiento) FROM fact_lanzamiento_cobertura))
+                           OR (UPPER(p.categoria) = 'PESCADOS' AND 'ATUN' IN (SELECT UPPER(lanzamiento) FROM fact_lanzamiento_cobertura))
+                      )
+                )
+                SELECT COUNT(*) as repeat_count
+                FROM launch_purchases a
+                JOIN launch_purchases b ON a.cat = b.cat 
+                  AND (substr(a.year_month,1,4) || substr(a.year_month,6,2)) < (substr(b.year_month,1,4) || substr(b.year_month,6,2))
+            """, (cod_cli,)).fetchone()
+            
+            repeats = loyalty_row['repeat_count'] or 0
+            loyalty_score = min(repeats / 3.0, 1.0) * 30 # 3+ repeat purchases in launches
+            
+            total_score = vol_score + mix_score + loyalty_score
+            
+            # Define Tier (Slightly adjusted thresholds for realistic distribution)
+            if total_score >= 75: tier = "AAA"
+            elif total_score >= 55: tier = "AA"
+            elif total_score >= 30: tier = "A"
+            else: tier = "B"
+
+            
+            rows_segmentation.append((
+                cod_cli, ym, tier, round(total_score, 1),
+                round(vol_score, 1), round(mix_score, 1), round(loyalty_score, 1)
+            ))
+            
+        # Clean current month
+        self.conn.execute("DELETE FROM fact_client_segmentation WHERE year_month = ?", (ym,))
+        
+        self.conn.executemany("""
+            INSERT INTO fact_client_segmentation 
+            (cod_cliente, year_month, tier, score, vol_score, mix_score, loyalty_score)
+            VALUES (?,?,?,?,?,?,?)
+        """, rows_segmentation)
+        
+        self.conn.commit()
+        logging.info(f"Segmentation completed: {len(rows_segmentation)} clients classified.")
+
     def run_all(self):
         try:
             self.init_db()
@@ -1047,7 +1161,10 @@ class SalesETL:
             self.process_category_sheets()
             self.process_lanzamientos()
             
+            self.calculate_segmentation() # NEW Portfolio Segmentation Logic
+            
             self.end_run("SUCCESS", "ETL completed successfully.")
+
             logging.info("--- ETL SUMMARY ---")
             logging.info(f"Run ID: {self.run_id}")
             logging.info(f"Month Updated: {self.target_month}")

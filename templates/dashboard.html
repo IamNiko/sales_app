@@ -35,6 +35,41 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
         }
 
+        /* Tier Badges */
+        .tier-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .tier-aaa {
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #000;
+            box-shadow: 0 0 8px rgba(218, 165, 32, 0.4);
+        }
+
+        .tier-aa {
+            background: linear-gradient(135deg, #E5E4E2, #B4B4B4);
+            color: #000;
+        }
+
+        .tier-a {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: #fff;
+        }
+
+        .tier-b {
+            background: #333;
+            color: #888;
+            border: 1px solid #444;
+        }
+
         /* Fecha última carga */
         .data-freshness {
             display: inline-flex;
@@ -227,6 +262,7 @@
                     <tr>
                         <th style="width: 25%">Cliente</th>
                         <th>Freq</th>
+                        <th>Tier</th>
                         <th class="text-right">Fact (KG)</th>
                         <th class="text-right">Obj (KG)</th>
                         <th class="text-right">Fact ($)</th>
@@ -532,6 +568,7 @@
                     <tr class="${rowClass}" onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'">
                         <td><strong>${c.nom_cliente || 'N/A'}</strong>${alertIcon}</td>
                         <td>${c.frecuencia || '-'}</td>
+                        <td><span class="tier-badge tier-${(c.tier || 'B').toLowerCase()}">${c.tier || 'B'}</span></td>
                         <td class="text-right">${formatKgShort(c.facturacion || 0)}</td>
                         <td class="text-right">${formatKgShort(c.objetivo || 0)}</td>
                         <td class="text-right">${formatPesos(c.facturacion_pesos || 0)}</td>
@@ -540,6 +577,7 @@
                         <td><span class="status-badge ${status}">${pct}%</span></td>
                     </tr>
                 `;
+
             }).join('');
         }
 
