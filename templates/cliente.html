@@ -618,15 +618,23 @@
             renderRecurrenciaChart();
         }
 
+        const MESES_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const formatYM = (ym) => {
+            if (!ym) return '';
+            const [y, m] = ym.split('-');
+            return `${MESES_ES[parseInt(m) - 1]} '${y.substring(2)}`;
+        };
+
         function renderHistoriaChart() {
             const chart = getChart('chart-historia');
             const allData = clienteData.historia || [];
-            const data = allData.slice(-currentMeses);
+            // If currentMeses is 12 (default), and we have 14, show all 14 to satisfy "Jan 2025 onwards"
+            const data = currentMeses >= 12 ? allData : allData.slice(-currentMeses);
 
             // Update period label
             if (data.length) {
                 document.getElementById('hist-periodo-label').textContent =
-                    `· ${data[0].year_month} → ${data[data.length - 1].year_month}`;
+                    `· ${formatYM(data[0].year_month)} → ${formatYM(data[data.length - 1].year_month)}`;
             }
 
             const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
@@ -642,14 +650,16 @@
                     textStyle: { color: '#fff', fontSize: 13 },
                     formatter: params => {
                         const p = params[0];
-                        return `<strong>${p.axisValue}</strong><br/>${currentTipo === 'importe' ? formatPesos(p.value) : formatKg(p.value)}`;
+                        const originalYM = data[p.dataIndex].year_month;
+                        return `<strong>${formatYM(originalYM)}</strong><br/>${currentTipo === 'importe' ? formatPesos(p.value) : formatKg(p.value)}`;
                     }
                 },
                 grid: { top: 40, right: 20, bottom: 45, left: 70 },
                 xAxis: {
                     type: 'category',
-                    data: data.map(h => h.year_month),
-                    axisLabel: { fontSize: 11, color: '#8E96A3', rotate: data.length > 8 ? 30 : 0 },
+                    data: data.map(h => formatYM(h.year_month)),
+                    axisLabel: { fontSize: 10, color: '#8E96A3', rotate: data.length > 10 ? 30 : 0 },
+
                     axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
                     axisTick: { show: false }
                 },

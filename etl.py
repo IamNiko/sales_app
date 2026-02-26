@@ -240,8 +240,9 @@ class SalesETL:
                 pend_feb REAL DEFAULT 0,
                 total_feb REAL DEFAULT 0,
                 promedio_u3 REAL DEFAULT 0,
-                PRIMARY KEY (year_month, lanzamiento, cod_cliente)
+                PRIMARY KEY (year_month, lanzamiento, cod_cliente, cod_vendedor)
             );
+
         """);
         # Indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fact_fact_ym ON fact_facturacion(year_month)")

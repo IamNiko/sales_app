@@ -622,22 +622,43 @@ def api_cliente(cod_cliente):
         conn.close()
         return jsonify({'error': 'cliente not found'}), 404
     
-    # Get historical sales from fact_cliente_historico (extracted from Avance Excel columns)
-    historia = conn.execute("""
+    # Get the current active month from fact_facturacion
+    current_ym_row = conn.execute("SELECT MAX(year_month) FROM fact_facturacion").fetchone()
+    current_ym = current_ym_row[0] if current_ym_row else None
+    
+    # Get historical sales from fact_cliente_historico (from Jan 2025)
+    historia_rows = conn.execute("""
         SELECT 
             year_month,
             kg_vendidos as total_kg
         FROM fact_cliente_historico
-        WHERE cod_cliente = ?
+        WHERE cod_cliente = ? AND year_month >= '2025-01'
         ORDER BY year_month ASC
     """, (cod_cliente,)).fetchall()
     
+    historia = [dict(h) for h in historia_rows]
+    
+    # Add current month data from fact_facturacion if not present in history
+    if current_ym and not any(h['year_month'] == current_ym for h in historia):
+        current_kg = conn.execute("""
+            SELECT SUM(cantidad) 
+            FROM fact_facturacion 
+            WHERE cod_cliente = ? AND year_month = ?
+        """, (cod_cliente, current_ym)).fetchone()[0] or 0
+        
+        historia.append({
+            'year_month': current_ym,
+            'total_kg': current_kg
+        })
+        historia.sort(key=lambda x: x['year_month'])
+
     # Get the last N available year_months from fact_facturacion for this client's data
     all_months = conn.execute("""
         SELECT DISTINCT year_month FROM fact_facturacion
         ORDER BY year_month DESC
         LIMIT ?
     """, (meses,)).fetchall()
+
     
     month_cutoff = all_months[-1]['year_month'] if all_months else '2000-01'
     
