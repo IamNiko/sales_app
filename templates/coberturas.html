@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swift Sales | Coberturas Lanzamientos</title>
+    <title id="page-title">Swift Sales | Coberturas</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="/static/vendor/echarts.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
@@ -261,13 +263,29 @@
             padding: 8px 14px;
             border-radius: 8px;
             font-size: 13px;
-            min-width: 160px;
+            min-width: 180px;
         }
 
         .filter-bar select:focus,
         .filter-bar input:focus {
             border-color: #E84752;
             outline: none;
+        }
+
+        /* Fecha última carga */
+        .data-freshness {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(52, 199, 89, 0.12);
+            border: 1px solid rgba(52, 199, 89, 0.25);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: #34c759;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-top: 6px;
         }
 
         .section-title {
@@ -277,6 +295,156 @@
             margin: 32px 0 16px;
             border-left: 3px solid #E84752;
             padding-left: 12px;
+        }
+
+        /* === Evolución de Cliente === */
+        .evol-panel {
+            display: none;
+            background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+            border: 1px solid #1e1e1e;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .evol-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #E84752 40%, #ff9f0a 70%, transparent);
+        }
+
+        .evol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .evol-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+
+        .evol-subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .evol-toggle {
+            display: flex;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .evol-toggle button {
+            padding: 6px 16px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .evol-toggle button.active {
+            background: #E84752;
+            color: #fff;
+        }
+
+        .evol-kpis {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .evol-kpi {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .evol-kpi .ev-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .evol-kpi .ev-lbl {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 3px;
+        }
+
+        .evol-chart-area {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* === Evolución Histórica por Lanzamiento === */
+        .evol-hist-panel {
+            background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+            border: 1px solid #1e1e1e;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .evol-hist-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #007AFF 40%, #BF5AF2 70%, transparent);
+        }
+
+        .evol-hist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .evol-hist-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+
+        .evol-hist-subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .evol-hist-chart-area {
+            width: 100%;
+            height: 400px;
         }
 
         @media (max-width: 768px) {
@@ -290,6 +458,10 @@
 
             .cob-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .evol-kpis {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -310,9 +482,12 @@
         <div class="header-row">
             <div>
                 <h2>Coberturas de Lanzamientos</h2>
-                <div class="meta">Tracking de adopción y rotación por producto</div>
+                <div class="meta" id="coberturas-meta">Tracking de adopción y rotación por producto</div>
+                <div class="data-freshness" id="data-freshness" style="display:none">
+                    <span>●</span> <span id="freshness-label">Cargando...</span>
+                </div>
             </div>
-            <div class="month-badge">Febrero 2026</div>
+            <div class="month-badge" id="month-badge">—</div>
         </div>
 
         <!-- Filters -->
@@ -320,7 +495,38 @@
             <select id="filter-producto">
                 <option value="">Todos los productos</option>
             </select>
-            <input type="text" id="filter-search" placeholder="🔍 Buscar cliente..." />
+            <select id="filter-cliente">
+                <option value="">👤 Seleccionar cliente...</option>
+            </select>
+        </div>
+
+        <!-- Panel evolución cliente (oculto por defecto) -->
+        <div class="evol-panel" id="evol-panel">
+            <div class="evol-header">
+                <div>
+                    <div class="evol-title" id="evol-cliente-name">Cliente</div>
+                    <div class="evol-subtitle">Evolución de mix de categorías compradas · KG por mes</div>
+                </div>
+                <div class="evol-toggle">
+                    <button id="btn-3m" onclick="setEvolPeriodo(3)">3M</button>
+                    <button id="btn-6m" onclick="setEvolPeriodo(6)" class="active">6M</button>
+                </div>
+            </div>
+            <div class="evol-kpis">
+                <div class="evol-kpi">
+                    <div class="ev-val" id="evol-total-kg">—</div>
+                    <div class="ev-lbl">KG período</div>
+                </div>
+                <div class="evol-kpi">
+                    <div class="ev-val" id="evol-cats-activas">—</div>
+                    <div class="ev-lbl">Categorías activas</div>
+                </div>
+                <div class="evol-kpi">
+                    <div class="ev-val" id="evol-mejor-mes">—</div>
+                    <div class="ev-lbl">Mejor mes</div>
+                </div>
+            </div>
+            <div id="evol-chart" class="evol-chart-area"></div>
         </div>
 
         <!-- KPI strip -->
@@ -346,6 +552,22 @@
         <!-- Coverage Cards -->
         <div class="section-title">Cobertura por Producto</div>
         <div id="cob-cards" class="cob-grid"></div>
+
+        <!-- Evolución Histórica KG por Lanzamiento -->
+        <div class="evol-hist-panel">
+            <div class="evol-hist-header">
+                <div>
+                    <div class="evol-hist-title" id="evol-hist-title">📈 Evolución KG por Lanzamiento</div>
+                    <div class="evol-hist-subtitle" id="evol-hist-subtitle">KG facturado mensual por producto de
+                        lanzamiento · últimos 6 meses</div>
+                </div>
+                <div class="evol-toggle">
+                    <button id="btn-hist-3m" onclick="setHistPeriodo(3)">3M</button>
+                    <button id="btn-hist-6m" onclick="setHistPeriodo(6)" class="active">6M</button>
+                </div>
+            </div>
+            <div id="evol-hist-chart" class="evol-hist-chart-area"></div>
+        </div>
 
         <!-- Charts Row -->
         <div class="charts-row">
@@ -392,8 +614,20 @@
         const jefe = params.get('jefe') || '';
         const zona = params.get('zona') || '';
         let DATA = { resumen: [], detalle: [], rotacion: [] };
+        let evolPeriodo = 6;
+        let evolChart = null;
+        let histPeriodo = 6;
+        let histChart = null;
+
+        // Paleta de colores fija para categorías (hasta 12)
+        const CAT_COLORS = [
+            '#E84752', '#FF9F0A', '#34c759', '#007AFF', '#BF5AF2',
+            '#FF2D55', '#5AC8FA', '#FFCC00', '#FF6B6B', '#4ECDC4',
+            '#A8E6CF', '#FFD93D'
+        ];
 
         function fmt(n) { return n != null ? n.toLocaleString('es-AR', { maximumFractionDigits: 1 }) : '0'; }
+        function fmtKg(n) { return n != null ? Math.round(n).toLocaleString('es-AR') + ' kg' : '0 kg'; }
 
         async function loadData(producto) {
             const qs = new URLSearchParams({ vendedor, jefe, zona });
@@ -416,6 +650,25 @@
                     opt.textContent = p.lanzamiento;
                     sel.appendChild(opt);
                 });
+            }
+
+            // Populate client select from unique clients in detalle
+            const clienteSel = document.getElementById('filter-cliente');
+            const prevClient = clienteSel.value;
+            // Solo poblar la primera vez o si los datos cambian
+            if (clienteSel.options.length <= 1) {
+                const clientesVistos = {};
+                d.forEach(row => {
+                    if (!clientesVistos[row.cod_cliente]) {
+                        clientesVistos[row.cod_cliente] = row.nom_cliente;
+                        const opt = document.createElement('option');
+                        opt.value = row.cod_cliente;
+                        opt.textContent = row.nom_cliente;
+                        clienteSel.appendChild(opt);
+                    }
+                });
+                // Restore previous selection if still in list
+                if (prevClient) clienteSel.value = prevClient;
             }
 
             // KPIs (aggregate)
@@ -469,6 +722,8 @@
 
         function renderBarChart(data) {
             const dom = document.getElementById('chart-barras');
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
             const chart = echarts.init(dom);
             chart.setOption({
                 backgroundColor: 'transparent',
@@ -489,6 +744,8 @@
 
         function renderDonut(data) {
             const dom = document.getElementById('chart-donut');
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
             const chart = echarts.init(dom);
             const totC = data.reduce((a, x) => a + x.compradores, 0);
             const totS = data.reduce((a, x) => a + x.sin_compra, 0);
@@ -514,6 +771,8 @@
         function renderRotation(data) {
             if (!data || !data.length) return;
             const dom = document.getElementById('chart-rotacion');
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) existing.dispose();
             const chart = echarts.init(dom);
             const cats = data.map(d => d.categoria);
             const kgs = data.map(d => d.kg);
@@ -541,9 +800,9 @@
         }
 
         function renderTable(data) {
-            const search = document.getElementById('filter-search').value.toUpperCase();
+            const clientFilter = document.getElementById('filter-cliente').value;
             const tbody = document.getElementById('det-body');
-            const filtered = search ? data.filter(d => d.nom_cliente.toUpperCase().includes(search)) : data;
+            const filtered = clientFilter ? data.filter(d => d.cod_cliente === clientFilter) : data;
             tbody.innerHTML = filtered.map(d => {
                 const bcls = d.estado === 'COMPRADOR' ? 'comp' : d.estado === 'SIN COMPRA' ? 'sinc' : 'noc';
                 return `<tr>
@@ -558,15 +817,344 @@
             }).join('');
         }
 
+        // ─── Evolución de Mix por Cliente ─────────────────────────
+
+        function setEvolPeriodo(meses) {
+            evolPeriodo = meses;
+            document.getElementById('btn-3m').classList.toggle('active', meses === 3);
+            document.getElementById('btn-6m').classList.toggle('active', meses === 6);
+            const cod = document.getElementById('filter-cliente').value;
+            if (cod) loadEvolucion(cod);
+        }
+
+        async function loadEvolucion(cod_cliente) {
+            if (!cod_cliente) {
+                document.getElementById('evol-panel').style.display = 'none';
+                return;
+            }
+
+            try {
+                const qs = new URLSearchParams({ cod_cliente, meses: evolPeriodo });
+                const res = await fetch(`/api/coberturas/cliente-evolucion?${qs}`);
+                const data = await res.json();
+
+                if (data.error || !data.categorias || data.categorias.length === 0) {
+                    document.getElementById('evol-panel').style.display = 'none';
+                    return;
+                }
+
+                // Mostrar panel
+                document.getElementById('evol-panel').style.display = 'block';
+                document.getElementById('evol-cliente-name').textContent = `📊 ${data.cliente}`;
+
+                // KPIs del panel
+                const totalKg = data.totales_mes.reduce((a, b) => a + b, 0);
+                const catsActivas = data.categorias.filter(cat =>
+                    data.series[cat].some(v => v > 0)
+                ).length;
+                const maxIdx = data.totales_mes.indexOf(Math.max(...data.totales_mes));
+                const mejorMes = maxIdx >= 0 ? data.mes_labels[maxIdx] : '—';
+
+                document.getElementById('evol-total-kg').textContent = fmtKg(totalKg);
+                document.getElementById('evol-cats-activas').textContent = catsActivas;
+                document.getElementById('evol-mejor-mes').textContent = mejorMes;
+
+                // Renderizar gráfico stacked bar
+                renderEvolChart(data);
+
+            } catch (e) {
+                console.error('Error cargando evolución:', e);
+                document.getElementById('evol-panel').style.display = 'none';
+            }
+        }
+
+        function renderEvolChart(data) {
+            const dom = document.getElementById('evol-chart');
+            if (evolChart) evolChart.dispose();
+            evolChart = echarts.init(dom);
+
+            // Build series array: one per category
+            const series = data.categorias.map((cat, i) => ({
+                name: cat,
+                type: 'bar',
+                stack: 'total',
+                barWidth: 40,
+                emphasis: { focus: 'series' },
+                itemStyle: {
+                    color: CAT_COLORS[i % CAT_COLORS.length],
+                    borderRadius: i === data.categorias.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]
+                },
+                data: data.series[cat],
+                label: {
+                    show: true,
+                    formatter: p => p.value > 0 ? fmt(p.value) : '',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: 10
+                }
+            }));
+
+            // Add total line on top
+            series.push({
+                name: 'Total KG',
+                type: 'line',
+                stack: null,
+                symbol: 'circle',
+                symbolSize: 8,
+                lineStyle: { color: 'rgba(255,255,255,0.4)', width: 2, type: 'dashed' },
+                itemStyle: { color: '#fff', borderColor: '#555', borderWidth: 2 },
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#aaa',
+                    fontSize: 11,
+                    fontWeight: '700',
+                    formatter: p => p.value > 0 ? fmt(p.value) + ' kg' : ''
+                },
+                data: data.totales_mes,
+                tooltip: { valueFormatter: v => fmt(v) + ' kg' }
+            });
+
+            evolChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: '#111',
+                    borderColor: '#222',
+                    textStyle: { color: '#ccc' },
+                    formatter: params => {
+                        const mes = params[0].axisValue;
+                        let html = `<b>${mes}</b><br/>`;
+                        let total = 0;
+                        params.forEach(p => {
+                            if (p.seriesName === 'Total KG') return;
+                            if (p.value > 0) {
+                                html += `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.color};margin-right:6px;"></span>`;
+                                html += `${p.seriesName}: <b>${fmt(p.value)} kg</b><br/>`;
+                                total += p.value;
+                            }
+                        });
+                        if (total > 0) html += `<br/><b>Total: ${fmt(total)} kg</b>`;
+                        return html;
+                    }
+                },
+                legend: {
+                    data: data.categorias,
+                    bottom: 0,
+                    textStyle: { color: '#888', fontSize: 11 },
+                    itemWidth: 10, itemHeight: 10,
+                    icon: 'roundRect'
+                },
+                grid: { left: '3%', right: '3%', top: '5%', bottom: '14%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: data.mes_labels,
+                    axisLabel: { color: '#888', fontSize: 12 },
+                    axisTick: { show: false },
+                    axisLine: { lineStyle: { color: '#222' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#555', formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v) },
+                    splitLine: { lineStyle: { color: '#151515' } }
+                },
+                series
+            });
+
+            window.addEventListener('resize', () => evolChart && evolChart.resize());
+        }
+
+        // ─── Evolución Histórica por Lanzamiento ─────────────────────────
+
+        function setHistPeriodo(meses) {
+            histPeriodo = meses;
+            document.getElementById('btn-hist-3m').classList.toggle('active', meses === 3);
+            document.getElementById('btn-hist-6m').classList.toggle('active', meses === 6);
+            const cod = document.getElementById('filter-cliente').value;
+            loadHistEvolucion(cod);
+        }
+
+        async function loadHistEvolucion(cod_cliente) {
+            const qs = new URLSearchParams({ vendedor, jefe, zona, meses: histPeriodo });
+            if (cod_cliente) qs.set('cod_cliente', cod_cliente);
+
+            try {
+                const res = await fetch(`/api/coberturas/evolucion-lanzamientos?${qs}`);
+                const data = await res.json();
+
+                if (data.error || !data.lanzamientos || data.lanzamientos.length === 0) return;
+
+                // Update subtitle
+                const subtitle = document.getElementById('evol-hist-subtitle');
+                if (cod_cliente) {
+                    const clienteNom = document.getElementById('filter-cliente').options[
+                        document.getElementById('filter-cliente').selectedIndex
+                    ].text;
+                    subtitle.textContent = `KG facturado mensual por lanzamiento · ${clienteNom} · últimos ${histPeriodo} meses`;
+                } else {
+                    subtitle.textContent = `KG facturado mensual por producto de lanzamiento · últimos ${histPeriodo} meses`;
+                }
+
+                renderHistChart(data);
+            } catch (e) {
+                console.error('Error cargando evolución histórica:', e);
+            }
+        }
+
+        function renderHistChart(data) {
+            const dom = document.getElementById('evol-hist-chart');
+            if (histChart) histChart.dispose();
+            histChart = echarts.init(dom);
+
+            // One series per lanzamiento (grouped bars)
+            const series = data.lanzamientos.map((lz, i) => ({
+                name: lz,
+                type: 'bar',
+                barGap: '10%',
+                barCategoryGap: '30%',
+                emphasis: { focus: 'series' },
+                itemStyle: {
+                    color: CAT_COLORS[i % CAT_COLORS.length],
+                    borderRadius: [3, 3, 0, 0]
+                },
+                data: data.series[lz],
+                label: { show: false }
+            }));
+
+            // Línea de total por mes — hace visible que Dic/Ene tienen datos aunque las barras sean pequeñas
+            const totalPorMes = data.mes_labels.map((_, i) => {
+                return data.lanzamientos.reduce((sum, lz) => sum + (data.series[lz][i] || 0), 0);
+            });
+            series.push({
+                name: 'Total',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 7,
+                lineStyle: { color: 'rgba(255,255,255,0.35)', width: 2, type: 'dashed' },
+                itemStyle: { color: '#fff', borderColor: '#555', borderWidth: 1 },
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#aaa',
+                    fontSize: 11,
+                    fontWeight: '700',
+                    formatter: p => p.value > 0 ? fmt(p.value) + ' kg' : ''
+                },
+                tooltip: { show: false },
+                data: totalPorMes
+            });
+
+            histChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: '#111',
+                    borderColor: '#222',
+                    textStyle: { color: '#ccc' },
+                    formatter: params => {
+                        const mesIdx = data.mes_labels.indexOf(params[0].axisValue);
+                        const mes = params[0].axisValue;
+                        let html = `<b>${mes}</b><br/>`;
+                        let total = 0;
+                        let totalPrev = 0;
+                        params.forEach(p => {
+                            if (p.value > 0) {
+                                // % vs mes anterior
+                                let deltaHtml = '';
+                                if (mesIdx > 0) {
+                                    const prev = data.series[p.seriesName][mesIdx - 1] || 0;
+                                    if (prev > 0) {
+                                        const delta = ((p.value - prev) / prev * 100).toFixed(1);
+                                        const sign = delta >= 0 ? '+' : '';
+                                        const clr = delta >= 0 ? '#34c759' : '#ff453a';
+                                        deltaHtml = ` <span style="color:${clr};font-size:10px">${sign}${delta}%</span>`;
+                                        totalPrev += prev;
+                                    }
+                                }
+                                html += `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.color};margin-right:6px;"></span>`;
+                                html += `${p.seriesName}: <b>${fmt(p.value)} kg</b>${deltaHtml}<br/>`;
+                                total += p.value;
+                            }
+                        });
+                        if (total > 0) {
+                            let totalDeltaHtml = '';
+                            if (mesIdx > 0 && totalPrev > 0) {
+                                const d = ((total - totalPrev) / totalPrev * 100).toFixed(1);
+                                const sign = d >= 0 ? '+' : '';
+                                const clr = d >= 0 ? '#34c759' : '#ff453a';
+                                totalDeltaHtml = ` <span style="color:${clr};font-size:10px">${sign}${d}%</span>`;
+                            }
+                            html += `<br/><b>Total: ${fmt(total)} kg${totalDeltaHtml}</b>`;
+                        }
+                        return html;
+                    }
+                },
+                legend: {
+                    data: data.lanzamientos,
+                    bottom: 0,
+                    textStyle: { color: '#888', fontSize: 11 },
+                    itemWidth: 10, itemHeight: 10,
+                    icon: 'roundRect'
+                },
+                grid: { left: '3%', right: '3%', top: '5%', bottom: '14%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: data.mes_labels,
+                    axisLabel: { color: '#888', fontSize: 12 },
+                    axisTick: { show: false },
+                    axisLine: { lineStyle: { color: '#222' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#555',
+                        formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v
+                    },
+                    splitLine: { lineStyle: { color: '#151515' } }
+                },
+                series
+            });
+
+            window.addEventListener('resize', () => histChart && histChart.resize());
+        }
+
+        // ─── Metadata (fecha última carga) ───────────────────────────────
+        async function loadMeta() {
+            try {
+                const res = await fetch('/api/meta');
+                const meta = await res.json();
+                if (meta.ultima_carga_label) {
+                    const el = document.getElementById('data-freshness');
+                    document.getElementById('freshness-label').textContent = `Datos al ${meta.ultima_carga_label}`;
+                    el.style.display = 'inline-flex';
+                }
+                if (meta.mes_activo) {
+                    const [y, m] = meta.mes_activo.split('-');
+                    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    document.getElementById('month-badge').textContent = `${meses[parseInt(m) - 1]} ${y}`;
+                    // Title dinámico
+                    const ctxLabel = vendedor || jefe || zona || '';
+                    if (ctxLabel) document.title = `Swift Sales | Coberturas · ${ctxLabel}`;
+                }
+            } catch (e) { console.log('meta fetch error', e); }
+        }
+
         // Events
         document.getElementById('filter-producto').addEventListener('change', e => loadData(e.target.value));
-        document.getElementById('filter-search').addEventListener('input', () => {
-            const prod = document.getElementById('filter-producto').value;
+
+        document.getElementById('filter-cliente').addEventListener('change', e => {
+            const cod = e.target.value;
             renderTable(DATA.detalle);
+            loadEvolucion(cod);
+            loadHistEvolucion(cod);
         });
 
         // Init
+        loadMeta();
         loadData('');
+        loadHistEvolucion('');
     </script>
 </body>
 

@@ -90,6 +90,38 @@ def cliente_detail(cod_cliente):
 
 # ==================== API ENDPOINTS ====================
 
+
+@app.route('/api/meta')
+def api_meta():
+    """Return metadata: last data load date and active month."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT
+            MAX(year_month)     as mes_activo,
+            MAX(fecha_emision)  as ultima_fecha_fact
+        FROM fact_facturacion
+    """).fetchone()
+    conn.close()
+
+    mes_activo = row['mes_activo'] if row else None
+    ultima_fecha = row['ultima_fecha_fact'] if row else None
+
+    # Format as "26 feb 2026" if date present
+    label = None
+    if ultima_fecha:
+        try:
+            dt = datetime.strptime(str(ultima_fecha)[:10], '%Y-%m-%d')
+            meses_es = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+            label = f"{dt.day} {meses_es[dt.month-1]} {dt.year}"
+        except Exception:
+            label = str(ultima_fecha)[:10]
+
+    return jsonify({
+        'mes_activo': mes_activo,
+        'ultima_fecha_fact': ultima_fecha,
+        'ultima_carga_label': label
+    })
+
 @app.route('/api/filters')
 def api_filters():
     """Return hierarchy data for cascading filters."""
@@ -368,16 +400,21 @@ def api_dashboard():
                 projection.append(round(current_total + (avg_daily * i), 0))
 
         # Consolidate Chart Data
+        total_pendiente = summary['pendiente'] or 0
+        actual_plus_pend = [round(v + total_pendiente, 0) for v in actual]
+        
         chart_data = {
             'dates': dates_s,
             'ideal': ideal,
             'actual': actual,
+            'real_plus_pend': actual_plus_pend,
             'projection': projection,
             'objetivo': round(total_objetivo, 0),
             'facturado': round(summary['facturacion'] or 0, 0),
-            'pendiente': round(summary['pendiente'] or 0, 0),
+            'pendiente': round(total_pendiente, 0),
             'composition': composition
         }
+
 
     conn.close()
     
@@ -946,6 +983,241 @@ def api_cliente_coberturas(cod_cliente):
     """, (cod_cliente,)).fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/coberturas/evolucion-lanzamientos')
+def api_coberturas_evolucion_lanzamientos():
+    """
+    Evolución histórica de KG vendidos por lanzamiento (categoría) a lo largo del tiempo.
+    Agrupa fact_facturacion × dim_product_classification por year_month y categoría.
+    Opcionalmente filtra por cliente, vendedor, jefe o zona.
+    """
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe = request.args.get('jefe', '')
+    zona = request.args.get('zona', '')
+    cod_cliente = request.args.get('cod_cliente', '')
+    meses = int(request.args.get('meses', 6))
+
+    conn = get_db()
+
+    # Obtener los últimos N meses disponibles
+    meses_rows = conn.execute("""
+        SELECT DISTINCT year_month FROM fact_facturacion
+        ORDER BY year_month DESC LIMIT ?
+    """, (meses,)).fetchall()
+
+    if not meses_rows:
+        conn.close()
+        return jsonify({'error': 'No hay datos de facturación'}), 404
+
+    month_list = sorted([r['year_month'] for r in meses_rows])
+    cutoff = month_list[0]
+
+    # Obtener los lanzamientos (categorías) disponibles en fact_lanzamiento_cobertura
+    # para saber cuáles son los productos de lanzamiento
+    lanz_rows = conn.execute("""
+        SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura
+        WHERE year_month = (SELECT MAX(year_month) FROM fact_lanzamiento_cobertura)
+        ORDER BY lanzamiento
+    """).fetchall()
+    lanzamientos = [r['lanzamiento'] for r in lanz_rows]
+
+    # Build where clause for fact_facturacion
+    where_parts = ["f.year_month >= ?"]
+    params = [cutoff]
+
+    if cod_cliente:
+        where_parts.append("f.cod_cliente = ?")
+        params.append(cod_cliente)
+    elif cod_vendedor:
+        where_parts.append("f.cod_vendedor = ?")
+        params.append(cod_vendedor)
+    elif jefe:
+        vcodes = conn.execute(
+            "SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month WHERE jefe = ?", (jefe,)
+        ).fetchall()
+        codes = [v['cod_vendedor'] for v in vcodes]
+        if codes:
+            where_parts.append(f"f.cod_vendedor IN ({','.join(['?']*len(codes))})")
+            params.extend(codes)
+    elif zona:
+        where_parts.append("f.zona = ?" if False else "1=1")  # zona not in fact_facturacion directly
+        vcodes = conn.execute(
+            "SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month WHERE zona = ?", (zona,)
+        ).fetchall()
+        codes = [v['cod_vendedor'] for v in vcodes]
+        if codes:
+            where_parts[-1] = f"f.cod_vendedor IN ({','.join(['?']*len(codes))})"
+            params.extend(codes)
+
+    where = " AND ".join(where_parts)
+
+    # Query: KG por (year_month × categoria) — todas las categorías con datos
+    rows = conn.execute(f"""
+        SELECT
+            f.year_month,
+            COALESCE(p.categoria, 'OTROS') as lanzamiento,
+            ROUND(SUM(f.cantidad), 1) as kg
+        FROM fact_facturacion f
+        LEFT JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        WHERE {where}
+          AND f.cantidad > 0
+        GROUP BY f.year_month, p.categoria
+        ORDER BY f.year_month ASC, kg DESC
+    """, params).fetchall()
+
+    conn.close()
+
+    # Pivot: {year_month: {lanzamiento: kg}}
+    pivot = {}
+    all_lanz = []
+    seen_lanz = set()
+    for r in rows:
+        ym = r['year_month']
+        lz = r['lanzamiento']
+        if ym not in pivot:
+            pivot[ym] = {}
+        pivot[ym][lz] = r['kg']
+        if lz not in seen_lanz:
+            all_lanz.append(lz)
+            seen_lanz.add(lz)
+
+    # Use lanzamientos order from cobertura (if available), else from data
+    ordered_lanz = [l for l in lanzamientos if l in seen_lanz]
+    # Add any extra categories from data not in lanzamientos list
+    ordered_lanz += [l for l in all_lanz if l not in set(ordered_lanz)]
+
+    # Build series per lanzamiento
+    series = {}
+    for lz in ordered_lanz:
+        series[lz] = [pivot.get(ym, {}).get(lz, 0) for ym in month_list]
+
+    # Totales por mes
+    totales_mes = [round(sum(pivot.get(ym, {}).values()), 1) for ym in month_list]
+
+    # Etiquetas de meses
+    MESES_ES = {
+        '01': 'Ene', '02': 'Feb', '03': 'Mar', '04': 'Abr',
+        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dic'
+    }
+    mes_labels = []
+    for ym in month_list:
+        parts = ym.split('-')
+        mes_labels.append(f"{MESES_ES.get(parts[1], parts[1])} {parts[0][2:]}" if len(parts) == 2 else ym)
+
+    return jsonify({
+        'meses': month_list,
+        'mes_labels': mes_labels,
+        'lanzamientos': ordered_lanz,
+        'series': series,
+        'totales_mes': totales_mes,
+        'filtrado_por_cliente': bool(cod_cliente)
+    })
+
+
+@app.route('/api/coberturas/cliente-evolucion')
+def api_cliente_evolucion():
+    """
+    Evolución mensual del mix de categorías compradas por un cliente.
+    Devuelve series por categoría × mes (KG) para los últimos N meses disponibles.
+    """
+    cod_cliente = request.args.get('cod_cliente', '')
+    meses = int(request.args.get('meses', 6))
+
+    if not cod_cliente:
+        return jsonify({'error': 'cod_cliente requerido'}), 400
+
+    conn = get_db()
+
+    # Obtener nombre del cliente
+    cliente_row = conn.execute("""
+        SELECT DISTINCT nom_cliente FROM fact_avance_cliente_vendedor_month
+        WHERE cod_cliente = ? LIMIT 1
+    """, (cod_cliente,)).fetchone()
+
+    nombre_cliente = cliente_row['nom_cliente'] if cliente_row else cod_cliente
+
+    # Obtener los últimos N meses disponibles en fact_facturacion
+    meses_disponibles = conn.execute("""
+        SELECT DISTINCT year_month FROM fact_facturacion
+        ORDER BY year_month DESC LIMIT ?
+    """, (meses,)).fetchall()
+
+    if not meses_disponibles:
+        conn.close()
+        return jsonify({'error': 'No hay datos de facturación'}), 404
+
+    month_list = sorted([r['year_month'] for r in meses_disponibles])
+    cutoff = month_list[0]
+
+    # Obtener KG por mes y categoría para el cliente
+    rows = conn.execute("""
+        SELECT
+            f.year_month,
+            COALESCE(p.categoria, 'OTROS') as categoria,
+            ROUND(SUM(f.cantidad), 1) as kg,
+            ROUND(SUM(f.importe), 0) as pesos,
+            COUNT(DISTINCT f.cod_producto) as productos
+        FROM fact_facturacion f
+        LEFT JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        WHERE f.cod_cliente = ?
+          AND f.year_month >= ?
+        GROUP BY f.year_month, p.categoria
+        ORDER BY f.year_month ASC, kg DESC
+    """, (cod_cliente, cutoff)).fetchall()
+
+    conn.close()
+
+    # Construir estructura de series: {categoria: [kg_mes1, kg_mes2, ...]}
+    cat_set = []
+    seen_cats = set()
+    for r in rows:
+        if r['categoria'] not in seen_cats:
+            cat_set.append(r['categoria'])
+            seen_cats.add(r['categoria'])
+
+    # Pivot: mes × categoria → kg
+    pivot = {}  # {year_month: {categoria: kg}}
+    for r in rows:
+        ym = r['year_month']
+        if ym not in pivot:
+            pivot[ym] = {}
+        pivot[ym][r['categoria']] = r['kg']
+
+    # Build series arrays aligned to month_list
+    series = {}
+    for cat in cat_set:
+        series[cat] = [pivot.get(ym, {}).get(cat, 0) for ym in month_list]
+
+    # Totales por mes
+    totales_mes = []
+    for ym in month_list:
+        totales_mes.append(round(sum(pivot.get(ym, {}).values()), 1))
+
+    # Formato de etiquetas de meses (ej: "Nov 25", "Dic 25")
+    mes_labels = []
+    MESES_ES = {
+        '01': 'Ene', '02': 'Feb', '03': 'Mar', '04': 'Abr',
+        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dic'
+    }
+    for ym in month_list:
+        parts = ym.split('-')
+        if len(parts) == 2:
+            mes_labels.append(f"{MESES_ES.get(parts[1], parts[1])} {parts[0][2:]}")
+        else:
+            mes_labels.append(ym)
+
+    return jsonify({
+        'cliente': nombre_cliente,
+        'cod_cliente': cod_cliente,
+        'meses': month_list,
+        'mes_labels': mes_labels,
+        'categorias': cat_set,
+        'series': series,
+        'totales_mes': totales_mes
+    })
 
 
 if __name__ == '__main__':

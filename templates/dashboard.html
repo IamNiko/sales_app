@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swift Sales | Dashboard</title>
+    <title id="page-title">Swift Sales | Dashboard</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="/static/vendor/echarts.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
@@ -32,6 +34,38 @@
             color: #000;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
         }
+
+        /* Fecha última carga */
+        .data-freshness {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(52, 199, 89, 0.12);
+            border: 1px solid rgba(52, 199, 89, 0.25);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            color: #34c759;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-top: 6px;
+        }
+
+        /* Filas de clientes sin compra en el mes */
+        tr.row-sin-compra td {
+            background: rgba(255, 69, 58, 0.05) !important;
+        }
+
+        tr.row-sin-compra:hover td {
+            background: rgba(255, 69, 58, 0.1) !important;
+        }
+
+        .alert-icon {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -51,8 +85,11 @@
             <div>
                 <h2 id="vendedor-name">Dashboard de Ventas</h2>
                 <div class="meta" id="vendedor-meta">Visualización unificada de rendimiento comercial</div>
+                <div class="data-freshness" id="data-freshness" style="display:none">
+                    <span>●</span> <span id="freshness-label">Cargando...</span>
+                </div>
             </div>
-            <div class="month-badge">Febrero 2026</div>
+            <div class="month-badge" id="month-badge">—</div>
         </div>
 
         <div class="kpi-grid">
@@ -245,6 +282,23 @@
             window.location.href = `/planning?${params.join('&')}`;
         }
 
+        async function loadMeta() {
+            try {
+                const res = await fetch('/api/meta');
+                const meta = await res.json();
+                if (meta.ultima_carga_label) {
+                    const el = document.getElementById('data-freshness');
+                    document.getElementById('freshness-label').textContent = `Datos al ${meta.ultima_carga_label}`;
+                    el.style.display = 'inline-flex';
+                }
+                if (meta.mes_activo) {
+                    const [y, m] = meta.mes_activo.split('-');
+                    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    document.getElementById('month-badge').textContent = `${meses[parseInt(m) - 1]} ${y}`;
+                }
+            } catch (e) { console.log('meta fetch error', e); }
+        }
+
         async function loadDashboard() {
             // Allow loading if any filter is present
             if (!vendedor && !jefe && !zona) { window.location.href = '/filters'; return; }
@@ -261,9 +315,13 @@
             // Save for toggle
             globalClientes = data.clientes || [];
 
-            // Header
+            // Dynamic title
             const type = data.vendedor.type ? `[${data.vendedor.type}] ` : '';
-            document.getElementById('vendedor-name').textContent = type + data.vendedor.nombre;
+            const nombreCompleto = type + data.vendedor.nombre;
+            document.title = `Swift Sales | ${nombreCompleto}`;
+
+            // Header
+            document.getElementById('vendedor-name').textContent = nombreCompleto;
 
             let meta = '';
             if (data.vendedor.zona) meta += data.vendedor.zona;
@@ -436,11 +494,19 @@
                         areaStyle: { color: 'rgba(0,122,255,0.1)' }
                     },
                     {
+                        name: 'Real + Pendiente',
+                        type: 'line',
+                        data: chartData.real_plus_pend,
+                        itemStyle: { color: '#4CD964' },
+                        lineStyle: { width: 2 }
+                    },
+                    {
                         name: 'Proyección',
                         type: 'line',
                         data: chartData.projection,
                         lineStyle: { type: 'dotted', color: '#FF9500' }
                     }
+
                 ]
             };
 
@@ -457,9 +523,14 @@
                 const pct = objKg ? Math.round(totalKg / objKg * 100) : 0;
                 const status = getStatusClass(pct);
 
+                // Fila roja: tiene objetivo pero facturación = 0 en el mes (cliente sin compra)
+                const sinCompra = (c.facturacion || 0) === 0 && objKg > 0;
+                const rowClass = sinCompra ? 'row-sin-compra' : '';
+                const alertIcon = sinCompra ? '<span class="alert-icon" title="Sin compra este mes">⚠️</span>' : '';
+
                 return `
-                    <tr onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'">
-                        <td><strong>${c.nom_cliente || 'N/A'}</strong></td>
+                    <tr class="${rowClass}" onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'">
+                        <td><strong>${c.nom_cliente || 'N/A'}</strong>${alertIcon}</td>
                         <td>${c.frecuencia || '-'}</td>
                         <td class="text-right">${formatKgShort(c.facturacion || 0)}</td>
                         <td class="text-right">${formatKgShort(c.objetivo || 0)}</td>
@@ -477,6 +548,7 @@
             echarts.getInstanceByDom(document.getElementById('chart-clientes'))?.resize();
         });
 
+        loadMeta();
         loadDashboard();
     </script>
 </body>

@@ -67,10 +67,11 @@ def normalize_key(text):
     """Normalize vendor/client IDs: strip whitespace, remove trailing .0 from numeric floats."""
     if pd.isna(text): return ""
     s = str(text).strip()
-    # Remove trailing .0 from numeric IDs (e.g. 100067806.0 -> 100067806)
-    if s.endswith('.0') and s[:-2].isdigit():
-        return s[:-2]
+    # Remove trailing .0 from numeric IDs common in Excel/TXT imports (e.g. 100067806.0 -> 100067806)
+    if s.endswith('.0'):
+        s = s[:-2]
     return s.zfill(5) if s.isdigit() else s.upper()
+
 
 def coerce_numeric(val):
     if isinstance(val, str):
@@ -599,8 +600,45 @@ class SalesETL:
         
         # Now extract historical months
         self.process_cliente_historico(df)
+        
+    def sync_facturacion_to_avance(self):
+
+        """Update venta_actual in fact_avance_cliente_vendedor_month using the real 
+        sum of KG from fact_facturacion for the current target month.
+        This fixes discrepancies where the Avance Excel is late compared to the TXT.
+        """
+        ym = self.target_month
+        logging.info(f"Syncing Facturacion KG to Avance table for {ym}")
+        
+        # Calculate real KG sum per (cod_vendedor, cod_cliente) from fact_facturacion
+        # Note: we group by cod_cliente only because in theory it's assigned to one vendor 
+        # but to be safe we match the specific vendor-client pair.
+        self.conn.execute("""
+            WITH real_sales AS (
+                SELECT cod_cliente, cod_vendedor, SUM(cantidad) as total_kg
+                FROM fact_facturacion
+                WHERE year_month = ?
+                GROUP BY cod_cliente, cod_vendedor
+            )
+            UPDATE fact_avance_cliente_vendedor_month
+            SET venta_actual = (
+                SELECT total_kg FROM real_sales 
+                WHERE real_sales.cod_cliente = fact_avance_cliente_vendedor_month.cod_cliente
+                  AND real_sales.cod_vendedor = fact_avance_cliente_vendedor_month.cod_vendedor
+            )
+            WHERE year_month = ?
+              AND EXISTS (
+                SELECT 1 FROM real_sales 
+                WHERE real_sales.cod_cliente = fact_avance_cliente_vendedor_month.cod_cliente
+                  AND real_sales.cod_vendedor = fact_avance_cliente_vendedor_month.cod_vendedor
+              )
+        """, (ym, ym))
+        
+        self.conn.commit()
+        logging.info("Facturacion KG synced to Avance table.")
 
     def process_cliente_historico(self, df):
+
         """Extract historical monthly sales from Avance x Cliente-Vendedor columns."""
         import re
         
@@ -804,10 +842,11 @@ class SalesETL:
         self.conn.commit()
         logging.info("Normalized .0 suffix in fact_facturacion cod_vendedor")
 
-        # Then remap Perotti → Gentile
+        # Then remap aliases (Perotti, Vacante Santa Fe → Gentile)
         aliases = [
             ('100075864', '100067806', 'GENTILE NICOLAS'),
             ('100075865', '100067806', 'GENTILE NICOLAS'),
+            ('100089597', '100067806', 'GENTILE NICOLAS'),  # VACANTE SANTA FE IND
         ]
         total_avance = 0
         total_fact   = 0
@@ -825,8 +864,14 @@ class SalesETL:
         self.conn.commit()
         logging.info(f"Vendor aliases: {total_avance} avance, {total_fact} facturacion rows remapped to Gentile")
 
+
+
     def process_lanzamientos(self):
-        """Process Compradores Lanzamientos.xlsx — one sheet per launch product."""
+        """Process Compradores Lanzamientos.xlsx — one sheet per launch product.
+        Imports:
+          - Current month (FEB '26): full estado + fact/pend/total/promedio
+          - Historical months (ENE '26, DIC '25, etc.): kg per client per month
+        """
         f_path = self.find_file(r'Compradores Lanzamientos.*\.xlsx')
         if not f_path:
             logging.warning("Compradores Lanzamientos not found, skipping.")
@@ -839,68 +884,142 @@ class SalesETL:
         skip = {'DINAMICA ENERO 26', 'DINAMICA'}
         sheets = [s for s in xls.sheet_names if s.upper() not in {x.upper() for x in skip}]
 
-        # Clear existing data for target month
+        # Clear existing data for target month only
         ym = self.target_month or f'{self.year}-{datetime.now().month:02d}'
         self.conn.execute("DELETE FROM fact_lanzamiento_cobertura WHERE year_month = ?", (ym,))
 
+        # Month name → number map for historical col parsing
+        _MONTH_MAP = {
+            'ENE': '01', 'FEB': '02', 'MAR': '03', 'ABR': '04',
+            'MAY': '05', 'JUN': '06', 'JUL': '07', 'AGO': '08',
+            'SEP': '09', 'SEPT': '09', 'OCT': '10', 'NOV': '11', 'DIC': '12'
+        }
+        _HIST_COL_RE = re.compile(
+            r"^(ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|SEPT|OCT|NOV|DIC)['\s]*(\d{2})$",
+            re.IGNORECASE
+        )
+
+        def col_to_ym(col_name):
+            """Convert a column header like \"ENE '26\" or \"DIC 25\" to \"2026-01\"."""
+            m = _HIST_COL_RE.match(str(col_name).strip().upper().replace("'", "").replace(" ", ""))
+            if not m:
+                return None
+            mon = _MONTH_MAP.get(m.group(1)[:3])
+            yr = '20' + m.group(2)
+            return f"{yr}-{mon}" if mon else None
+
         total = 0
+        hist_total = 0
+
         for sheet in sheets:
             try:
                 df = pd.read_excel(xls, sheet_name=sheet, header=1)
                 df.columns = [str(c).strip() for c in df.columns]
 
-                # Find ESTADO column
+                # ── Current month: ESTADO + fact/pend/total/promedio ─────────
                 if 'ESTADO' not in df.columns:
-                    logging.warning(f"  {sheet}: no ESTADO column, skipping")
-                    continue
+                    logging.warning(f"  {sheet}: no ESTADO column, skipping current month")
+                else:
+                    # Map month number to abbreviation for Excel column search (e.g., '02' -> 'FEB')
+                    # This fixes the issue where Feb columns like "FEB '26 FACT" were not found
+                    rev_month_map = {v: k for k, v in _MONTH_MAP.items()}
+                    month_abbr = rev_month_map.get(ym[-2:])
+                    
+                    fact_col  = next((c for c in df.columns if 'FACT'    in c.upper() and month_abbr in c.upper()), None)
+                    pend_col  = next((c for c in df.columns if 'PEND'    in c.upper() and month_abbr in c.upper()), None)
+                    total_col = next((c for c in df.columns if 'TOTAL'   in c.upper() and month_abbr in c.upper()), None)
+                    prom_col  = next((c for c in df.columns if 'PROMEDIO' in c.upper()), None)
 
-                # Find fact/pend/total columns (pattern: FEB '26 FACT, etc.)
-                fact_col = next((c for c in df.columns if 'FACT' in c.upper() and 'FEB' in c.upper()), None)
-                pend_col = next((c for c in df.columns if 'PEND' in c.upper() and 'FEB' in c.upper()), None)
-                total_col = next((c for c in df.columns if 'TOTAL' in c.upper() and 'FEB' in c.upper()), None)
-                prom_col = next((c for c in df.columns if 'PROMEDIO' in c.upper()), None)
 
-                rows = []
+                    rows_cur = []
+                    for _, row in df.iterrows():
+                        cod_cli = normalize_key(row.get('COD CENTRALIZADOR'))
+                        if not cod_cli or pd.isna(cod_cli): continue
+                        nom = row.get('NOM CENTRALIZADOR', '')
+                        if pd.notna(nom) and 'TOTAL' in str(nom).upper(): continue
+
+                        estado = str(row.get('ESTADO', '')).strip()
+                        if 'COMPRADOR' in estado.upper() and 'SIN' not in estado.upper() and 'NO' not in estado.upper():
+                            estado_norm = 'COMPRADOR'
+                        elif 'SIN COMPRA' in estado.upper():
+                            estado_norm = 'SIN COMPRA'
+                        elif 'NO COMPRADOR' in estado.upper():
+                            estado_norm = 'NO COMPRADOR'
+                        else:
+                            estado_norm = estado or 'DESCONOCIDO'
+
+                        rows_cur.append((
+                            ym, sheet,
+                            normalize_key(row.get('COD VENDEDOR')),
+                            str(row.get('NOM VENDEDOR', '')).strip(),
+                            cod_cli,
+                            str(nom).strip(),
+                            str(row.get('CANAL', '')).strip(),
+                            str(row.get('ZONA', '')).strip(),
+                            estado_norm,
+                            coerce_numeric(row.get(fact_col))  if fact_col  else 0,
+                            coerce_numeric(row.get(pend_col))  if pend_col  else 0,
+                            coerce_numeric(row.get(total_col)) if total_col else 0,
+                            coerce_numeric(row.get(prom_col))  if prom_col  else 0,
+                        ))
+
+                    self.conn.executemany("""
+                        INSERT OR REPLACE INTO fact_lanzamiento_cobertura
+                        (year_month, lanzamiento, cod_vendedor, nom_vendedor, cod_cliente, nom_cliente,
+                         canal, zona, estado, fact_feb, pend_feb, total_feb, promedio_u3)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    """, rows_cur)
+                    total += len(rows_cur)
+                    logging.info(f"  {sheet}: {len(rows_cur)} rows")
+
+                # ── Historical months: one row per (ym_hist, sheet, cod_cliente) ────
+                hist_cols = []
+                for col in df.columns:
+                    ym_hist = col_to_ym(col)
+                    if ym_hist and ym_hist != ym:
+                        hist_cols.append((col, ym_hist))
+
+                rows_hist = []
                 for _, row in df.iterrows():
                     cod_cli = normalize_key(row.get('COD CENTRALIZADOR'))
                     if not cod_cli or pd.isna(cod_cli): continue
                     nom = row.get('NOM CENTRALIZADOR', '')
                     if pd.notna(nom) and 'TOTAL' in str(nom).upper(): continue
 
-                    estado = str(row.get('ESTADO', '')).strip()
-                    # Normalize estado
-                    if 'COMPRADOR' in estado.upper() and 'SIN' not in estado.upper() and 'NO' not in estado.upper():
-                        estado_norm = 'COMPRADOR'
-                    elif 'SIN COMPRA' in estado.upper():
-                        estado_norm = 'SIN COMPRA'
-                    elif 'NO COMPRADOR' in estado.upper():
-                        estado_norm = 'NO COMPRADOR'
-                    else:
-                        estado_norm = estado or 'DESCONOCIDO'
+                    cod_ven = normalize_key(row.get('COD VENDEDOR'))
+                    nom_ven = str(row.get('NOM VENDEDOR', '')).strip()
+                    canal   = str(row.get('CANAL', '')).strip()
+                    zona    = str(row.get('ZONA', '')).strip()
 
-                    rows.append((
-                        ym, sheet,
-                        normalize_key(row.get('COD VENDEDOR')),
-                        str(row.get('NOM VENDEDOR', '')).strip(),
-                        cod_cli,
-                        str(nom).strip(),
-                        str(row.get('CANAL', '')).strip(),
-                        str(row.get('ZONA', '')).strip(),
-                        estado_norm,
-                        coerce_numeric(row.get(fact_col)) if fact_col else 0,
-                        coerce_numeric(row.get(pend_col)) if pend_col else 0,
-                        coerce_numeric(row.get(total_col)) if total_col else 0,
-                        coerce_numeric(row.get(prom_col)) if prom_col else 0,
-                    ))
+                    for col, ym_hist in hist_cols:
+                        kg = coerce_numeric(row.get(col))
+                        if not kg or kg <= 0:
+                            continue
+                        rows_hist.append((
+                            ym_hist, sheet,
+                            cod_ven, nom_ven,
+                            cod_cli, str(nom).strip(),
+                            canal, zona,
+                            'HISTORIAL',       # estado
+                            kg,                # fact_feb = kg ese mes
+                            0, kg, 0,          # pend=0, total=kg, prom=0
+                        ))
 
-                self.conn.executemany("""
-                    INSERT OR REPLACE INTO fact_lanzamiento_cobertura
-                    (year_month, lanzamiento, cod_vendedor, nom_vendedor, cod_cliente, nom_cliente,
-                     canal, zona, estado, fact_feb, pend_feb, total_feb, promedio_u3)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-                """, rows)
-                total += len(rows)
-                logging.info(f"  {sheet}: {len(rows)} rows")
+                if rows_hist:
+                    # Only clear the specific hist months we're about to write
+                    hist_months = set(r[0] for r in rows_hist)
+                    for hm in hist_months:
+                        self.conn.execute(
+                            "DELETE FROM fact_lanzamiento_cobertura WHERE year_month = ? AND lanzamiento = ?",
+                            (hm, sheet)
+                        )
+                    self.conn.executemany("""
+                        INSERT OR REPLACE INTO fact_lanzamiento_cobertura
+                        (year_month, lanzamiento, cod_vendedor, nom_vendedor, cod_cliente, nom_cliente,
+                         canal, zona, estado, fact_feb, pend_feb, total_feb, promedio_u3)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    """, rows_hist)
+                    hist_total += len(rows_hist)
 
             except Exception as e:
                 logging.warning(f"  {sheet}: FAILED — {e}")
@@ -908,7 +1027,9 @@ class SalesETL:
 
         self.conn.commit()
         self.processed_files.append(f_path.name)
-        logging.info(f"Lanzamientos TOTAL: {total} rows across {len(sheets)} products")
+        logging.info(f"Lanzamientos TOTAL: {total} rows (current month) + {hist_total} rows (historical) across {len(sheets)} products")
+
+
 
     def run_all(self):
         try:
@@ -919,6 +1040,7 @@ class SalesETL:
             self.process_facturacion()
             self.process_avance_vendedor()
             self.apply_vendor_aliases()   # Perotti → Gentile auto
+            self.sync_facturacion_to_avance() # Sync TXT KG to Avance table
             self.update_premium_flag()
             self.seed_objetivos()
             self.process_category_sheets()
