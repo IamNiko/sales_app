@@ -1123,10 +1123,27 @@ class SalesETL:
             total_score = vol_score + mix_score + loyalty_score
             
             # Define Tier (Slightly adjusted thresholds for realistic distribution)
-            if total_score >= 75: tier = "AAA"
-            elif total_score >= 55: tier = "AA"
-            elif total_score >= 30: tier = "A"
-            else: tier = "B"
+            # PROACTIVE: Isolate National Chains from the strategic ranking
+            national_chains = ['LIBERTAD', 'DIARCO', 'CENCOSUD', 'CARREFOUR', 'WAL-MART', 
+                               'CHANGOMAS', 'MAXICONSUMO', 'VITAL', 'MAKRO', 'INC S.A.', 'GDN']
+            
+            # Get client name for chain detection
+            nom_cli_row = self.conn.execute("SELECT nom_cliente FROM fact_avance_cliente_vendedor_month WHERE cod_cliente = ? LIMIT 1", (cod_cli,)).fetchone()
+            nom_cli = nom_cli_row['nom_cliente'].upper() if nom_cli_row else ""
+            
+            is_national_chain = any(chain in nom_cli for chain in national_chains)
+            
+            if is_national_chain:
+                tier = "CN" # Cadena Nacional
+            elif total_score >= 75: 
+                tier = "AAA"
+            elif total_score >= 55: 
+                tier = "AA"
+            elif total_score >= 30: 
+                tier = "A"
+            else: 
+                tier = "B"
+
 
             
             rows_segmentation.append((

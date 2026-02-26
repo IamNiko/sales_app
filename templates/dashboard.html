@@ -70,6 +70,43 @@
             border: 1px solid #444;
         }
 
+        .tier-cn {
+            background: linear-gradient(135deg, #6A5ACD, #483D8B);
+            color: #fff;
+            box-shadow: 0 0 8px rgba(106, 90, 205, 0.4);
+        }
+
+        /* Sortable Headers */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        th.sortable:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th.sortable::after {
+            content: '↕';
+            font-size: 0.6rem;
+            margin-left: 5px;
+            opacity: 0.3;
+        }
+
+        th.sortable.sort-asc::after {
+            content: '▲';
+            opacity: 1;
+            color: #E84752;
+        }
+
+        th.sortable.sort-desc::after {
+            content: '▼';
+            opacity: 1;
+            color: #E84752;
+        }
+
         /* Fecha última carga */
         .data-freshness {
             display: inline-flex;
@@ -260,17 +297,22 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 25%">Cliente</th>
-                        <th>Freq</th>
-                        <th>Tier</th>
-                        <th class="text-right">Fact (KG)</th>
-                        <th class="text-right">Obj (KG)</th>
-                        <th class="text-right">Fact ($)</th>
-                        <th class="text-right">Obj ($)</th>
-                        <th>%</th>
+                        <th class="sortable" onclick="changeSort('nom_cliente')" id="col-nom_cliente"
+                            style="width: 25%">Cliente</th>
+                        <th class="sortable" onclick="changeSort('frecuencia')" id="col-frecuencia">Freq</th>
+                        <th class="sortable" onclick="changeSort('tier')" id="col-tier">Tier</th>
+                        <th class="sortable text-right" onclick="changeSort('facturacion')" id="col-facturacion">Fact
+                            (KG)</th>
+                        <th class="sortable text-right" onclick="changeSort('objetivo')" id="col-objetivo">Obj (KG)</th>
+                        <th class="sortable text-right" onclick="changeSort('facturacion_pesos')"
+                            id="col-facturacion_pesos">Fact ($)</th>
+                        <th class="sortable text-right" onclick="changeSort('objetivo_pesos')" id="col-objetivo_pesos">
+                            Obj ($)</th>
+                        <th class="sortable text-right" onclick="changeSort('pct')" id="col-pct">%</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
+
                 <tbody id="clients-table">
                     <!-- JS populated -->
                 </tbody>
@@ -281,6 +323,9 @@
     <script>
         let globalClientes = [];
         let clientMode = 'kg';
+        let currentSortKey = 'facturacion';
+        let sortAsc = false;
+
 
         const urlParams = new URLSearchParams(window.location.search);
         const vendedor = urlParams.get('vendedor');
@@ -552,12 +597,45 @@
 
         function renderClientsTable(clientes) {
             const tbody = document.getElementById('clients-table');
-            tbody.innerHTML = clientes.map(c => {
+
+            // Sort data before rendering
+            const sorted = [...clientes].sort((a, b) => {
+                let v1 = a[currentSortKey];
+                let v2 = b[currentSortKey];
+
+                // Special handling for calculated % field
+                if (currentSortKey === 'pct') {
+                    v1 = a.objetivo ? ((a.facturacion || 0) + (a.pendiente || 0)) / a.objetivo : 0;
+                    v2 = b.objetivo ? ((b.facturacion || 0) + (b.pendiente || 0)) / b.objetivo : 0;
+                }
+
+                // Tier sorting order
+                if (currentSortKey === 'tier') {
+                    const order = { 'AAA': 4, 'AA': 3, 'A': 2, 'B': 1 };
+                    v1 = order[v1 || 'B'] || 0;
+                    v2 = order[v2 || 'B'] || 0;
+                }
+
+                if (v1 < v2) return sortAsc ? -1 : 1;
+                if (v1 > v2) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            // Update header UI
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            const activeHeader = document.getElementById(`col-${currentSortKey}`);
+            if (activeHeader) {
+                activeHeader.classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
+            }
+
+            tbody.innerHTML = sorted.map(c => {
                 const totalKg = (c.facturacion || 0) + (c.pendiente || 0);
                 const objKg = c.objetivo || 0;
 
-                const pct = objKg ? Math.round(totalKg / objKg * 100) : 0;
-                const status = getStatusClass(pct);
+                const pctValue = objKg ? Math.round(totalKg / objKg * 100) : 0;
+                const status = getStatusClass(pctValue);
 
                 // Fila roja: tiene objetivo pero facturación = 0 en el mes (cliente sin compra)
                 const sinCompra = (c.facturacion || 0) === 0 && objKg > 0;
@@ -573,13 +651,24 @@
                         <td class="text-right">${formatKgShort(c.objetivo || 0)}</td>
                         <td class="text-right">${formatPesos(c.facturacion_pesos || 0)}</td>
                         <td class="text-right">${formatPesos(c.objetivo_pesos || 0)}</td>
-                        <td class="text-right"><strong>${pct}%</strong></td>
-                        <td><span class="status-badge ${status}">${pct}%</span></td>
+                        <td class="text-right"><strong>${pctValue}%</strong></td>
+                        <td><span class="status-badge ${status}">${pctValue}%</span></td>
                     </tr>
                 `;
 
             }).join('');
         }
+
+        function changeSort(key) {
+            if (currentSortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                currentSortKey = key;
+                sortAsc = (key === 'nom_cliente' || key === 'frecuencia'); // Names asc by default, numbers desc
+            }
+            renderClientsTable(globalClientes);
+        }
+
 
         window.addEventListener('resize', () => {
             echarts.getInstanceByDom(document.getElementById('chart-avance'))?.resize();
