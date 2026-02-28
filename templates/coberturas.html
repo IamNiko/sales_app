@@ -469,19 +469,18 @@
 
 <body>
     <nav class="navbar">
-        <h1 style="display:flex; align-items:center; gap:10px;">
-            <div
-                style="background: var(--minerva-red); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 1.2rem;">
-                M</div>
-            <span style="letter-spacing: -0.5px;">Minerva <span
-                    style="color: var(--minerva-red); font-weight: 800;">Foods</span></span>
-            <span style="font-weight: 300; margin-left: 8px; opacity: 0.5; font-size: 0.9rem;">Coberturas</span>
-        </h1>
-        <div style="display:flex;gap:16px;align-items:center">
-            <a
-                href="/dashboard?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">←
-                Dashboard</a>
-            <a href="/filters" style="color: var(--text-secondary); font-weight: 500;">Cambiar Vista</a>
+        <a class="navbar-brand" href="/dashboard?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">
+            <div class="brand-icon">M</div>
+            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
+            <span class="brand-sub">Coberturas</span>
+        </a>
+        <div class="navbar-links">
+            <a href="/dashboard?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">📈 Dashboard</a>
+            <a class="active" href="#">📦 Coberturas</a>
+            <a href="/mapa?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">🗺️ Mapa</a>
+        </div>
+        <div class="navbar-extra">
+            <a href="/filters">⚙️ Cambiar Vista</a>
         </div>
     </nav>
 

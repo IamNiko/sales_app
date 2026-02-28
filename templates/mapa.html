@@ -171,13 +171,18 @@
 
 <body>
     <nav class="navbar">
-        <h1 style="display:flex; align-items:center; gap:10px;">
-            <div style="background: white; color: var(--primary); width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-weight:800; font-size:20px;">M</div>
-            Minerva <span style="color: var(--accent); font-weight:800;">Foods</span>
-            <span style="font-size:0.7rem; font-weight:400; opacity:0.8; margin-left:5px;">Mapa Logístico</span>
-        </h1>
-        <div style="display:flex; gap:16px; align-items:center;">
-            <a href="/filters">← Cambiar Vista</a>
+        <a class="navbar-brand" href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">
+            <div class="brand-icon">M</div>
+            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
+            <span class="brand-sub">Mapa Logístico</span>
+        </a>
+        <div class="navbar-links">
+            <a href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">📈 Dashboard</a>
+            <a href="#" onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📦 Coberturas</a>
+            <a class="active" href="#">🗺️ Mapa</a>
+        </div>
+        <div class="navbar-extra">
+            <a href="/filters">⚙️ Cambiar Vista</a>
         </div>
     </nav>
 

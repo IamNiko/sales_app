@@ -71,32 +71,121 @@ body {
 .navbar {
     background: var(--primary);
     box-shadow: var(--shadow);
-    padding: 0.75rem 2rem;
+    padding: 0 2rem;
+    height: 56px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 100;
+    gap: 1rem;
 }
 
-.navbar h1,
-.navbar a,
-.navbar span {
+/* Brand / logo */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.navbar-brand:hover { opacity: 0.88; }
+
+.brand-icon {
+    background: white;
+    color: var(--primary);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.brand-name {
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+}
+
+.brand-accent {
+    color: var(--minerva-yellow, #F4C400);
+    font-weight: 800;
+}
+
+.brand-sub {
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+/* Nav links */
+.navbar-links {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    height: 56px;
+}
+
+.navbar-links a {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    color: rgba(255,255,255,0.75) !important;
+    text-decoration: none;
+    font-size: 0.83rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+
+.navbar-links a:hover {
+    color: white !important;
+    background: rgba(255,255,255,0.08);
+}
+
+.navbar-links a.active {
+    color: white !important;
+    border-bottom-color: var(--minerva-yellow, #F4C400);
+    background: rgba(255,255,255,0.06);
+}
+
+/* Right-side extras (filters link, back button) */
+.navbar-extra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.navbar-extra a {
+    color: rgba(255,255,255,0.65) !important;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: color 0.15s;
+}
+
+.navbar-extra a:hover {
     color: white !important;
 }
 
-.navbar a {
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    opacity: 0.9;
-    transition: opacity 0.2s;
-}
-
-.navbar a:hover {
-    opacity: 0.75;
+/* Legacy catch-all (for any stray .navbar a not in new structure) */
+.navbar h1,
+.navbar > a,
+.navbar span {
+    color: white !important;
 }
 
 /* ── Layout ── */

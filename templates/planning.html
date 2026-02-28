@@ -43,9 +43,29 @@
 
 <body>
     <nav class="navbar">
-        <a href="javascript:history.back()">← Volver al Dashboard</a>
-        <h1>Planificación Diaria</h1>
+        <a class="navbar-brand" href="javascript:history.back()">
+            <div class="brand-icon">M</div>
+            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
+            <span class="brand-sub">Planificación</span>
+        </a>
+        <div class="navbar-links" id="nav-links-planning">
+            <a href="#" id="nav-dashboard-link">📈 Dashboard</a>
+            <a href="#" id="nav-coberturas-link">📦 Coberturas</a>
+            <a href="#" id="nav-mapa-link">🗺️ Mapa</a>
+        </div>
+        <div class="navbar-extra">
+            <a href="javascript:history.back()">← Volver</a>
+        </div>
     </nav>
+    <script>
+        (function() {
+            const qs = new URLSearchParams(window.location.search);
+            const p = qs.toString() ? '?' + qs.toString() : '';
+            document.getElementById('nav-dashboard-link').href = '/dashboard' + p;
+            document.getElementById('nav-coberturas-link').href = '/coberturas' + p;
+            document.getElementById('nav-mapa-link').href = '/mapa' + p;
+        })();
+    </script>
 
     <div class="container">
         <div class="header-row">

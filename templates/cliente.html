@@ -306,16 +306,29 @@
 
 <body>
     <nav class="navbar">
-        <h1 style="display:flex; align-items:center; gap:10px; font-size: 1.1rem; margin:0;">
-            <div
-                style="background: var(--minerva-red); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 1.1rem;">
-                M</div>
-            <span style="letter-spacing: -0.5px;">Minerva <span
-                    style="color: var(--minerva-red); font-weight: 800;">Foods</span></span>
-            <span style="font-weight: 300; margin-left: 8px; opacity: 0.5; font-size: 0.85rem;">Detalle Cliente</span>
-        </h1>
-        <a href="javascript:history.back()" style="font-weight: 600;">← Volver al Dashboard</a>
+        <a class="navbar-brand" href="javascript:history.back()">
+            <div class="brand-icon">M</div>
+            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
+            <span class="brand-sub">Detalle Cliente</span>
+        </a>
+        <div class="navbar-links" id="nav-links-cliente">
+            <a href="#" id="nav-dashboard-link">📈 Dashboard</a>
+            <a href="#" id="nav-coberturas-link">📦 Coberturas</a>
+            <a href="#" id="nav-mapa-link">🗺️ Mapa</a>
+        </div>
+        <div class="navbar-extra">
+            <a href="javascript:history.back()">← Volver</a>
+        </div>
     </nav>
+    <script>
+        (function() {
+            const qs = new URLSearchParams(window.location.search);
+            const p = qs.toString() ? '?' + qs.toString() : '';
+            document.getElementById('nav-dashboard-link').href = '/dashboard' + p;
+            document.getElementById('nav-coberturas-link').href = '/coberturas' + p;
+            document.getElementById('nav-mapa-link').href = '/mapa' + p;
+        })();
+    </script>
 
     <div class="container">
         <div class="client-header">
