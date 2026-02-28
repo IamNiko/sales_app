@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minerva Foods | Mapa Logístico</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            z-index: 0;
+        }
+
+        .map-sidebar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .map-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            box-shadow: var(--shadow);
+            min-width: 140px;
+        }
+
+        .map-stat .label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .map-stat .value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .geocode-banner {
+            background: #FEF9C3;
+            border: 1px solid #FDE68A;
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+            color: #854D0E;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .geocode-banner button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .geocode-progress {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        /* Leaflet popup styling */
+        .popup-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #1D3557;
+            margin-bottom: 4px;
+        }
+
+        .popup-detail {
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .popup-kpi {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .popup-kpi span {
+            background: #F1F5F9;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #1D3557;
+        }
+
+        .popup-kpi span.red { background: #FEE2E2; color: #991B1B; }
+        .popup-kpi span.green { background: #DCFCE7; color: #166534; }
+        .popup-kpi span.yellow { background: #FEF9C3; color: #854D0E; }
+
+        .popup-dist {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #64748B;
+        }
+
+        .popup-link {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            background: #1D3557;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            padding: 5px 0;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .legend-box {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h1 style="display:flex; align-items:center; gap:10px;">
+            <div style="background: white; color: var(--primary); width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-weight:800; font-size:20px;">M</div>
+            Minerva <span style="color: var(--accent); font-weight:800;">Foods</span>
+            <span style="font-size:0.7rem; font-weight:400; opacity:0.8; margin-left:5px;">Mapa Logístico</span>
+        </h1>
+        <div style="display:flex; gap:16px; align-items:center;">
+            <a href="/filters">← Cambiar Vista</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h2>Cobertura Geográfica</h2>
+                <div class="meta" id="map-meta">Cargando clientes...</div>
+            </div>
+        </div>
+
+        <div class="map-sidebar" id="map-stats">
+            <div class="map-stat">
+                <div class="label">Clientes en mapa</div>
+                <div class="value" id="stat-total">—</div>
+            </div>
+            <div class="map-stat">
+                <div class="label">Geocodificados</div>
+                <div class="value" id="stat-geo">—</div>
+            </div>
+            <div class="map-stat">
+                <div class="label">Sin ubicación</div>
+                <div class="value" id="stat-nogeo" style="color: var(--accent)">—</div>
+            </div>
+            <div class="map-stat">
+                <div class="label">Distancia media</div>
+                <div class="value" id="stat-dist">—</div>
+            </div>
+        </div>
+
+        <div class="geocode-banner" id="geocode-banner">
+            <span>⚠️</span>
+            <span id="geocode-banner-msg">Hay clientes sin ubicación geocodificada.</span>
+            <button onclick="startGeocoding()">Geocodificar ahora (requiere internet)</button>
+        </div>
+
+        <div class="geocode-progress" id="geocode-progress">
+            🔄 <span id="geocode-progress-text">Geocodificando...</span>
+        </div>
+
+        <div id="map"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const vendedor = urlParams.get('vendedor') || '';
+        const jefe = urlParams.get('jefe') || '';
+        const zona = urlParams.get('zona') || '';
+
+        // ── CINA Swift Centro Logístico ──────────────────────────────
+        // Ubicación configurable del centro de distribución CINA / Swift
+        const CINA = {
+            lat: -31.6333,
+            lon: -60.7,
+            nombre: 'Centro Logístico CINA (Swift)',
+            direccion: 'Rafaela, Santa Fe'
+        };
+
+        // ── Helpers ──────────────────────────────────────────────────
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function formatKg(v) {
+            if (!v) return '0 kg';
+            return Math.round(v).toLocaleString('es-AR') + ' kg';
+        }
+
+        // ── Marker system ────────────────────────────────────────────
+        // Color = cumplimiento %  |  Shape = canal  |  Size = tier
+
+        function markerColor(pct) {
+            if (pct >= 80) return '#10B981';   // green
+            if (pct >= 50) return '#F59E0B';   // amber
+            return '#E84752';                  // red
+        }
+
+        function tierSize(tier) {
+            const map = { 'AAA': 38, 'AA': 32, 'A': 27, 'B': 22 };
+            return map[tier] || 22;
+        }
+
+        // SVG shapes per canal — all drawn on a 28x28 viewBox, centered at 14,14
+        function shapeSvg(canal, color, stroke = 'white', sw = 2.5) {
+            switch (canal) {
+                case 'distribuidor':
+                    // 5-point star
+                    return `<polygon points="14,2 17.5,11 27,11 19.5,17 22.5,26 14,20.5 5.5,26 8.5,17 1,11 10.5,11"
+                        fill="${color}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+                case 'subdistribuidor':
+                    // Upward triangle
+                    return `<polygon points="14,2 26,26 2,26"
+                        fill="${color}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+                case 'mayorista':
+                    // Rounded square
+                    return `<rect x="3" y="3" width="22" height="22" rx="4"
+                        fill="${color}" stroke="${stroke}" stroke-width="${sw}"/>`;
+                case 'supermercado':
+                default:
+                    // Circle
+                    return `<circle cx="14" cy="14" r="11"
+                        fill="${color}" stroke="${stroke}" stroke-width="${sw}"/>`;
+            }
+        }
+
+        function clientMarker(canal, color, tier) {
+            const size = tierSize(tier);
+            const scale = size / 28;
+            // Drop-shadow filter for depth
+            const shadow = `<filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
+            </filter>`;
+            return L.divIcon({
+                className: '',
+                html: `<svg width="${size}" height="${size}" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+                    <defs>${shadow}</defs>
+                    <g filter="url(#sh)">${shapeSvg(canal, color)}</g>
+                </svg>`,
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2],
+                popupAnchor: [0, -(size / 2 + 2)]
+            });
+        }
+
+        function cinaMarker() {
+            return L.divIcon({
+                className: '',
+                html: `<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="34" height="34" rx="8" fill="#1D3557" stroke="white" stroke-width="3"/>
+                    <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="sans-serif">C</text>
+                </svg>`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                popupAnchor: [0, -22]
+            });
+        }
+
+        // Canal labels for popup badge
+        const CANAL_LABEL = {
+            distribuidor:    { label: 'Distribuidor',     bg: '#DBEAFE', color: '#1D4ED8' },
+            subdistribuidor: { label: 'Subdistribuidor',  bg: '#EDE9FE', color: '#6D28D9' },
+            mayorista:       { label: 'Mayorista',        bg: '#FEF3C7', color: '#92400E' },
+            supermercado:    { label: 'Supermercado',     bg: '#D1FAE5', color: '#065F46' },
+        };
+
+        // ── Map init ─────────────────────────────────────────────────
+        const map = L.map('map').setView([CINA.lat, CINA.lon], 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 18
+        }).addTo(map);
+
+        // CINA marker
+        L.marker([CINA.lat, CINA.lon], { icon: cinaMarker(), zIndexOffset: 1000 })
+            .addTo(map)
+            .bindPopup(`<div class="popup-title">🏭 ${CINA.nombre}</div><div class="popup-detail">${CINA.direccion}</div>`, { maxWidth: 220 });
+
+        // Legend
+        const legend = L.control({ position: 'bottomright' });
+        legend.onAdd = () => {
+            const div = L.DomUtil.create('div', 'legend-box');
+            const svgIcon = (canal, color, s = 18) =>
+                `<svg width="${s}" height="${s}" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">${shapeSvg(canal, color, 'white', 2.5)}</svg>`;
+            div.innerHTML = `
+                <div style="font-weight:800;font-size:0.75rem;color:#1D3557;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Forma · Canal</div>
+                <div class="legend-item">${svgIcon('distribuidor','#64748B')} Distribuidor</div>
+                <div class="legend-item">${svgIcon('subdistribuidor','#64748B')} Subdistribuidor</div>
+                <div class="legend-item">${svgIcon('mayorista','#64748B')} Mayorista</div>
+                <div class="legend-item">${svgIcon('supermercado','#64748B')} Supermercado</div>
+                <div style="font-weight:800;font-size:0.75rem;color:#1D3557;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px;">Color · Cumplimiento</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div>≥ 80% — En objetivo</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div>50–80% — En progreso</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#E84752"></div>&lt; 50% — Bajo objetivo</div>
+                <div style="font-weight:800;font-size:0.75rem;color:#1D3557;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px;">Tamaño · Tier</div>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:0.75rem;color:#475569;font-weight:600;">
+                    ${svgIcon('supermercado','#94A3B8',22)} AAA&nbsp;
+                    ${svgIcon('supermercado','#94A3B8',18)} AA&nbsp;
+                    ${svgIcon('supermercado','#94A3B8',15)} A&nbsp;
+                    ${svgIcon('supermercado','#94A3B8',12)} B
+                </div>
+                <div style="font-weight:800;font-size:0.75rem;color:#1D3557;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px;">Centro Logístico</div>
+                <div class="legend-item"><div style="width:16px;height:16px;background:#1D3557;border-radius:4px;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3);flex-shrink:0"></div>CINA (Swift)</div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
+        // ── Load clients ─────────────────────────────────────────────
+        let allClients = [];
+        let markers = [];
+
+        async function loadClientes() {
+            let q = [];
+            if (vendedor) q.push(`vendedor=${vendedor}`);
+            if (jefe) q.push(`jefe=${encodeURIComponent(jefe)}`);
+            if (zona) q.push(`zona=${encodeURIComponent(zona)}`);
+
+            const res = await fetch(`/api/mapa/clientes?${q.join('&')}`);
+            allClients = await res.json();
+
+            const total = allClients.length;
+            const withGeo = allClients.filter(c => c.lat && c.lon).length;
+            const withoutGeo = total - withGeo;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-geo').textContent = withGeo;
+            document.getElementById('stat-nogeo').textContent = withoutGeo;
+            document.getElementById('map-meta').textContent =
+                `${total} clientes${vendedor ? ' · Vendedor' : jefe ? ` · ${jefe}` : zona ? ` · Zona ${zona}` : ''}`;
+
+            if (withoutGeo > 0) {
+                document.getElementById('geocode-banner-msg').textContent =
+                    `${withoutGeo} cliente${withoutGeo > 1 ? 's' : ''} sin ubicación. Geocodificar con OpenStreetMap/Nominatim.`;
+                document.getElementById('geocode-banner').style.display = 'flex';
+            }
+
+            renderMarkers();
+        }
+
+        function renderMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const geoClients = allClients.filter(c => c.lat && c.lon);
+            let totalDist = 0;
+
+            geoClients.forEach(c => {
+                const pct = c.objetivo ? ((c.venta_actual || 0) + (c.pendiente || 0)) / c.objetivo * 100 : 0;
+                const color = markerColor(pct);
+                const dist = haversine(CINA.lat, CINA.lon, c.lat, c.lon);
+                totalDist += dist;
+
+                // Line from CINA — color matches cumplimiento, thicker for distributors
+                const lineWeight = c.canal === 'distribuidor' ? 2 : 1.2;
+                const line = L.polyline([[CINA.lat, CINA.lon], [c.lat, c.lon]], {
+                    color: color,
+                    weight: lineWeight,
+                    opacity: 0.25,
+                    dashArray: '4 7'
+                }).addTo(map);
+                markers.push(line);
+
+                const pctClass = pct >= 80 ? 'green' : pct >= 50 ? 'yellow' : 'red';
+                const canalInfo = CANAL_LABEL[c.canal] || { label: 'Sin clasificar', bg: '#F1F5F9', color: '#64748B' };
+                const tierBadge = c.tier ? `<span style="font-weight:700;font-size:0.72rem;padding:2px 7px;border-radius:4px;background:#F1F5F9;color:#1D3557">Tier ${c.tier}</span>` : '';
+
+                const marker = L.marker([c.lat, c.lon], {
+                    icon: clientMarker(c.canal, color, c.tier),
+                    zIndexOffset: c.tier === 'AAA' ? 900 : c.tier === 'AA' ? 800 : c.tier === 'A' ? 700 : 600
+                })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="popup-title">${c.nom_cliente}</div>
+                        <div style="display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 6px;">
+                            <span style="font-weight:700;font-size:0.72rem;padding:2px 7px;border-radius:4px;background:${canalInfo.bg};color:${canalInfo.color}">${canalInfo.label}</span>
+                            ${tierBadge}
+                            <span style="font-weight:700;font-size:0.72rem;padding:2px 7px;border-radius:4px;background:${pct>=80?'#DCFCE7':pct>=50?'#FEF9C3':'#FEE2E2'};color:${pct>=80?'#166534':pct>=50?'#854D0E':'#991B1B'}">${Math.round(pct)}% obj</span>
+                        </div>
+                        <div class="popup-detail">
+                            ${c.ciudad ? `📍 ${c.ciudad}${c.provincia ? ', ' + c.provincia : ''}` : ''}
+                            ${c.direccion ? `<br>${c.direccion}` : ''}
+                            ${c.telefono ? `<br>📞 ${String(c.telefono).replace('.0','')}` : ''}
+                            ${c.nom_vendedor ? `<br>👤 ${c.nom_vendedor}` : ''}
+                        </div>
+                        <div class="popup-kpi" style="margin-top:8px;">
+                            <span>Fact: ${formatKg(c.venta_actual)}</span>
+                            <span>Obj: ${formatKg(c.objetivo)}</span>
+                            <span>Frec: ${c.frecuencia || '—'}</span>
+                        </div>
+                        <div class="popup-dist">📦 ${dist.toFixed(1)} km desde CINA</div>
+                        <a class="popup-link" href="/cliente/${c.cod_cliente}?vendedor=${vendedor || c.cod_vendedor}">Ver Ficha Cliente →</a>
+                    `, { maxWidth: 270 });
+                markers.push(marker);
+            });
+
+            if (geoClients.length > 0) {
+                const avgDist = totalDist / geoClients.length;
+                document.getElementById('stat-dist').textContent = avgDist.toFixed(0) + ' km';
+
+                // Fit map to all markers + CINA
+                const allPoints = [[CINA.lat, CINA.lon], ...geoClients.map(c => [c.lat, c.lon])];
+                map.fitBounds(L.latLngBounds(allPoints).pad(0.15));
+            }
+        }
+
+        // ── Geocoding via Nominatim ──────────────────────────────────
+        let geocodingActive = false;
+
+        // Argentina bounding box — results outside this are rejected
+        const AR_BOUNDS = { latMin: -55.5, latMax: -21.5, lonMin: -73.5, lonMax: -53.0 };
+
+        function inArgentina(lat, lon) {
+            return lat >= AR_BOUNDS.latMin && lat <= AR_BOUNDS.latMax &&
+                   lon >= AR_BOUNDS.lonMin && lon <= AR_BOUNDS.lonMax;
+        }
+
+        async function nominatimSearch(query) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=3&countrycodes=ar&q=${encodeURIComponent(query)}`;
+            const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
+            const data = await res.json();
+            // Return first result that falls inside Argentina
+            for (const r of data) {
+                const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+                if (inArgentina(lat, lon)) return { lat, lon };
+            }
+            return null;
+        }
+
+        async function geocodeAddress(address, city, province) {
+            try {
+                // Strategy 1: full address + city + province
+                if (address && city) {
+                    const r = await nominatimSearch(`${address}, ${city}, ${province || ''}, Argentina`);
+                    if (r) return r;
+                }
+
+                // Strategy 2: street number stripped + city (handles "AV. BRASIL 1739" type issues)
+                if (address && city) {
+                    // Keep only letters and common street words, drop number
+                    const streetOnly = address.replace(/\b\d+\b/g, '').trim().replace(/\s+/g, ' ');
+                    if (streetOnly && streetOnly !== address) {
+                        const r = await nominatimSearch(`${streetOnly}, ${city}, ${province || ''}, Argentina`);
+                        if (r) return r;
+                    }
+                }
+
+                // Strategy 3: city + province only (always works if city name is valid)
+                if (city) {
+                    const r = await nominatimSearch(`${city}, ${province || 'Santa Fe'}, Argentina`);
+                    if (r) return r;
+                }
+
+                // Strategy 4: province centroid as last resort
+                if (province) {
+                    const r = await nominatimSearch(`${province}, Argentina`);
+                    if (r) return r;
+                }
+            } catch (e) { console.warn('Geocoding error:', e); }
+            return null;
+        }
+
+        async function startGeocoding() {
+            if (geocodingActive) return;
+            geocodingActive = true;
+
+            document.getElementById('geocode-banner').style.display = 'none';
+            const progress = document.getElementById('geocode-progress');
+            progress.style.display = 'block';
+
+            const pending = allClients.filter(c => !c.lat || !c.lon);
+            let done = 0;
+
+            for (const c of pending) {
+                document.getElementById('geocode-progress-text').textContent =
+                    `Geocodificando ${done + 1}/${pending.length}: ${c.nom_cliente}...`;
+
+                const coords = await geocodeAddress(c.direccion, c.ciudad, c.provincia);
+                if (coords) {
+                    c.lat = coords.lat;
+                    c.lon = coords.lon;
+                    await fetch(`/api/mapa/cliente/${c.cod_cliente}/geocode`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(coords)
+                    });
+                    document.getElementById('geocode-progress-text').textContent =
+                        `✓ ${done + 1}/${pending.length}: ${c.nom_cliente} → ${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)}`;
+                } else {
+                    document.getElementById('geocode-progress-text').textContent =
+                        `✗ ${done + 1}/${pending.length}: ${c.nom_cliente} — sin resultado`;
+                }
+                done++;
+                // Nominatim rate limit: 1 req/sec
+                await new Promise(r => setTimeout(r, 1200));
+            }
+
+            progress.style.display = 'none';
+            geocodingActive = false;
+
+            // Update stats and re-render
+            const withGeo = allClients.filter(c => c.lat && c.lon).length;
+            document.getElementById('stat-geo').textContent = withGeo;
+            document.getElementById('stat-nogeo').textContent = allClients.length - withGeo;
+            renderMarkers();
+        }
+
+        loadClientes();
+    </script>
+</body>
+
+</html>

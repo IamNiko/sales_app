@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swift | Cliente</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         /* Professional KPI Grid */
@@ -17,14 +20,15 @@
         }
 
         .kpi-card-pro {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            background: var(--card);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
 
         .kpi-card-pro:hover {
@@ -88,7 +92,7 @@
         .kpi-value-pro {
             font-size: 2rem;
             font-weight: 700;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 0.25rem;
             line-height: 1.2;
         }
@@ -110,7 +114,7 @@
         .kpi-progress {
             width: 100%;
             height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--border);
             border-radius: 3px;
             overflow: hidden;
             margin-top: 1rem;
@@ -144,18 +148,18 @@
         }
 
         .badge-success {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
+            background: #DCFCE7;
+            color: #166534;
         }
 
         .badge-warning {
-            background: rgba(241, 196, 15, 0.2);
-            color: #f1c40f;
+            background: #FEF9C3;
+            color: #854D0E;
         }
 
         .badge-danger {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
+            background: #FEE2E2;
+            color: #991B1B;
         }
 
         /* Tier Badges (Sync with Dashboard) */
@@ -172,9 +176,9 @@
         }
 
         .tier-aaa {
-            background: linear-gradient(135deg, #FFD700, #DAA520);
+            background: linear-gradient(135deg, var(--minerva-yellow), #B8860B);
             color: #000;
-            box-shadow: 0 0 15px rgba(218, 165, 32, 0.5);
+            box-shadow: 0 0 15px var(--yellow-glow);
         }
 
         .tier-aa {
@@ -188,9 +192,9 @@
         }
 
         .tier-b {
-            background: #333;
-            color: #888;
-            border: 1px solid #444;
+            background: #E2E8F0;
+            color: #475569;
+            border: 1px solid #CBD5E1;
         }
 
         .tier-cn {
@@ -199,22 +203,51 @@
             box-shadow: 0 0 15px rgba(106, 90, 205, 0.5);
         }
 
+        .chart-card {
+            background: #F8FAFF;
+            /* Very light blue/white for depth */
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.04);
+        }
+
+        .chart-card h3 {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+        }
+
         .score-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.25rem;
-            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+            min-width: 320px;
         }
 
         .score-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 1rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
 
         .score-grid {
@@ -231,21 +264,23 @@
 
         .score-label {
             font-size: 0.7rem;
-            color: #8E96A3;
+            color: var(--text-muted);
+            font-weight: 700;
             text-transform: uppercase;
         }
 
         .score-val {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
         }
 
         .score-bar-bg {
             width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
+            height: 6px;
+            background: #EDF2F7;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
         .score-bar-fill {
@@ -271,7 +306,15 @@
 
 <body>
     <nav class="navbar">
-        <a href="javascript:history.back()">← Volver al Dashboard</a>
+        <h1 style="display:flex; align-items:center; gap:10px; font-size: 1.1rem; margin:0;">
+            <div
+                style="background: var(--minerva-red); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 1.1rem;">
+                M</div>
+            <span style="letter-spacing: -0.5px;">Minerva <span
+                    style="color: var(--minerva-red); font-weight: 800;">Foods</span></span>
+            <span style="font-weight: 300; margin-left: 8px; opacity: 0.5; font-size: 0.85rem;">Detalle Cliente</span>
+        </h1>
+        <a href="javascript:history.back()" style="font-weight: 600;">← Volver al Dashboard</a>
     </nav>
 
     <div class="container">
@@ -283,7 +326,7 @@
             </div>
             <div id="score-section" class="score-card" style="display:none">
                 <div class="score-title">🎯 Ponderación Estratégica <span id="total-score-badge"
-                        style="font-size:0.8rem;color:#E84752"></span></div>
+                        style="font-size:0.9rem; font-weight:800; color:var(--accent)"></span></div>
                 <div class="score-grid">
                     <div class="score-item">
                         <div class="score-label">Volumen (Avg 12m)</div>
@@ -311,20 +354,48 @@
         </div>
 
 
+        <!-- Contact Card -->
+        <div id="contact-card" style="display:none; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1rem 1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow); display:flex; gap:2rem; flex-wrap:wrap; align-items:center;">
+            <div id="contact-direccion" style="display:none; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="font-size:0.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;">Dirección</span>
+                <span id="cc-direccion"></span>
+            </div>
+            <div id="contact-tel" style="display:none; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="font-size:0.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;">Teléfono</span>
+                <a id="cc-tel" href="#" style="color:var(--primary);font-weight:600;text-decoration:none;"></a>
+            </div>
+            <div id="contact-correo" style="display:none; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="font-size:0.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;">Correo</span>
+                <a id="cc-correo" href="#" style="color:var(--accent);font-weight:600;text-decoration:none;"></a>
+            </div>
+            <div id="contact-contacto" style="display:none; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="font-size:0.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;">Contacto</span>
+                <span id="cc-contacto" style="font-weight:600;color:var(--text-primary);"></span>
+            </div>
+            <div id="contact-plazo" style="display:none; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="font-size:0.7rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px;">Plazo</span>
+                <span id="cc-plazo" style="font-weight:600;color:var(--text-primary);"></span>
+            </div>
+            <a id="contact-mapa-link" href="#" style="display:none; margin-left:auto; background:var(--primary); color:white; text-decoration:none; border-radius:8px; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; white-space:nowrap;">🗺️ Ver en mapa</a>
+        </div>
+
         <!-- Gauge Section: Facturación $, Premium $, Rebozados KG -->
         <div class="gauge-grid">
             <div class="gauge-card">
                 <div class="gauge-label">💰 Facturación $</div>
+                <div class="gauge-value" id="gauge-fact-val">$0</div>
                 <div id="gauge-fact" class="gauge-container"></div>
                 <div class="gauge-sub" id="gauge-fact-sub">Obj: $0</div>
             </div>
             <div class="gauge-card">
                 <div class="gauge-label">⭐ Premium $</div>
+                <div class="gauge-value" id="gauge-prem-val">$0</div>
                 <div id="gauge-prem" class="gauge-container"></div>
                 <div class="gauge-sub" id="gauge-prem-sub">Obj: $0</div>
             </div>
             <div class="gauge-card">
                 <div class="gauge-label">🍗 Rebozados KG</div>
+                <div class="gauge-value" id="gauge-reb-val">0 kg</div>
                 <div id="gauge-reb" class="gauge-container"></div>
                 <div class="gauge-sub" id="gauge-reb-sub">Obj: 0 kg</div>
             </div>
@@ -338,17 +409,19 @@
             }
 
             .gauge-card {
-                background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
-                border: 1px solid #222222;
+                background: var(--card);
+                border: 1px solid var(--border);
                 border-radius: 16px;
-                padding: 1rem 1rem 0.6rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+                padding: 1.5rem;
+                box-shadow: var(--shadow);
+                text-align: center;
+                transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
-                transition: transform 0.25s ease;
+            }
+
+            .gauge-card:hover {
+                transform: translateY(-3px);
             }
 
             .gauge-card::before {
@@ -356,22 +429,25 @@
                 position: absolute;
                 top: 0;
                 left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, #E84752, transparent);
+                width: 100%;
+                height: 4px;
+                background: var(--accent);
+                opacity: 0.8;
             }
 
-            .gauge-card:hover {
-                transform: translateY(-3px);
+            .chart-container {
+                height: 350px;
+                width: 100%;
+                position: relative;
             }
 
             .gauge-label {
-                font-size: 0.7rem;
+                font-size: 0.75rem;
                 font-weight: 800;
-                color: #555;
+                color: var(--text-muted);
                 text-transform: uppercase;
-                letter-spacing: 2px;
-                margin-bottom: 0.2rem;
+                letter-spacing: 1.5px;
+                margin-bottom: 0.25rem;
             }
 
             .gauge-container {
@@ -379,11 +455,20 @@
                 height: 200px;
             }
 
+            .gauge-value {
+                font-size: 1.75rem;
+                font-weight: 900;
+                color: var(--primary);
+                line-height: 1.2;
+                margin-bottom: -10px;
+            }
+
             .gauge-sub {
-                font-size: 0.8rem;
-                color: #aaaaaa;
+                font-size: 0.9rem;
+                color: var(--text-muted);
                 font-weight: 700;
-                letter-spacing: 1px;
+                margin-top: -10px;
+                letter-spacing: 0.5px;
                 padding-bottom: 0.5rem;
                 text-transform: uppercase;
             }
@@ -406,21 +491,21 @@
                 }
 
                 .btn-group {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: #F1F5F9;
                     border-radius: 50px;
-                    padding: 6px;
+                    padding: 4px;
                     display: inline-flex;
-                    gap: 4px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    gap: 2px;
+                    border: 1px solid var(--border);
                 }
 
                 .btn {
-                    padding: 10px 24px;
+                    padding: 8px 20px;
                     border: none;
                     background: transparent;
-                    color: #8E96A3;
-                    font-size: 0.9rem;
-                    font-weight: 600;
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
+                    font-weight: 700;
                     border-radius: 50px;
                     cursor: pointer;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -429,8 +514,8 @@
                 }
 
                 .btn:hover:not(.active) {
-                    color: white;
-                    background: rgba(255, 255, 255, 0.08);
+                    color: var(--primary);
+                    background: var(--card-hover);
                 }
 
                 .btn.active {
@@ -501,7 +586,7 @@
             .lanz-title {
                 font-size: 16px;
                 font-weight: 700;
-                color: #fff;
+                color: var(--text-primary);
                 margin-bottom: 16px;
                 border-left: 3px solid #E84752;
                 padding-left: 12px;
@@ -514,12 +599,13 @@
             }
 
             .lanz-card {
-                background: linear-gradient(145deg, #0a0a0a, #111);
-                border: 1px solid #1a1a1a;
+                background: var(--card);
+                border: 1px solid var(--border);
                 border-radius: 10px;
                 padding: 14px;
                 text-align: center;
-                transition: transform 0.2s;
+                box-shadow: var(--shadow);
+                transition: all 0.2s;
             }
 
             .lanz-card:hover {
@@ -563,7 +649,7 @@
             .lanz-kg {
                 font-size: 20px;
                 font-weight: 800;
-                color: #fff;
+                color: var(--text-primary);
                 margin: 8px 0 2px;
             }
 
@@ -574,7 +660,7 @@
 
             .lanz-minibar {
                 height: 4px;
-                background: #1a1a1a;
+                background: var(--border);
                 border-radius: 2px;
                 margin-top: 8px;
                 overflow: hidden;
@@ -633,7 +719,12 @@
             if (vendedor) url += `&vendedor=${vendedor}`;
 
             const response = await fetch(url);
-            clienteData = await response.json();
+            const raw = await response.json();
+            if (raw.status === 'success') {
+                clienteData = raw.data;
+            } else {
+                clienteData = raw;
+            }
 
             if (clienteData.error) { alert(clienteData.error); return; }
 
@@ -664,33 +755,76 @@
                 document.getElementById('loy-score-bar').style.width = (cl.loyalty_score / 30 * 100) + '%';
             }
 
+            // Contact card
+            renderContactCard(cl);
+
             renderGauges();
             renderCharts();
         }
 
 
+        function renderContactCard(cl) {
+            const show = (id, val) => {
+                if (val && String(val).trim() && String(val).trim() !== 'nan') {
+                    document.getElementById(id).style.display = 'block';
+                    return true;
+                }
+                return false;
+            };
+            let hasAny = false;
+            if (show('contact-direccion', cl.direccion)) {
+                document.getElementById('cc-direccion').textContent =
+                    [cl.direccion, cl.ciudad, cl.provincia].filter(Boolean).join(', ');
+                hasAny = true;
+            } else if (cl.ciudad) {
+                document.getElementById('contact-direccion').style.display = 'block';
+                document.getElementById('cc-direccion').textContent =
+                    [cl.ciudad, cl.provincia].filter(Boolean).join(', ');
+                hasAny = true;
+            }
+            if (show('contact-tel', cl.telefono)) {
+                const tel = String(cl.telefono).replace('.0', '');
+                document.getElementById('cc-tel').textContent = tel;
+                document.getElementById('cc-tel').href = 'tel:+' + tel.replace(/\D/g, '');
+                hasAny = true;
+            }
+            if (show('contact-correo', cl.correo)) {
+                document.getElementById('cc-correo').textContent = cl.correo;
+                document.getElementById('cc-correo').href = 'mailto:' + cl.correo;
+                hasAny = true;
+            }
+            if (show('contact-contacto', cl.contacto)) {
+                document.getElementById('cc-contacto').textContent = cl.contacto;
+                hasAny = true;
+            }
+            if (show('contact-plazo', cl.plazo)) {
+                document.getElementById('cc-plazo').textContent = cl.plazo + ' días';
+                hasAny = true;
+            }
+            const codCliente = window.location.pathname.split('/').pop();
+            const vendedorParam = new URLSearchParams(window.location.search).get('vendedor') || '';
+            const mapaLink = document.getElementById('contact-mapa-link');
+            mapaLink.href = `/mapa?vendedor=${vendedorParam}#${codCliente}`;
+            mapaLink.style.display = hasAny ? 'inline-block' : 'none';
+
+            if (hasAny) document.getElementById('contact-card').style.display = 'flex';
+        }
+
         function renderGauges() {
             if (!clienteData.avance) return;
             const av = clienteData.avance;
 
-            const factActual = av.facturacion_pesos || 0;
-            const factObj = av.objetivo_pesos || 0;
-            const premActual = av.premium_pesos || 0;
-            const premObj = av.objetivo_premium_pesos || 0;
-            const rebActual = av.rebozados_kg || 0;
-            const rebObj = av.objetivo_rebozados_kg || 0;
+            const f = av; // Assuming 'f' refers to current actuals
+            const o = av; // Assuming 'o' refers to current objectives
 
-            renderSingleGauge('gauge-fact', factActual, factObj, formatPesos);
-            renderSingleGauge('gauge-prem', premActual, premObj, formatPesos);
-            renderSingleGauge('gauge-reb', rebActual, rebObj, formatKg);
-
-            document.getElementById('gauge-fact-sub').textContent = `Obj: ${formatPesos(factObj)}`;
-            document.getElementById('gauge-prem-sub').textContent = `Obj: ${formatPesos(premObj)}`;
-            document.getElementById('gauge-reb-sub').textContent = `Obj: ${formatKg(rebObj)}`;
+            renderSingleGauge('gauge-fact', f.facturacion_pesos || 0, o.objetivo_pesos || 0, formatPesos, 'gauge-fact-sub');
+            renderSingleGauge('gauge-prem', f.premium_pesos || 0, o.objetivo_premium_pesos || 0, formatPesos, 'gauge-prem-sub');
+            renderSingleGauge('gauge-reb', f.rebozados_kg || 0, o.objetivo_rebozados_kg || 0, formatKg, 'gauge-reb-sub');
         }
 
-        function renderSingleGauge(id, actual, objetivo, fmtFn) {
+        function renderSingleGauge(id, actual, objetivo, fmtFn, subId) {
             const dom = document.getElementById(id);
+            if (!dom) return;
             const existing = echarts.getInstanceByDom(dom);
             if (existing) existing.dispose();
             const chart = echarts.init(dom);
@@ -703,446 +837,469 @@
                 backgroundColor: 'transparent',
                 series: [{
                     type: 'gauge',
-                    startAngle: 215,
-                    endAngle: -35,
+                    startAngle: 210,
+                    endAngle: -30,
                     min: 0,
                     max: MAX,
-                    radius: '90%',
-                    center: ['50%', '60%'],
+                    radius: '100%',
+                    center: ['50%', '65%'],
                     splitNumber: 13,
                     axisLine: {
                         lineStyle: {
-                            width: 18,
+                            width: 10, // Thinner, more elegant track
                             color: [
-                                [0.50, '#1a1a1a'],
-                                [0.65, '#252525'],
-                                [0.77, '#333333'],
-                                [0.84, '#5a0a0a'],
-                                [1.00, '#E84752']
+                                [0.40, '#E84752'], // Red
+                                [0.70, '#F6AD55'], // Yellow
+                                [0.90, '#68D391'], // Soft Green
+                                [1.00, '#38A169']  // Strong Green
                             ]
                         }
                     },
-                    splitLine: { length: 12, lineStyle: { color: '#404040', width: 2 } },
-                    axisTick: { length: 6, splitNumber: 5, lineStyle: { color: '#303030', width: 1 } },
+                    progress: {
+                        show: true, width: 10,
+                        itemStyle: { color: 'rgba(29, 53, 87, 0.1)' }
+                    },
+                    splitLine: { length: 8, lineStyle: { color: '#CBD5E1', width: 1.5 } },
+                    axisTick: { show: false },
                     axisLabel: {
-                        color: '#777', fontSize: 10, distance: 10, fontWeight: '600',
-                        formatter: v => v === 0 ? '0' : v === 100 ? '100%' : v === MAX ? '130%' : ''
+                        color: '#64748B', fontSize: 10, distance: 15, fontWeight: '600',
+                        formatter: v => v % 20 === 0 ? v : ''
                     },
                     pointer: {
-                        length: '68%', width: 6,
-                        itemStyle: { color: '#E84752', shadowBlur: 16, shadowColor: 'rgba(232,71,82,0.9)' }
+                        length: '75%', width: 5, icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                        offsetCenter: [0, '-10%'],
+                        itemStyle: { color: '#1D3557', shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.1)' }
                     },
                     anchor: {
-                        show: true, showAbove: true, size: 14,
-                        itemStyle: {
-                            color: '#0a0a0a', borderColor: '#E84752', borderWidth: 2,
-                            shadowBlur: 10, shadowColor: '#E84752'
-                        }
+                        show: true, showAbove: true, size: 10,
+                        itemStyle: { color: '#1D3557', borderColor: '#fff', borderWidth: 2 }
                     },
                     detail: {
                         valueAnimation: true,
-                        offsetCenter: [0, '28%'],
-                        formatter: () => `{val|${fmtFn(actual)}}\n{pct|${pctRaw.toFixed(1)}%}`,
+                        offsetCenter: [0, '25%'],
+                        formatter: () => `{pct|${pctRaw.toFixed(1)}%}`,
                         rich: {
-                            val: { fontSize: 18, fontWeight: '700', color: '#ffffff', lineHeight: 26 },
-                            pct: { fontSize: 13, color: pct >= 100 ? '#E84752' : '#888', fontWeight: '700', lineHeight: 20 }
+                            pct: {
+                                fontSize: 16, color: pct >= 100 ? '#10B981' : '#475569',
+                                fontWeight: '800', lineHeight: 24,
+                                backgroundColor: '#F8FAFC', padding: [4, 12], borderRadius: 6,
+                                borderBottom: '2px solid' + (pct >= 100 ? '#10B981' : '#CBD5E1')
+                            }
                         }
                     },
                     data: [{ value: parseFloat(pct.toFixed(1)) }]
                 }]
             });
-        }
+
+            // Update value label and sub-label
+            const valId = id + '-val';
+            const valEl = document.getElementById(valId);
+            if (valEl) valEl.textContent = fmtFn(actual);
+            if (subId) document.getElementById(subId).textContent = `OBJ: ${fmtFn(objetivo)}`;
+        }  // ← cierra renderSingleGauge
 
         function getChart(id) {
-            const dom = document.getElementById(id);
-            const existing = echarts.getInstanceByDom(dom);
-            if (existing) existing.dispose();
-            return echarts.init(dom);
-        }
-
-        function renderCharts() {
-            renderHistoriaChart();
-            renderCategoriasChart();
-            renderProductosChart();
-            renderRecurrenciaChart();
-        }
-
-        const MESES_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const formatYM = (ym) => {
-            if (!ym) return '';
-            const [y, m] = ym.split('-');
-            return `${MESES_ES[parseInt(m) - 1]} '${y.substring(2)}`;
-        };
-
-        function renderHistoriaChart() {
-            const chart = getChart('chart-historia');
-            const allData = clienteData.historia || [];
-            // If currentMeses is 12 (default), and we have 14, show all 14 to satisfy "Jan 2025 onwards"
-            const data = currentMeses >= 12 ? allData : allData.slice(-currentMeses);
-
-            // Update period label
-            if (data.length) {
-                document.getElementById('hist-periodo-label').textContent =
-                    `· ${formatYM(data[0].year_month)} → ${formatYM(data[data.length - 1].year_month)}`;
+                const dom = document.getElementById(id);
+                if (!dom) {
+                    console.error(`ECharts: Elemento #${id} no encontrado.`);
+                    return null;
+                }
+                // Fix: ensure container has height. If not, set it.
+                if (dom.clientHeight === 0) {
+                    dom.style.height = '350px';
+                }
+                try {
+                    const existing = echarts.getInstanceByDom(dom);
+                    if (existing) existing.dispose();
+                    return echarts.init(dom);
+                } catch (e) {
+                    console.error(`ECharts: Error inicializando #${id}:`, e);
+                    return null;
+                }
             }
 
-            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
-            const values = data.map(h => h[field] || h.total_kg || 0);
-            const maxVal = Math.max(...values, 1);
-
-            chart.setOption({
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: '#1a2332',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    textStyle: { color: '#fff', fontSize: 13 },
-                    formatter: params => {
-                        const p = params[0];
-                        const originalYM = data[p.dataIndex].year_month;
-                        return `<strong>${formatYM(originalYM)}</strong><br/>${currentTipo === 'importe' ? formatPesos(p.value) : formatKg(p.value)}`;
-                    }
-                },
-                grid: { top: 40, right: 20, bottom: 45, left: 70 },
-                xAxis: {
-                    type: 'category',
-                    data: data.map(h => formatYM(h.year_month)),
-                    axisLabel: { fontSize: 10, color: '#8E96A3', rotate: data.length > 10 ? 30 : 0 },
-
-                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
-                    axisTick: { show: false }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        fontSize: 11,
-                        color: '#8E96A3',
-                        formatter: v => currentTipo === 'importe'
-                            ? (v >= 1000000 ? '$' + (v / 1000000).toFixed(1) + 'M' : '$' + (v / 1000).toFixed(0) + 'K')
-                            : (v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg')
-                    },
-                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
-                },
-                series: [{
-                    type: 'bar',
-                    data: data.map(h => {
-                        const val = h[field] || h.total_kg || 0;
-                        const intensity = maxVal > 0 ? val / maxVal : 0;
-                        return {
-                            value: val,
-                            itemStyle: {
-                                color: {
-                                    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                                    colorStops: [
-                                        { offset: 0, color: val === maxVal ? '#FF6B6B' : '#E84752' },
-                                        { offset: 1, color: `rgba(232,71,82,${0.3 + intensity * 0.4})` }
-                                    ]
-                                },
-                                borderRadius: [5, 5, 0, 0]
-                            }
-                        };
-                    }),
-                    barWidth: '55%',
-                    label: {
-                        show: true,
-                        position: 'top',
-                        color: '#8E96A3',
-                        fontSize: 10,
-                        formatter: params => currentTipo === 'importe'
-                            ? formatPesos(params.value)
-                            : formatKg(params.value)
-                    }
-                }]
-            });
+            function renderCharts() {
+            try { renderHistoriaChart(); } catch(e) { console.error('Historia chart error:', e); }
+            try { renderCategoriasChart(); } catch(e) { console.error('Categorias chart error:', e); }
+            try { renderProductosChart(); } catch(e) { console.error('Productos chart error:', e); }
+            try { renderRecurrenciaChart(); } catch(e) { console.error('Recurrencia chart error:', e); }
         }
 
-        function renderCategoriasChart() {
-            const chart = getChart('chart-categorias');
-            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
-            const data = (clienteData.categorias || [])
-                .filter(c => (c[field] || 0) > 0)
-                .slice(0, 8);
+            const MESES_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const formatYM = (ym) => {
+                if (!ym) return '';
+                const [y, m] = ym.split('-');
+                return `${MESES_ES[parseInt(m) - 1]} '${y.substring(2)}`;
+            };
 
-            const total = data.reduce((s, c) => s + (c[field] || 0), 0);
+            function renderHistoriaChart() {
+                const chart = getChart('chart-historia');
+                if (!chart) return;
+                const allData = clienteData.historia || [];
+                // If currentMeses is 12 (default), and we have 14, show all 14 to satisfy "Jan 2025 onwards"
+                const data = currentMeses >= 12 ? allData : allData.slice(-currentMeses);
 
-            // Update label
-            document.getElementById('cat-periodo-label').textContent =
-                `· últimos ${currentMeses} meses`;
+                // Update period label
+                if (data.length) {
+                    document.getElementById('hist-periodo-label').textContent =
+                        `· ${formatYM(data[0].year_month)} → ${formatYM(data[data.length - 1].year_month)}`;
+                }
 
-            chart.setOption({
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'item',
-                    backgroundColor: '#1a2332',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    textStyle: { color: '#fff' },
-                    formatter: p => `<strong>${p.name}</strong><br/>${formatValue(p.value, currentTipo)}<br/>${p.percent.toFixed(1)}% del total`
-                },
-                legend: { show: false },
-                series: [{
-                    type: 'pie',
-                    radius: ['42%', '68%'],
-                    center: ['50%', '50%'],
-                    avoidLabelOverlap: true,
-                    itemStyle: { borderRadius: 5, borderColor: 'rgba(15,20,30,0.8)', borderWidth: 3 },
-                    label: {
-                        show: true,
-                        position: 'outside',
+                const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+                const values = data.map(h => h[field] || h.total_kg || 0);
+                const maxVal = Math.max(...values, 1);
+
+                chart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderColor: '#E2E8F0',
+                        textStyle: { color: '#1E293B', fontSize: 13 },
                         formatter: params => {
-                            const pct = total > 0 ? (params.value / total * 100).toFixed(1) : '0';
-                            return `{name|${params.name.substring(0, 12)}}\n{pct|${pct}%}`;
-                        },
-                        rich: {
-                            name: { color: '#8E96A3', fontSize: 10, lineHeight: 16 },
-                            pct: { color: '#fff', fontSize: 12, fontWeight: 'bold', lineHeight: 18 }
+                            const p = params[0];
+                            const originalYM = data[p.dataIndex].year_month;
+                            return `<strong>${formatYM(originalYM)}</strong><br/>${currentTipo === 'importe' ? formatPesos(p.value) : formatKg(p.value)}`;
                         }
                     },
-                    labelLine: { length: 10, length2: 8, lineStyle: { color: 'rgba(255,255,255,0.2)' } },
-                    emphasis: {
-                        itemStyle: { shadowBlur: 15, shadowColor: 'rgba(232,71,82,0.5)' },
-                        scale: true, scaleSize: 5
+                    grid: { top: 40, right: 20, bottom: 45, left: 70 },
+                    xAxis: {
+                        type: 'category',
+                        data: data.map(h => formatYM(h.year_month)),
+                        axisLabel: { fontSize: 10, color: '#475569', fontWeight: '600', rotate: data.length > 10 ? 30 : 0 },
+                        axisLine: { lineStyle: { color: '#CBD5E1' } },
+                        axisTick: { show: false }
                     },
-                    data: data.map((c, i) => ({
-                        value: c[field] || 0,
-                        name: c.categoria,
-                        itemStyle: { color: BRAND_COLORS[i % BRAND_COLORS.length] }
-                    }))
-                }]
-            });
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            fontSize: 10,
+                            color: '#475569',
+                            fontWeight: '600',
+                            formatter: v => currentTipo === 'importe'
+                                ? (v >= 1000000 ? '$' + (v / 1000000).toFixed(1) + 'M' : '$' + (v / 1000).toFixed(0) + 'K')
+                                : (v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg')
+                        },
+                        splitLine: { lineStyle: { color: '#E2E8F0', type: 'dashed' } }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: data.map(h => {
+                            const val = h[field] || h.total_kg || 0;
+                            const intensity = maxVal > 0 ? val / maxVal : 0;
+                            return {
+                                value: val,
+                                itemStyle: {
+                                    color: {
+                                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                        colorStops: [
+                                            { offset: 0, color: val === maxVal ? '#E84752' : '#1D3557' },
+                                            { offset: 1, color: val === maxVal ? 'rgba(232,71,82, 0.4)' : 'rgba(29, 53, 87, 0.4)' }
+                                        ]
+                                    },
+                                    borderRadius: [5, 5, 0, 0]
+                                }
+                            };
+                        }),
+                        barWidth: '55%',
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: '#1D3557',
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            formatter: params => currentTipo === 'importe'
+                                ? formatPesos(params.value)
+                                : formatKg(params.value)
+                        }
+                    }]
+                });
+            }
 
-            // Rich legend below chart
-            document.getElementById('category-legend').innerHTML = data.map((c, i) => {
-                const val = c[field] || 0;
-                const pct = total > 0 ? (val / total * 100).toFixed(1) : '0';
-                return `
-                    <div class="legend-item" style="justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04)">
+            function renderCategoriasChart() {
+                const chart = getChart('chart-categorias');
+                if (!chart) return;
+                const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+                const data = (clienteData.categorias || [])
+                    .filter(c => (c[field] || 0) > 0)
+                    .slice(0, 8);
+
+                const total = data.reduce((s, c) => s + (c[field] || 0), 0);
+
+                // Update label
+                document.getElementById('cat-periodo-label').textContent =
+                    `· últimos ${currentMeses} meses`;
+
+                chart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#E2E8F0',
+                        textStyle: { color: '#1E293B' },
+                        borderWidth: 1
+                    },
+                    legend: { show: false },
+                    series: [{
+                        type: 'pie',
+                        radius: ['45%', '75%'],
+                        center: ['50%', '50%'],
+                        avoidLabelOverlap: true,
+                        itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                        label: {
+                            show: true,
+                            position: 'outside',
+                            formatter: params => {
+                                const pct = total > 0 ? (params.value / total * 100).toFixed(1) : '0';
+                                return `{name|${params.name.substring(0, 12)}}\n{pct|${pct}%}`;
+                            },
+                            rich: {
+                                name: { color: '#1E293B', fontSize: 10, lineHeight: 16 },
+                                pct: { color: '#1E293B', fontSize: 12, fontWeight: 'bold', lineHeight: 18 }
+                            }
+                        },
+                        labelLine: { length: 10, length2: 8, lineStyle: { color: '#E2E8F0' } },
+                        emphasis: {
+                            itemStyle: { shadowBlur: 15, shadowColor: 'rgba(232,71,82,0.5)' },
+                            scale: true, scaleSize: 5
+                        },
+                        data: data.map((c, i) => ({
+                            value: c[field] || 0,
+                            name: c.categoria,
+                            itemStyle: { color: BRAND_COLORS[i % BRAND_COLORS.length] }
+                        }))
+                    }]
+                });
+
+                // Rich legend below chart
+                document.getElementById('category-legend').innerHTML = data.map((c, i) => {
+                    const val = c[field] || 0;
+                    const pct = total > 0 ? (val / total * 100).toFixed(1) : '0';
+                    return `
+                    <div class="legend-item" style="justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border)">
                         <div style="display:flex;align-items:center;gap:8px">
-                            <div class="legend-dot" style="background: ${BRAND_COLORS[i % BRAND_COLORS.length]}; min-width:10px; min-height:10px; border-radius:50%"></div>
-                            <span style="font-size:0.82rem;color:#c0c7d0">${c.categoria}</span>
+                            <div class="legend-dot" style="background: ${BRAND_COLORS[i % BRAND_COLORS.length]}; min-width:10px; min-height:10px; border-radius:3px"></div>
+                            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600">${c.categoria}</span>
                         </div>
                         <div style="display:flex;gap:12px;align-items:center">
-                            <span style="font-size:0.82rem;color:#fff;font-weight:600">${formatValue(val, currentTipo)}</span>
-                            <span style="font-size:0.78rem;color:#E84752;font-weight:700;min-width:38px;text-align:right">${pct}%</span>
+                            <span style="font-size:0.85rem; color:var(--text-primary); font-weight:800">${formatValue(val, currentTipo)}</span>
+                            <span style="font-size:0.8rem; color:var(--accent); font-weight:800; min-width:38px; text-align:right">${pct}%</span>
                         </div>
                     </div>`;
-            }).join('');
-        }
-
-        function renderProductosChart() {
-            const chart = getChart('chart-productos');
-            const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
-            const data = (clienteData.productos || [])
-                .filter(p => (p[field] || 0) > 0)
-                .slice(0, 12)
-                .reverse();
-
-            // Update period label
-            document.getElementById('periodo-label').textContent = `· últimos ${currentMeses} meses`;
-
-            if (data.length === 0) {
-                chart.setOption({
-                    graphic: [{
-                        type: 'text', left: 'center', top: 'middle',
-                        style: { text: 'Sin datos de productos', fill: '#8E96A3', fontSize: 14 }
-                    }]
-                });
-                return;
+                }).join('');
             }
 
-            chart.setOption({
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: '#1a2332',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    textStyle: { color: '#fff' },
-                    formatter: params => {
-                        const p = params[0];
-                        const item = (clienteData.productos || []).find(x => x.nombre_producto.startsWith(p.name.substring(0, 20)));
-                        const veces = item ? ` · ${item.veces_comprado} compras` : '';
-                        return `<strong>${p.name}</strong><br/>${formatValue(p.value, currentTipo)}${veces}`;
-                    }
-                },
-                grid: { top: 8, right: 120, bottom: 8, left: 12, containLabel: true },
-                xAxis: { type: 'value', show: false },
-                yAxis: {
-                    type: 'category',
-                    data: data.map(c => c.nombre_producto.substring(0, 32)),
-                    axisLine: { show: false },
-                    axisTick: { show: false },
-                    axisLabel: { color: '#8E96A3', fontSize: 10 }
-                },
-                series: [{
-                    type: 'bar',
-                    data: data.map((c, i) => ({
-                        value: c[field] || 0,
-                        itemStyle: {
-                            color: {
-                                type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
-                                colorStops: [
-                                    { offset: 0, color: BRAND_COLORS[i % BRAND_COLORS.length] },
-                                    { offset: 1, color: BRAND_COLORS[i % BRAND_COLORS.length] + '99' }
-                                ]
-                            },
-                            borderRadius: [0, 5, 5, 0]
-                        }
-                    })),
-                    label: {
-                        show: true,
-                        position: 'right',
-                        formatter: p => formatValue(p.value, currentTipo),
-                        fontSize: 10,
-                        color: '#c0c7d0',
-                        fontWeight: '600'
-                    },
-                    barWidth: 14,
-                    barMinHeight: 4
-                }]
-            });
-        }
+            function renderProductosChart() {
+                const chart = getChart('chart-productos');
+                if (!chart) return;
+                const field = currentTipo === 'importe' ? 'total_importe' : 'total_kg';
+                const data = (clienteData.productos || [])
+                    .filter(p => (p[field] || 0) > 0)
+                    .slice(0, 12)
+                    .reverse();
 
-        function renderRecurrenciaChart() {
-            const chart = getChart('chart-recurrencia');
-            const allData = clienteData.historia || [];
-            const data = allData.slice(-currentMeses);
+                // Update period label
+                document.getElementById('periodo-label').textContent = `· últimos ${currentMeses} meses`;
 
-            if (data.length === 0) {
+                if (data.length === 0) {
+                    chart.setOption({
+                        graphic: [{
+                            type: 'text', left: 'center', top: 'middle',
+                            style: { text: 'Sin datos de productos', fill: '#8E96A3', fontSize: 14 }
+                        }]
+                    });
+                    return;
+                }
+
                 chart.setOption({
-                    graphic: [{
-                        type: 'text', left: 'center', top: 'middle',
-                        style: { text: 'Sin datos históricos', fill: '#8E96A3', fontSize: 14 }
-                    }]
-                });
-                return;
-            }
-
-            const totalMeses = data.length;
-            const mesesConCompra = data.filter(h => (h.total_kg || 0) > 0).length;
-            const recurrenciaPct = totalMeses > 0 ? Math.round(mesesConCompra / totalMeses * 100) : 0;
-            const avgKg = mesesConCompra > 0
-                ? data.filter(h => h.total_kg > 0).reduce((s, h) => s + h.total_kg, 0) / mesesConCompra
-                : 0;
-
-            chart.setOption({
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'axis',
-                    backgroundColor: '#1a2332',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    textStyle: { color: '#fff' },
-                    formatter: params => {
-                        const p = params[0];
-                        const compro = p.value > 0;
-                        return `<strong>${p.axisValue}</strong><br/>${compro ? '✅ Compró: ' + formatKg(p.value) : '❌ Sin compra'}`;
-                    }
-                },
-                graphic: [{
-                    type: 'group', left: 'center', top: 10,
-                    children: [
-                        {
-                            type: 'text', style: {
-                                text: `${recurrenciaPct}% recurrencia · ${mesesConCompra}/${totalMeses} meses activos · Promedio: ${formatKg(avgKg)}/mes`,
-                                fill: '#8E96A3', fontSize: 11, textAlign: 'center'
-                            }
-                        }
-                    ]
-                }],
-                grid: { top: 40, right: 20, bottom: 45, left: 70 },
-                xAxis: {
-                    type: 'category',
-                    data: data.map(h => h.year_month),
-                    axisLabel: { fontSize: 10, color: '#8E96A3', rotate: data.length > 8 ? 30 : 0 },
-                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
-                    axisTick: { show: false }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        fontSize: 10, color: '#8E96A3',
-                        formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg'
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' },
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#E2E8F0',
+                        textStyle: { color: '#1E293B' },
+                        borderWidth: 1
                     },
-                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
-                },
-                series: [{
-                    type: 'bar',
-                    data: data.map(h => {
-                        const val = h.total_kg || 0;
-                        const active = val > 0;
-                        return {
-                            value: val,
+                    grid: { top: 8, right: 120, bottom: 8, left: 12, containLabel: true },
+                    xAxis: { type: 'value', show: false },
+                    yAxis: {
+                        type: 'category',
+                        data: data.map(c => c.nombre_producto.substring(0, 32)),
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#64748B', fontSize: 10, fontWeight: 600 }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: data.map((c, i) => ({
+                            value: c[field] || 0,
                             itemStyle: {
-                                color: active
-                                    ? {
-                                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                                        colorStops: [{ offset: 0, color: '#2ecc71' }, { offset: 1, color: '#1a8a4a' }]
-                                    }
-                                    : 'rgba(231,76,60,0.25)',
-                                borderRadius: [4, 4, 0, 0]
+                                color: {
+                                    type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+                                    colorStops: [
+                                        { offset: 0, color: BRAND_COLORS[i % BRAND_COLORS.length] },
+                                        { offset: 1, color: BRAND_COLORS[i % BRAND_COLORS.length] + '99' }
+                                    ]
+                                },
+                                borderRadius: [0, 5, 5, 0]
                             }
-                        };
-                    }),
-                    barWidth: '55%',
-                    markLine: avgKg > 0 ? {
-                        silent: true,
-                        symbol: 'none',
-                        lineStyle: { color: '#f39c12', type: 'dashed', width: 1.5 },
-                        data: [{ yAxis: avgKg, label: { formatter: 'Promedio', color: '#f39c12', fontSize: 10 } }]
-                    } : undefined
-                }]
+                        })),
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: p => formatValue(p.value, currentTipo),
+                            fontSize: 10,
+                            color: '#1E293B',
+                            fontWeight: '800'
+                        },
+                        barWidth: 14,
+                        barMinHeight: 4
+                    }]
+                });
+            }
+
+            function renderRecurrenciaChart() {
+                const chart = getChart('chart-recurrencia');
+                if (!chart) return;
+                const allData = clienteData.historia || [];
+                const data = allData.slice(-currentMeses);
+
+                if (data.length === 0) {
+                    chart.setOption({
+                        graphic: [{
+                            type: 'text', left: 'center', top: 'middle',
+                            style: { text: 'Sin datos históricos', fill: '#8E96A3', fontSize: 14 }
+                        }]
+                    });
+                    return;
+                }
+
+                const totalMeses = data.length;
+                const mesesConCompra = data.filter(h => (h.total_kg || 0) > 0).length;
+                const recurrenciaPct = totalMeses > 0 ? Math.round(mesesConCompra / totalMeses * 100) : 0;
+                const avgKg = mesesConCompra > 0
+                    ? data.filter(h => h.total_kg > 0).reduce((s, h) => s + h.total_kg, 0) / mesesConCompra
+                    : 0;
+
+                chart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#E2E8F0',
+                        textStyle: { color: '#1E293B' },
+                        borderWidth: 1,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0,0,0,0.1)'
+                    },
+                    graphic: [{
+                        type: 'group', left: 'center', top: 10,
+                        children: [
+                            {
+                                type: 'text', style: {
+                                    text: `${recurrenciaPct}% recurrencia · ${mesesConCompra}/${totalMeses} meses activos · Promedio: ${formatKg(avgKg)}/mes`,
+                                    fill: '#64748B', fontSize: 11, textAlign: 'center'
+                                }
+                            }
+                        ]
+                    }],
+                    grid: { top: 40, right: 20, bottom: 45, left: 70 },
+                    xAxis: {
+                        type: 'category',
+                        data: data.map(h => h.year_month),
+                        axisLabel: { fontSize: 10, color: '#64748B', rotate: data.length > 8 ? 30 : 0 },
+                        axisLine: { lineStyle: { color: '#E2E8F0' } },
+                        axisTick: { show: false }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            fontSize: 10, color: '#64748B',
+                            formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 't' : v + ' kg'
+                        },
+                        splitLine: { lineStyle: { color: '#E2E8F0' } }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: data.map(h => {
+                            const val = h.total_kg || 0;
+                            const active = val > 0;
+                            return {
+                                value: val,
+                                itemStyle: {
+                                    color: active
+                                        ? {
+                                            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                            colorStops: [{ offset: 0, color: '#2ecc71' }, { offset: 1, color: '#1a8a4a' }]
+                                        }
+                                        : 'rgba(231,76,60,0.25)',
+                                    borderRadius: [4, 4, 0, 0]
+                                }
+                            };
+                        }),
+                        barWidth: '55%',
+                        markLine: avgKg > 0 ? {
+                            silent: true,
+                            symbol: 'none',
+                            lineStyle: { color: '#f39c12', type: 'dashed', width: 1.5 },
+                            data: [{ yAxis: avgKg, label: { formatter: 'Promedio', color: '#f39c12', fontSize: 10 } }]
+                        } : undefined
+                    }]
+                });
+            }
+
+            document.querySelectorAll('.btn[data-meses]').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.btn[data-meses]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMeses = parseInt(this.dataset.meses);
+                    loadCliente();
+                });
             });
-        }
 
-        document.querySelectorAll('.btn[data-meses]').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.btn[data-meses]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentMeses = parseInt(this.dataset.meses);
-                loadCliente();
+            document.querySelectorAll('.btn[data-tipo]').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.btn[data-tipo]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTipo = this.dataset.tipo;
+                    renderCharts();
+                });
             });
-        });
 
-        document.querySelectorAll('.btn[data-tipo]').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.btn[data-tipo]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentTipo = this.dataset.tipo;
-                renderCharts();
+            window.addEventListener('resize', () => {
+                ['chart-historia', 'chart-categorias', 'chart-productos', 'chart-recurrencia'].forEach(id => {
+                    echarts.getInstanceByDom(document.getElementById(id))?.resize();
+                });
             });
-        });
 
-        window.addEventListener('resize', () => {
-            ['chart-historia', 'chart-categorias', 'chart-productos', 'chart-recurrencia'].forEach(id => {
-                echarts.getInstanceByDom(document.getElementById(id))?.resize();
-            });
-        });
+            // ─── Coberturas de Lanzamientos ───────────
+            async function loadCoberturas() {
+                try {
+                    const res = await fetch(`/api/cliente/${codCliente}/coberturas`);
+                    const data = await res.json();
+                    if (!data || !data.length) return;
 
-        // ─── Coberturas de Lanzamientos ───────────
-        async function loadCoberturas() {
-            try {
-                const res = await fetch(`/api/cliente/${codCliente}/coberturas`);
-                const data = await res.json();
-                if (!data || !data.length) return;
-
-                document.getElementById('lanz-section').style.display = '';
-                const grid = document.getElementById('lanz-grid');
-                grid.innerHTML = data.map(d => {
-                    const bcls = d.estado === 'COMPRADOR' ? 'comp' : d.estado === 'SIN COMPRA' ? 'sinc' : 'noc';
-                    const barColor = d.estado === 'COMPRADOR' ? '#34c759' : d.estado === 'SIN COMPRA' ? '#ff9f0a' : '#E84752';
-                    const prom = d.promedio_u3 || 1;
-                    const pct = Math.min(100, (d.total_feb / prom) * 100).toFixed(0);
-                    return `<div class="lanz-card">
+                    document.getElementById('lanz-section').style.display = '';
+                    const grid = document.getElementById('lanz-grid');
+                    grid.innerHTML = data.map(d => {
+                        const bcls = d.estado === 'COMPRADOR' ? 'comp' : d.estado === 'SIN COMPRA' ? 'sinc' : 'noc';
+                        const barColor = d.estado === 'COMPRADOR' ? '#34c759' : d.estado === 'SIN COMPRA' ? '#ff9f0a' : '#E84752';
+                        const prom = d.promedio_u3 || 1;
+                        const pct = Math.min(100, (d.total_feb / prom) * 100).toFixed(0);
+                        return `<div class="lanz-card">
                         <div class="lanz-name">${d.lanzamiento}</div>
                         <span class="lanz-badge ${bcls}">${d.estado}</span>
                         <div class="lanz-kg">${(d.total_feb || 0).toLocaleString('es-AR', { maximumFractionDigits: 1 })} <span style="font-size:12px;color:#555">KG</span></div>
                         <div class="lanz-prom">Prom 3M: ${(d.promedio_u3 || 0).toLocaleString('es-AR', { maximumFractionDigits: 1 })} KG</div>
                         <div class="lanz-minibar"><div class="lanz-minibar-fill" style="width:${pct}%;background:${barColor}"></div></div>
                     </div>`;
-                }).join('');
-            } catch (e) { console.warn('Coberturas not available', e); }
-        }
+                    }).join('');
+                } catch (e) { console.warn('Coberturas not available', e); }
+            }
 
-        loadCliente();
-        loadCoberturas();
+            loadCliente();
+            loadCoberturas();
     </script>
 </body>
 

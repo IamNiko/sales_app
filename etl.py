@@ -172,6 +172,17 @@ class SalesETL:
                 cliente_name TEXT,
                 cod_centralizador TEXT,
                 frecuencia TEXT,
+                ciudad TEXT,
+                provincia TEXT,
+                direccion TEXT,
+                telefono TEXT,
+                correo TEXT,
+                contacto TEXT,
+                plazo TEXT,
+                activo TEXT,
+                canal TEXT,
+                lat REAL,
+                lon REAL,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE IF NOT EXISTS dim_product_classification (
@@ -294,19 +305,86 @@ class SalesETL:
             logging.info(f"Loading Clients Master from {f_clients.name}")
             df = robust_read_excel(f_clients, ["CLIENTEID", "CLIENTE"])
             df.columns = [str(c).strip().upper() for c in df.columns]
-            
+
+            # Normalize column name variants
+            col_map = {
+                'CLIENTEID': 'CLIENTEID', 'CLIENTE': 'CLIENTE',
+                'COD CENTRALIZADOR': 'COD CENTRALIZADOR',
+                'FRECUENCIA': 'FRECUENCIA',
+                'CIUDAD': 'CIUDAD', 'PROVINCIA': 'PROVINCIA',
+                'DIRECCIÓN': 'DIRECCIÓN', 'DIRECCION': 'DIRECCIÓN',
+                'TEL': 'TEL', 'CORREO': 'CORREO',
+                'CONTACTO': 'CONTACTO', 'PLAZO': 'PLAZO', 'ACTIVO': 'ACTIVO'
+            }
+            # Normalize accented column names
+            import unicodedata
+            norm_cols = {}
+            for c in df.columns:
+                norm = ''.join(ch for ch in unicodedata.normalize('NFKD', c) if not unicodedata.combining(ch))
+                norm_cols[norm.upper()] = c
+
+            def get_col(key):
+                # Try exact, then normalized
+                if key in df.columns: return key
+                norm_key = ''.join(ch for ch in unicodedata.normalize('NFKD', key) if not unicodedata.combining(ch)).upper()
+                return norm_cols.get(norm_key)
+
             for _, row in df.iterrows():
                 cid = normalize_key(row.get('CLIENTEID'))
                 if not cid: continue
+
+                def v(key):
+                    col = get_col(key)
+                    if col is None: return None
+                    val = row.get(col)
+                    if pd.isna(val): return None
+                    return str(val).strip() if val else None
+
+                lista = v('LISTA PRECIO') or v('LISTA_PRECIO')
+                canal = None
+                if lista:
+                    lu = lista.upper()
+                    if 'SUBDIST' in lu: canal = 'subdistribuidor'
+                    elif 'DIST' in lu: canal = 'distribuidor'
+                    elif 'MAYORIST' in lu: canal = 'mayorista'
+                    elif 'SUPER' in lu or 'MERCADO' in lu or 'LIBERTAD' in lu: canal = 'supermercado'
+
                 self.conn.execute("""
-                    INSERT INTO dim_clients (cliente_id, cliente_name, cod_centralizador, frecuencia)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO dim_clients (
+                        cliente_id, cliente_name, cod_centralizador, frecuencia,
+                        ciudad, provincia, direccion, telefono, correo,
+                        contacto, plazo, activo, canal
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(cliente_id) DO UPDATE SET
                         cliente_name=excluded.cliente_name,
                         cod_centralizador=excluded.cod_centralizador,
                         frecuencia=excluded.frecuencia,
+                        ciudad=excluded.ciudad,
+                        provincia=excluded.provincia,
+                        direccion=excluded.direccion,
+                        telefono=excluded.telefono,
+                        correo=excluded.correo,
+                        contacto=excluded.contacto,
+                        plazo=excluded.plazo,
+                        activo=excluded.activo,
+                        canal=excluded.canal,
                         updated_at=CURRENT_TIMESTAMP
-                """, (cid, row.get('CLIENTE'), normalize_key(row.get('COD CENTRALIZADOR')), row.get('FRECUENCIA')))
+                """, (
+                    cid,
+                    v('CLIENTE'),
+                    normalize_key(row.get('COD CENTRALIZADOR')),
+                    v('FRECUENCIA'),
+                    v('CIUDAD'),
+                    v('PROVINCIA'),
+                    v('DIRECCIÓN'),
+                    v('TEL'),
+                    v('CORREO'),
+                    v('CONTACTO'),
+                    v('PLAZO'),
+                    v('ACTIVO'),
+                    canal,
+                ))
             self.processed_files.append(f_clients.name)
 
         # 2. Product Classification - Header is at row 6

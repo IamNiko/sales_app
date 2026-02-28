@@ -5,15 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swift Sales | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2B3D4A;
+            --primary: #1D3557;
             --accent: #E84752;
-            --bg: #f4f5f7;
-            --card: #ffffff;
-            --text: #2B3D4A;
-            --muted: #6c757d;
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --muted: #64748B;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --border: #E2E8F0;
         }
 
         * {
@@ -24,7 +28,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #2B3D4A 0%, #1a252f 100%);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -46,13 +50,23 @@
         }
 
         .logo h1 {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
+            color: var(--text);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo h1 span.accent {
             color: var(--accent);
         }
 
-        .logo span {
-            font-weight: 400;
-            color: var(--primary);
+        .logo .brand-box {
+            background: var(--accent);
+            color: white;
+            display: inline-block;
+            padding: 0 10px;
+            border-radius: 6px;
+            margin-right: 8px;
         }
 
         .form-group {
@@ -81,25 +95,28 @@
         input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(232, 71, 82, 0.1);
         }
 
         button {
             width: 100%;
             padding: 14px;
-            background: var(--accent);
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         button:hover {
-            background: #2980b9;
+            background: #112239;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(29, 53, 87, 0.2);
         }
     </style>
 </head>
@@ -107,7 +124,9 @@
 <body>
     <div class="login-card">
         <div class="logo">
-            <h1>SWIFT<span> Argentina</span></h1>
+            <h1><span class="brand-box">M</span>Minerva <span class="accent">Foods</span></h1>
+            <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; font-weight: 500;">Sales Intelligence
+                Dashboard</p>
         </div>
         <form method="POST" action="/login">
             <div class="form-group">

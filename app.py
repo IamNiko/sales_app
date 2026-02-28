@@ -617,7 +617,7 @@ def api_cliente(cod_cliente):
     
     conn = get_db()
     
-    # Get client info with Tier
+    # Get client info with Tier and contact data
     cliente = conn.execute("""
         SELECT 
             av.cod_cliente, 
@@ -627,9 +627,19 @@ def api_cliente(cod_cliente):
             s.score,
             s.vol_score,
             s.mix_score,
-            s.loyalty_score
+            s.loyalty_score,
+            dc.ciudad,
+            dc.provincia,
+            dc.direccion,
+            dc.telefono,
+            dc.correo,
+            dc.contacto,
+            dc.plazo,
+            dc.lat,
+            dc.lon
         FROM fact_avance_cliente_vendedor_month av
         LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
         WHERE av.cod_cliente = ?
           AND av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
     """, (cod_cliente,)).fetchone()
@@ -907,6 +917,80 @@ def api_vendedor_facturacion(cod_vendedor=None):
 
 
 # ─── COBERTURAS ────────────────────────────────────────
+
+@app.route('/mapa')
+@login_required
+def mapa_page():
+    return render_template('mapa.html')
+
+
+@app.route('/api/mapa/clientes')
+def api_mapa_clientes():
+    """Return all clients with location data and current month stats for the map."""
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe = request.args.get('jefe', '')
+    zona = request.args.get('zona', '')
+
+    conn = get_db()
+
+    where_parts = ["av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)"]
+    params = []
+    if cod_vendedor:
+        where_parts.append("av.cod_vendedor = ?")
+        params.append(cod_vendedor)
+    elif jefe:
+        where_parts.append("av.jefe = ?")
+        params.append(jefe)
+    elif zona:
+        where_parts.append("av.zona = ?")
+        params.append(zona)
+
+    where = " AND ".join(where_parts)
+
+    rows = conn.execute(f"""
+        SELECT
+            av.cod_cliente,
+            av.nom_cliente,
+            av.cod_vendedor,
+            av.nom_vendedor,
+            av.frecuencia,
+            av.venta_actual,
+            av.objetivo,
+            av.pendiente,
+            dc.ciudad,
+            dc.provincia,
+            dc.direccion,
+            dc.telefono,
+            dc.correo,
+            dc.canal,
+            dc.lat,
+            dc.lon,
+            s.tier
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
+        LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        WHERE {where}
+        ORDER BY av.nom_cliente
+    """, params).fetchall()
+
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/mapa/cliente/<cod_cliente>/geocode', methods=['POST'])
+def api_save_geocode(cod_cliente):
+    """Save geocoded lat/lon for a client."""
+    data = request.get_json()
+    lat = data.get('lat')
+    lon = data.get('lon')
+    if lat is None or lon is None:
+        return jsonify({'error': 'lat and lon required'}), 400
+    conn = get_db()
+    conn.execute("UPDATE dim_clients SET lat=?, lon=? WHERE cliente_id=?", (lat, lon, cod_cliente))
+    conn.commit()
+    conn.close()
+    return jsonify({'ok': True})
+
 
 @app.route('/coberturas')
 def coberturas_page():

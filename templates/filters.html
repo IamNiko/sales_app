@@ -10,15 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #E84752;
-            --primary-dark: #c03942;
-            --bg-dark: #0B0F14;
-            --bg-card: #1A1F26;
-            --text-primary: #FFFFFF;
-            --text-secondary: #8E96A3;
-            --border: #2A3340;
-            --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            --glow: 0 0 20px rgba(232, 71, 82, 0.3);
+            --primary: #1D3557;
+            --accent: #E84752;
+            --bg-light: #F8FAFC;
+            --white: #FFFFFF;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+            /* Increased contrast from #64748B */
+            --border: #E2E8F0;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         * {
@@ -29,14 +29,14 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0B0F14 0%, #1A1F26 50%, #0B0F14 100%);
+            background-color: var(--bg-light);
+            background-image: radial-gradient(at 0% 0%, rgba(29, 53, 87, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(232, 71, 82, 0.05) 0px, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            position: relative;
-            overflow: hidden;
         }
 
         /* Animated background elements */
@@ -105,24 +105,39 @@
 
         header h1 {
             color: var(--text-primary);
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin-bottom: 0.75rem;
-            letter-spacing: -0.5px;
+            letter-spacing: -1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        header h1 span.brand-m {
+            background: var(--primary);
+            color: white;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 2rem;
         }
 
         header p {
             color: var(--text-secondary);
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            /* Increased from 500 */
+            opacity: 0.9;
+            /* Increased from 0.8 */
         }
 
         .filter-card {
-            background: var(--bg-card);
+            background: var(--white);
             border-radius: 24px;
-            padding: 2.5rem;
+            padding: 3rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
             animation: slideUp 0.6s ease-out 0.2s both;
         }
 
@@ -167,12 +182,12 @@
 
         label {
             display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 800;
             color: var(--text-secondary);
             margin-bottom: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1.5px;
         }
 
         .select-wrapper {
@@ -201,7 +216,7 @@
             border: 2px solid var(--border);
             border-radius: 12px;
             font-size: 1rem;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--bg-light);
             color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -210,21 +225,21 @@
         }
 
         select option {
-            background: var(--bg-card);
+            background: var(--white);
             color: var(--text-primary);
             padding: 12px;
         }
 
         select:hover {
             border-color: var(--primary);
-            background: rgba(232, 71, 82, 0.05);
+            background: white;
         }
 
         select:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(232, 71, 82, 0.08);
-            box-shadow: var(--glow);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(29, 53, 87, 0.1);
         }
 
         select:disabled {
@@ -241,17 +256,21 @@
         button {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--accent);
+            /* Minerva Red */
             color: white;
             border: none;
             border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-top: 1.5rem;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 14px rgba(232, 71, 82, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
             animation: fadeIn 0.6s ease-out 0.6s both;
         }
 
@@ -272,7 +291,9 @@
 
         button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(232, 71, 82, 0.4);
+            background: #d33a44;
+            /* Darker red on hover */
+            box-shadow: 0 8px 25px rgba(232, 71, 82, 0.5);
         }
 
         button:active:not(:disabled) {
@@ -280,9 +301,10 @@
         }
 
         button:disabled {
-            background: linear-gradient(135deg, #2A3340 0%, #1A1F26 100%);
+            background: #E2E8F0;
+            color: #94A3B8;
             cursor: not-allowed;
-            opacity: 0.5;
+            opacity: 0.7;
         }
 
         .user-info {
@@ -333,8 +355,8 @@
             Bienvenido | <a href="/logout">Cerrar Sesión</a>
         </div>
         <header>
-            <h1>Swift Sales</h1>
-            <p>Selecciona zona, jefe o vendedor para continuar</p>
+            <h1><span class="brand-m">M</span> Minerva <span style="color: var(--primary)">Foods</span></h1>
+            <p>Selección de parámetros comerciales</p>
         </header>
 
         <div class="filter-card">

@@ -8,6 +8,9 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         .cob-grid {
@@ -18,27 +21,29 @@
         }
 
         .cob-card {
-            background: linear-gradient(145deg, #0a0a0a, #111);
-            border: 1px solid #1a1a1a;
+            background: var(--white);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
             position: relative;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow);
         }
 
         .cob-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
         }
 
         .cob-card .prod-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
             margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .cob-card .pct-big {
@@ -47,32 +52,36 @@
             line-height: 1;
             background: linear-gradient(135deg, #E84752, #ff6b6b);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .cob-card .pct-big.high {
             background: linear-gradient(135deg, #34c759, #7ae582);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .cob-card .pct-big.mid {
             background: linear-gradient(135deg, #ff9f0a, #ffd60a);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .cob-label {
-            font-size: 11px;
-            color: #666;
+            font-size: 10px;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: 2px;
+            font-weight: 700;
         }
 
         .cob-bar {
             height: 6px;
-            background: #1a1a1a;
+            background: var(--light-grey);
             border-radius: 3px;
             margin: 12px 0 8px;
             overflow: hidden;
@@ -108,57 +117,33 @@
         }
 
         .cob-stat .num {
-            font-size: 18px;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
         }
 
         .cob-stat .lbl {
             font-size: 10px;
-            color: #555;
+            color: var(--text-muted);
             text-transform: uppercase;
+            font-weight: 700;
         }
 
-        /* KPI strip */
-        .kpi-strip {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
+        /* Global summary card — same shape as cob-card but accented */
+        .cob-card.global {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #EFF6FF 0%, #F0F7FF 100%);
+            box-shadow: 0 4px 16px rgba(29, 53, 87, 0.12);
         }
 
-        .kpi-strip .kpi-s {
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 10px;
-            padding: 16px;
-            text-align: center;
+        .cob-card.global .prod-name {
+            color: var(--primary);
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
         }
 
-        .kpi-s .k-val {
-            font-size: 28px;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .kpi-s .k-lbl {
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-
-        .kpi-s.green .k-val {
-            color: #34c759;
-        }
-
-        .kpi-s.yellow .k-val {
-            color: #ff9f0a;
-        }
-
-        .kpi-s.red .k-val {
-            color: #E84752;
+        .cob-card.global .num {
+            font-size: 1.2rem;
         }
 
         /* Charts row */
@@ -170,19 +155,24 @@
         }
 
         .chart-box {
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 12px;
-            padding: 16px;
+            background: #F0F7FF;
+            /* Light blue depth */
+            border: 1px solid #DDEBFF;
+            border-radius: 16px;
+            padding: 20px;
             min-height: 360px;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.03);
         }
 
         .chart-box h3 {
-            color: #999;
-            font-size: 13px;
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0 0 12px;
+            letter-spacing: 1.5px;
+            margin: 0 0 16px;
+            border-left: 3px solid var(--accent);
+            padding-left: 10px;
         }
 
         .chart-box .chart-area {
@@ -194,32 +184,34 @@
         .det-table {
             width: 100%;
             border-collapse: collapse;
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
         .det-table th {
-            background: #111;
-            color: #666;
-            font-size: 11px;
+            background: #F1F5F9;
+            color: var(--text-muted);
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 10px 12px;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #1a1a1a;
+            border-bottom: 2px solid var(--border);
+            font-weight: 800;
         }
 
         .det-table td {
-            padding: 8px 12px;
-            color: #ccc;
-            font-size: 13px;
-            border-bottom: 1px solid #0d0d0d;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .det-table tr:hover td {
-            background: #111;
+            background: #F8FAFF;
         }
 
         .badge {
@@ -251,15 +243,22 @@
             display: flex;
             gap: 12px;
             margin-bottom: 20px;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
             align-items: center;
             flex-wrap: wrap;
+            background: #F8FAFF;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         }
 
         .filter-bar select,
         .filter-bar input {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            color: #ccc;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
             padding: 8px 14px;
             border-radius: 8px;
             font-size: 13px;
@@ -268,7 +267,8 @@
 
         .filter-bar select:focus,
         .filter-bar input:focus {
-            border-color: #E84752;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(29, 53, 87, 0.1);
             outline: none;
         }
 
@@ -289,24 +289,26 @@
         }
 
         .section-title {
-            color: #fff;
+            color: var(--text-primary);
             font-size: 18px;
             font-weight: 700;
             margin: 32px 0 16px;
-            border-left: 3px solid #E84752;
+            border-left: 3px solid var(--accent);
             padding-left: 12px;
         }
 
         /* === Evolución de Cliente === */
         .evol-panel {
             display: none;
-            background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
-            border: 1px solid #1e1e1e;
+            background: #F0F7FF;
+            /* Light blue depth */
+            border: 1px solid #DDEBFF;
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.05);
         }
 
         .evol-panel::before {
@@ -331,7 +333,7 @@
         .evol-title {
             font-size: 15px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             letter-spacing: 0.3px;
         }
 
@@ -343,8 +345,8 @@
 
         .evol-toggle {
             display: flex;
-            background: #111;
-            border: 1px solid #222;
+            background: var(--border);
+            border: 1px solid var(--border);
             border-radius: 8px;
             overflow: hidden;
         }
@@ -353,7 +355,7 @@
             padding: 6px 16px;
             background: transparent;
             border: none;
-            color: #666;
+            color: var(--text-secondary);
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
@@ -362,7 +364,7 @@
         }
 
         .evol-toggle button.active {
-            background: #E84752;
+            background: var(--accent);
             color: #fff;
         }
 
@@ -374,17 +376,18 @@
         }
 
         .evol-kpi {
-            background: #111;
-            border: 1px solid #1a1a1a;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
             text-align: center;
+            box-shadow: var(--shadow);
         }
 
         .evol-kpi .ev-val {
             font-size: 22px;
             font-weight: 800;
-            color: #fff;
+            color: var(--primary);
         }
 
         .evol-kpi .ev-lbl {
@@ -400,14 +403,15 @@
             height: 300px;
         }
 
-        /* === Evolución Histórica por Lanzamiento === */
         .evol-hist-panel {
-            background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
-            border: 1px solid #1e1e1e;
+            background: #F0F7FF;
+            /* Light blue depth */
+            border: 1px solid #DDEBFF;
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 24px;
             position: relative;
+            box-shadow: 0 4px 12px rgba(0, 50, 100, 0.05);
         }
 
         .evol-hist-panel::before {
@@ -432,7 +436,7 @@
         .evol-hist-title {
             font-size: 15px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             letter-spacing: 0.3px;
         }
 
@@ -448,10 +452,6 @@
         }
 
         @media (max-width: 768px) {
-            .kpi-strip {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
             .charts-row {
                 grid-template-columns: 1fr;
             }
@@ -469,12 +469,19 @@
 
 <body>
     <nav class="navbar">
-        <h1>Swift Sales Intelligence</h1>
+        <h1 style="display:flex; align-items:center; gap:10px;">
+            <div
+                style="background: var(--minerva-red); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 1.2rem;">
+                M</div>
+            <span style="letter-spacing: -0.5px;">Minerva <span
+                    style="color: var(--minerva-red); font-weight: 800;">Foods</span></span>
+            <span style="font-weight: 300; margin-left: 8px; opacity: 0.5; font-size: 0.9rem;">Coberturas</span>
+        </h1>
         <div style="display:flex;gap:16px;align-items:center">
             <a
                 href="/dashboard?vendedor={{ request.args.get('vendedor','') }}&jefe={{ request.args.get('jefe','') }}&zona={{ request.args.get('zona','') }}">←
                 Dashboard</a>
-            <a href="/filters">Cambiar Vista</a>
+            <a href="/filters" style="color: var(--text-secondary); font-weight: 500;">Cambiar Vista</a>
         </div>
     </nav>
 
@@ -529,27 +536,7 @@
             <div id="evol-chart" class="evol-chart-area"></div>
         </div>
 
-        <!-- KPI strip -->
-        <div class="kpi-strip">
-            <div class="kpi-s green">
-                <div class="k-val" id="kpi-pct">—</div>
-                <div class="k-lbl">Cobertura Global %</div>
-            </div>
-            <div class="kpi-s green">
-                <div class="k-val" id="kpi-comp">—</div>
-                <div class="k-lbl">Compradores</div>
-            </div>
-            <div class="kpi-s yellow">
-                <div class="k-val" id="kpi-sinc">—</div>
-                <div class="k-lbl">Sin Compra</div>
-            </div>
-            <div class="kpi-s red">
-                <div class="k-val" id="kpi-noc">—</div>
-                <div class="k-lbl">No Comprador</div>
-            </div>
-        </div>
-
-        <!-- Coverage Cards -->
+        <!-- Coverage Cards: primer card = resumen global, resto = por producto -->
         <div class="section-title">Cobertura por Producto</div>
         <div id="cob-cards" class="cob-grid"></div>
 
@@ -671,21 +658,36 @@
                 if (prevClient) clienteSel.value = prevClient;
             }
 
-            // KPIs (aggregate)
-            const totC = r.reduce((a, x) => a + x.compradores, 0);
-            const totS = r.reduce((a, x) => a + x.sin_compra, 0);
-            const totN = r.reduce((a, x) => a + x.no_comprador, 0);
-            const totAll = r.reduce((a, x) => a + x.total_clientes, 0);
-            const pctGlobal = totAll > 0 ? (100 * totC / totAll).toFixed(1) : 0;
-
-            document.getElementById('kpi-pct').textContent = pctGlobal + '%';
-            document.getElementById('kpi-comp').textContent = totC;
-            document.getElementById('kpi-sinc').textContent = totS;
-            document.getElementById('kpi-noc').textContent = totN;
-
             // Cards
             const cardsEl = document.getElementById('cob-cards');
             cardsEl.innerHTML = '';
+
+            // ── Resumen global ──────────────────────────────────────────
+            const totC = r.reduce((a, x) => a + x.compradores, 0);
+            const totS = r.reduce((a, x) => a + x.sin_compra, 0);
+            const totN = r.reduce((a, x) => a + x.no_comprador, 0);
+            const totKG = r.reduce((a, x) => a + (x.total_fact_kg || 0), 0);
+            const totBase = totC + totS + totN;
+            const pctGlobal = totBase > 0 ? Math.round(totC / totBase * 100) : 0;
+            const clsG = pctGlobal >= 50 ? 'high' : pctGlobal >= 30 ? 'mid' : '';
+            const barG = pctGlobal >= 50 ? 'g' : pctGlobal >= 30 ? 'y' : 'r';
+            cardsEl.innerHTML = `
+            <div class="cob-card global">
+                <div class="prod-name">⭐ RESUMEN GENERAL</div>
+                <div class="pct-big ${clsG}">${pctGlobal}%</div>
+                <div class="cob-label">Cobertura Global</div>
+                <div class="cob-bar"><div class="cob-bar-fill ${barG}" style="width:${Math.min(pctGlobal,100)}%"></div></div>
+                <div class="cob-stats">
+                    <div class="cob-stat"><div class="num" style="color:#34c759">${totC}</div><div class="lbl">Compradores</div></div>
+                    <div class="cob-stat"><div class="num" style="color:#ff9f0a">${totS}</div><div class="lbl">Sin Compra</div></div>
+                    <div class="cob-stat"><div class="num" style="color:#E84752">${totN}</div><div class="lbl">No Compra</div></div>
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:#555">
+                    ${r.length} productos · Total ${fmt(totKG)} KG
+                </div>
+            </div>`;
+
+            // ── Cards por producto ──────────────────────────────────────
             r.forEach(p => {
                 const pct = p.pct_cobertura || 0;
                 const cls = pct >= 50 ? 'high' : pct >= 30 ? 'mid' : '';
@@ -727,17 +729,35 @@
             const chart = echarts.init(dom);
             chart.setOption({
                 backgroundColor: 'transparent',
-                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: '#111', borderColor: '#222', textStyle: { color: '#ccc' } },
-                grid: { left: '3%', right: '8%', bottom: '3%', top: '3%', containLabel: true },
-                xAxis: { type: 'value', max: 100, axisLabel: { color: '#555', formatter: '{value}%' }, splitLine: { lineStyle: { color: '#1a1a1a' } } },
-                yAxis: { type: 'category', data: data.map(d => d.lanzamiento).reverse(), axisLabel: { color: '#ccc', fontSize: 12 }, axisTick: { show: false }, axisLine: { show: false } },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#E2E8F0',
+                    textStyle: { color: '#1E293B' },
+                    borderWidth: 1
+                },
+                grid: { left: '3%', right: '12%', bottom: '3%', top: '3%', containLabel: true },
+                xAxis: {
+                    type: 'value',
+                    max: 100,
+                    axisLabel: { color: '#64748B', fontWeight: 600, formatter: '{value}%' },
+                    splitLine: { lineStyle: { type: 'dashed', color: '#E2E8F0' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: data.map(d => d.lanzamiento).reverse(),
+                    axisLabel: { color: '#1E293B', fontSize: 12, fontWeight: 700 },
+                    axisTick: { show: false },
+                    axisLine: { lineStyle: { color: '#E2E8F0' } }
+                },
                 series: [{
                     type: 'bar', barWidth: 22,
                     data: data.map(d => ({
                         value: d.pct_cobertura,
                         itemStyle: { color: d.pct_cobertura >= 50 ? '#34c759' : d.pct_cobertura >= 30 ? '#ff9f0a' : '#E84752', borderRadius: [0, 4, 4, 0] }
                     })).reverse(),
-                    label: { show: true, position: 'right', color: '#999', fontSize: 12, formatter: '{c}%' }
+                    label: { show: true, position: 'right', color: '#64748B', fontWeight: 600, fontSize: 11, formatter: '{c}%' }
                 }]
             });
         }
@@ -752,13 +772,19 @@
             const totN = data.reduce((a, x) => a + x.no_comprador, 0);
             chart.setOption({
                 backgroundColor: 'transparent',
-                tooltip: { trigger: 'item', backgroundColor: '#111', borderColor: '#222', textStyle: { color: '#ccc' } },
-                legend: { bottom: 10, textStyle: { color: '#888' }, itemWidth: 12, itemHeight: 12 },
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: '#E2E8F0',
+                    textStyle: { color: '#1E293B' },
+                    borderWidth: 1
+                },
+                legend: { bottom: 0, textStyle: { color: '#64748B', fontWeight: 600 }, itemWidth: 10, itemHeight: 10 },
                 series: [{
                     type: 'pie', radius: ['45%', '70%'], center: ['50%', '45%'],
                     avoidLabelOverlap: true,
-                    itemStyle: { borderRadius: 6, borderColor: '#0a0a0a', borderWidth: 3 },
-                    label: { color: '#ccc', fontSize: 13, formatter: '{b}\n{d}%' },
+                    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                    label: { color: '#1E293B', fontWeight: 600, fontSize: 11, formatter: '{b}\n{d}%' },
                     data: [
                         { value: totC, name: 'Compradores', itemStyle: { color: '#34c759' } },
                         { value: totS, name: 'Sin Compra', itemStyle: { color: '#ff9f0a' } },
@@ -900,12 +926,12 @@
                 stack: null,
                 symbol: 'circle',
                 symbolSize: 8,
-                lineStyle: { color: 'rgba(255,255,255,0.4)', width: 2, type: 'dashed' },
-                itemStyle: { color: '#fff', borderColor: '#555', borderWidth: 2 },
+                lineStyle: { color: '#E84752', width: 2.5, type: 'dashed' },
+                itemStyle: { color: '#E84752', borderColor: '#fff', borderWidth: 2 },
                 label: {
                     show: true,
                     position: 'top',
-                    color: '#aaa',
+                    color: '#1E293B',
                     fontSize: 11,
                     fontWeight: '700',
                     formatter: p => p.value > 0 ? fmt(p.value) + ' kg' : ''
@@ -919,12 +945,12 @@
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: { type: 'shadow' },
-                    backgroundColor: '#111',
-                    borderColor: '#222',
-                    textStyle: { color: '#ccc' },
+                    backgroundColor: '#fff',
+                    borderColor: '#E2E8F0',
+                    textStyle: { color: '#1E293B' },
                     formatter: params => {
                         const mes = params[0].axisValue;
-                        let html = `<b>${mes}</b><br/>`;
+                        let html = `<b style="color:#1D3557">${mes}</b><br/>`;
                         let total = 0;
                         params.forEach(p => {
                             if (p.seriesName === 'Total KG') return;
@@ -934,14 +960,14 @@
                                 total += p.value;
                             }
                         });
-                        if (total > 0) html += `<br/><b>Total: ${fmt(total)} kg</b>`;
+                        if (total > 0) html += `<br/><b style="color:#1D3557">Total: ${fmt(total)} kg</b>`;
                         return html;
                     }
                 },
                 legend: {
                     data: data.categorias,
                     bottom: 0,
-                    textStyle: { color: '#888', fontSize: 11 },
+                    textStyle: { color: '#475569', fontSize: 11 },
                     itemWidth: 10, itemHeight: 10,
                     icon: 'roundRect'
                 },
@@ -949,14 +975,14 @@
                 xAxis: {
                     type: 'category',
                     data: data.mes_labels,
-                    axisLabel: { color: '#888', fontSize: 12 },
+                    axisLabel: { color: '#475569', fontSize: 12 },
                     axisTick: { show: false },
-                    axisLine: { lineStyle: { color: '#222' } }
+                    axisLine: { lineStyle: { color: '#E2E8F0' } }
                 },
                 yAxis: {
                     type: 'value',
-                    axisLabel: { color: '#555', formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v) },
-                    splitLine: { lineStyle: { color: '#151515' } }
+                    axisLabel: { color: '#64748B', formatter: v => (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v) },
+                    splitLine: { lineStyle: { color: '#F1F5F9' } }
                 },
                 series
             });
@@ -1031,12 +1057,12 @@
                 smooth: true,
                 symbol: 'circle',
                 symbolSize: 7,
-                lineStyle: { color: 'rgba(255,255,255,0.35)', width: 2, type: 'dashed' },
-                itemStyle: { color: '#fff', borderColor: '#555', borderWidth: 1 },
+                lineStyle: { color: '#E84752', width: 2.5, type: 'dashed' },
+                itemStyle: { color: '#E84752', borderColor: '#fff', borderWidth: 2 },
                 label: {
                     show: true,
                     position: 'top',
-                    color: '#aaa',
+                    color: '#1E293B',
                     fontSize: 11,
                     fontWeight: '700',
                     formatter: p => p.value > 0 ? fmt(p.value) + ' kg' : ''
@@ -1050,9 +1076,9 @@
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: { type: 'shadow' },
-                    backgroundColor: '#111',
-                    borderColor: '#222',
-                    textStyle: { color: '#ccc' },
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderColor: '#E2E8F0',
+                    textStyle: { color: '#1E293B' },
                     formatter: params => {
                         const mesIdx = data.mes_labels.indexOf(params[0].axisValue);
                         const mes = params[0].axisValue;
@@ -1074,7 +1100,6 @@
                                     }
                                 }
                                 html += `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${p.color};margin-right:6px;"></span>`;
-                                html += `${p.seriesName}: <b>${fmt(p.value)} kg</b>${deltaHtml}<br/>`;
                                 total += p.value;
                             }
                         });
@@ -1083,7 +1108,7 @@
                             if (mesIdx > 0 && totalPrev > 0) {
                                 const d = ((total - totalPrev) / totalPrev * 100).toFixed(1);
                                 const sign = d >= 0 ? '+' : '';
-                                const clr = d >= 0 ? '#34c759' : '#ff453a';
+                                const clr = d >= 0 ? '#16a34a' : '#dc2626';
                                 totalDeltaHtml = ` <span style="color:${clr};font-size:10px">${sign}${d}%</span>`;
                             }
                             html += `<br/><b>Total: ${fmt(total)} kg${totalDeltaHtml}</b>`;
@@ -1094,7 +1119,7 @@
                 legend: {
                     data: data.lanzamientos,
                     bottom: 0,
-                    textStyle: { color: '#888', fontSize: 11 },
+                    textStyle: { color: '#64748B', fontSize: 11 },
                     itemWidth: 10, itemHeight: 10,
                     icon: 'roundRect'
                 },
@@ -1102,17 +1127,17 @@
                 xAxis: {
                     type: 'category',
                     data: data.mes_labels,
-                    axisLabel: { color: '#888', fontSize: 12 },
+                    axisLabel: { color: '#94A3B8', fontSize: 12 },
                     axisTick: { show: false },
-                    axisLine: { lineStyle: { color: '#222' } }
+                    axisLine: { lineStyle: { color: '#E2E8F0' } }
                 },
                 yAxis: {
                     type: 'value',
                     axisLabel: {
-                        color: '#555',
+                        color: '#94A3B8',
                         formatter: v => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v
                     },
-                    splitLine: { lineStyle: { color: '#151515' } }
+                    splitLine: { lineStyle: { color: '#F1F5F9' } }
                 },
                 series
             });

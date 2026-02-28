@@ -21,6 +21,23 @@
         .kpi-card .value-small {
             font-size: 1.4rem;
         }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        th.sortable:hover { background: #E2E8F0; }
+        th.sortable::after { content: ' ↕'; font-size: 0.6rem; opacity: 0.4; }
+        th.sortable.sort-asc::after { content: ' ▲'; opacity: 1; color: var(--accent); }
+        th.sortable.sort-desc::after { content: ' ▼'; opacity: 1; color: var(--accent); }
+
+        .client-link {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .client-link:hover { color: var(--primary); text-decoration: underline; }
     </style>
 </head>
 
@@ -80,13 +97,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Cliente</th>
-                        <th>Frecuencia</th>
-                        <th class="text-right">Prom. Histórico</th>
-                        <th class="text-right">Objetivo Mensual</th>
-                        <th class="text-right">Facturado</th>
-                        <th class="text-right">Pendiente</th>
-                        <th>Estado</th>
+                        <th class="sortable" onclick="changeSort('nom_cliente')">Cliente</th>
+                        <th class="sortable" onclick="changeSort('frecuencia')">Frecuencia</th>
+                        <th class="sortable text-right" onclick="changeSort('historico')">Prom. Histórico</th>
+                        <th class="sortable text-right" onclick="changeSort('objetivo')">Objetivo Mensual</th>
+                        <th class="sortable text-right" onclick="changeSort('facturacion')">Facturado</th>
+                        <th class="sortable text-right" onclick="changeSort('pendiente')">Pendiente</th>
+                        <th class="sortable" onclick="changeSort('pct')">Estado</th>
                     </tr>
                 </thead>
                 <tbody id="planning-table">
@@ -103,12 +120,67 @@
         const zona = urlParams.get('zona');
 
         const dateInput = document.getElementById('planning-date');
-
-        // Set default date to today or from param
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = urlParams.get('date') || today;
-
         dateInput.addEventListener('change', () => loadPlanning());
+
+        const formatKg = (val) => Math.round(val || 0).toLocaleString('es-AR') + ' kg';
+
+        let allClients = [];
+        let sortKey = 'objetivo';
+        let sortAsc = false;
+
+        function getPct(c) {
+            return c.objetivo ? ((c.facturacion || 0) + (c.pendiente || 0)) / c.objetivo * 100 : 0;
+        }
+
+        function changeSort(key) {
+            if (sortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = (key === 'nom_cliente' || key === 'frecuencia');
+            }
+            renderTable(allClients);
+        }
+
+        function renderTable(clients) {
+            // Update header indicators
+            document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+            document.querySelectorAll('th.sortable').forEach(th => {
+                if (th.getAttribute('onclick') === `changeSort('${sortKey}')`) {
+                    th.classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
+                }
+            });
+
+            const sorted = [...clients].sort((a, b) => {
+                let v1 = sortKey === 'pct' ? getPct(a) : (a[sortKey] ?? '');
+                let v2 = sortKey === 'pct' ? getPct(b) : (b[sortKey] ?? '');
+                if (typeof v1 === 'string') v1 = v1.toLowerCase();
+                if (typeof v2 === 'string') v2 = v2.toLowerCase();
+                if (v1 < v2) return sortAsc ? -1 : 1;
+                if (v1 > v2) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            const tbody = document.getElementById('planning-table');
+            tbody.innerHTML = sorted.map(c => {
+                const pct = getPct(c);
+                const statusClass = pct >= 80 ? 'success' : pct >= 50 ? 'warning' : 'danger';
+                const sinCompra = (c.facturacion || 0) === 0 && (c.objetivo || 0) > 0;
+                const rowClass = sinCompra ? 'row-sin-compra' : '';
+
+                return `<tr class="${rowClass}" onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'" style="cursor:pointer">
+                    <td><strong>${c.nom_cliente || '-'}</strong>${sinCompra ? ' <span title="Sin compra este mes" style="font-size:11px">⚠️</span>' : ''}</td>
+                    <td><span class="status-badge warning">${c.frecuencia || '-'}</span></td>
+                    <td class="text-right" style="color:#64748B">${formatKg(c.historico || 0)}</td>
+                    <td class="text-right" style="color:var(--accent);font-weight:700">${formatKg(c.objetivo || 0)}</td>
+                    <td class="text-right">${formatKg(c.facturacion || 0)}</td>
+                    <td class="text-right">${formatKg(c.pendiente || 0)}</td>
+                    <td><span class="status-badge ${statusClass}">${Math.round(pct)}%</span></td>
+                </tr>`;
+            }).join('');
+        }
 
         async function loadPlanning() {
             const date = dateInput.value;
@@ -121,62 +193,18 @@
                 const response = await fetch(`/api/planning?${query}`);
                 const data = await response.json();
 
-                // Header
                 document.getElementById('day-meta').textContent = `${data.weekday_name} • ${data.target_frequencies.join(' / ')}`;
                 document.getElementById('target-freq').textContent = data.target_frequencies.join(', ');
-
-                // KPIs
-                const formatPesos = (val) => '$' + Math.round(val).toLocaleString('es-AR');
-                const formatKg = (val) => Math.round(val).toLocaleString('es-AR') + ' kg';
-
-                // Assuming objectives are in KG based on context, but let's check keys.
-                // In app.py I summed 'objetivo'. In fact_avance it is usually KG? 
-                // Wait, in previous Dashboard it was KG.
-                // BUT the user asked for "objetivo de venta del dia (objetivo mensual / dias)". Usually $$$?
-                // But dashboard main KPI is KG. Let's assume KG for now or generic units.
-                // Actually, fact_avance has 'objetivo' (KG) and 'facturacion' (KG).
-                // Monetary objectives are in 'vendedor_objetivos' table.
-
-                // The 'catch-up' logic in app.py summed 'objetivo' from fact_avance. So it's KG.
 
                 document.getElementById('kpi-daily-avg').textContent = formatKg(data.stats.daily_average);
                 document.getElementById('kpi-daily-needed').textContent = formatKg(data.stats.daily_needed);
                 document.getElementById('kpi-clients-count').textContent = data.stats.count;
                 document.getElementById('kpi-clients-sum').textContent = formatKg(data.stats.clients_objective_sum);
                 document.getElementById('kpi-clients-hist').textContent = formatKg(data.stats.clients_historical_sum);
-
                 document.getElementById('table-count').textContent = data.stats.count;
 
-                // Table
-                const tbody = document.getElementById('planning-table');
-                tbody.innerHTML = '';
-
-                data.clients.forEach(c => {
-                    const tr = document.createElement('tr');
-
-                    // Simple progress status
-                    const pct = c.objetivo ? (c.facturacion + c.pendiente) / c.objetivo * 100 : 0;
-                    let statusClass = 'danger';
-                    if (pct >= 80) statusClass = 'success';
-                    else if (pct >= 50) statusClass = 'warning';
-
-                    tr.innerHTML = `
-                         <td>
-                            <a href="/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}" style="color: white; font-weight: 500;">
-                                ${c.nom_cliente}
-                            </a>
-                        </td>
-                        <td><span class="status-badge warning">${c.frecuencia || '-'}</span></td>
-                        <td class="text-right" style="color: #8E8E93;">${formatKg(c.historico || 0)}</td>
-                        <td class="text-right" style="color: var(--accent); font-weight: 500;">${formatKg(c.objetivo)}</td>
-                        <td class="text-right">${formatKg(c.facturacion)}</td>
-                        <td class="text-right">${formatKg(c.pendiente)}</td>
-                        <td>
-                            <span class="status-badge ${statusClass}">${Math.round(pct)}%</span>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                allClients = data.clients || [];
+                renderTable(allClients);
 
             } catch (e) {
                 console.error(e);

@@ -8,6 +8,9 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         .toggle-group {
@@ -27,6 +30,23 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+        }
+
+        .chart-card {
+            background: #F8FAFF;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+            min-height: 400px;
+            /* Ensure visibility */
+        }
+
+        .chart-container {
+            height: 350px;
+            width: 100%;
+            position: relative;
         }
 
         .btn-toggle.active {
@@ -49,9 +69,9 @@
         }
 
         .tier-aaa {
-            background: linear-gradient(135deg, #FFD700, #DAA520);
+            background: linear-gradient(135deg, var(--minerva-yellow), #B8860B);
             color: #000;
-            box-shadow: 0 0 8px rgba(218, 165, 32, 0.4);
+            box-shadow: 0 0 12px var(--yellow-glow);
         }
 
         .tier-aa {
@@ -65,9 +85,9 @@
         }
 
         .tier-b {
-            background: #333;
-            color: #888;
-            border: 1px solid #444;
+            background: #E2E8F0;
+            color: #475569;
+            border: 1px solid #CBD5E1;
         }
 
         .tier-cn {
@@ -143,12 +163,18 @@
 
 <body>
     <nav class="navbar">
-        <h1>Swift Sales Intelligence</h1>
+        <h1 style="display:flex; align-items:center; gap:10px;">
+            <div
+                style="background: white; color: var(--primary); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 800; font-size: 20px;">
+                M</div>
+            Minerva <span style="color: var(--accent); font-weight: 800;">Foods</span>
+            <span style="font-size: 0.7rem; font-weight: 400; opacity: 0.8; margin-left: 5px; color: white;">Sales
+                Intelligence</span>
+        </h1>
         <div style="display:flex;gap:16px;align-items:center">
-            <a href="#"
-                onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📊
-                Coberturas</a>
-            <a href="/filters">← Cambiar Vista</a>
+            <a href="#" onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📊 Coberturas</a>
+            <a href="#" onclick="window.location='/mapa?'+new URLSearchParams(window.location.search);return false;">🗺️ Mapa</a>
+            <a href="/filters" style="font-weight: 500;">← Cambiar Vista</a>
         </div>
     </nav>
 
@@ -191,74 +217,24 @@
         <div class="tach-grid">
             <div class="tach-card">
                 <div class="tach-title">FACTURACIÓN $</div>
+                <div class="tach-value" id="tach-fact-val">0</div>
                 <div id="tach-fact" class="tach-container"></div>
-                <div class="tach-sub" id="tach-fact-sub">Obj: —</div>
+                <div class="tach-sub" id="tach-fact-sub">OBJ: —</div>
             </div>
             <div class="tach-card">
                 <div class="tach-title">PREMIUM $</div>
+                <div class="tach-value" id="tach-prem-val">0</div>
                 <div id="tach-prem" class="tach-container"></div>
-                <div class="tach-sub" id="tach-prem-sub">Obj: —</div>
+                <div class="tach-sub" id="tach-prem-sub">OBJ: —</div>
             </div>
             <div class="tach-card">
                 <div class="tach-title">REBOZADOS KG</div>
+                <div class="tach-value" id="tach-reb-val">0</div>
                 <div id="tach-reb" class="tach-container"></div>
-                <div class="tach-sub" id="tach-reb-sub">Obj: —</div>
+                <div class="tach-sub" id="tach-reb-sub">OBJ: —</div>
             </div>
         </div>
         <style>
-            .tach-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .tach-card {
-                background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
-                border: 1px solid #2a2a2a;
-                border-radius: 16px;
-                padding: 1rem 1rem 0.6rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .tach-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, #E84752, transparent);
-            }
-
-            .tach-title {
-                font-size: 0.7rem;
-                font-weight: 800;
-                color: #555;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                margin-bottom: 0.2rem;
-            }
-
-            .tach-container {
-                width: 100%;
-                height: 210px;
-            }
-
-            .tach-sub {
-                font-size: 0.8rem;
-                color: #aaaaaa;
-                font-weight: 700;
-                letter-spacing: 1px;
-                padding-bottom: 0.5rem;
-                text-transform: uppercase;
-            }
-
             @media (max-width: 900px) {
                 .tach-grid {
                     grid-template-columns: 1fr;
@@ -487,51 +463,53 @@
                 backgroundColor: 'transparent',
                 series: [{
                     type: 'gauge',
-                    startAngle: 215,
-                    endAngle: -35,
+                    startAngle: 210,
+                    endAngle: -30,
                     min: 0,
                     max: MAX,
-                    radius: '90%',
-                    center: ['50%', '60%'],
+                    radius: '100%',
+                    center: ['50%', '65%'],
                     splitNumber: 13,
                     axisLine: {
                         lineStyle: {
-                            width: 18,
+                            width: 10, // Thinner, more elegant track
                             color: [
-                                [0.50, '#1a1a1a'],
-                                [0.65, '#252525'],
-                                [0.77, '#333333'],
-                                [0.84, '#5a0a0a'],
-                                [1.00, '#E84752']
+                                [0.40, '#E84752'], // Red
+                                [0.70, '#F6AD55'], // Better Yellow
+                                [0.90, '#68D391'], // Soft Green
+                                [1.00, '#38A169']  // Strong Green
                             ]
                         }
                     },
-                    splitLine: { length: 12, lineStyle: { color: '#404040', width: 2 } },
-                    axisTick: { length: 6, splitNumber: 5, lineStyle: { color: '#303030', width: 1 } },
+                    progress: {
+                        show: true, width: 10,
+                        itemStyle: { color: 'rgba(29, 53, 87, 0.1)' }
+                    },
+                    splitLine: { length: 8, lineStyle: { color: '#CBD5E1', width: 1.5 } },
+                    axisTick: { show: false },
                     axisLabel: {
-                        color: '#777', fontSize: 10, distance: 10, fontWeight: '600',
-                        formatter: v => v === 0 ? '0' : v === 100 ? '100%' : v === MAX ? '130%' : ''
+                        color: '#64748B', fontSize: 10, distance: 15, fontWeight: '600',
+                        formatter: v => v % 20 === 0 ? v : ''
                     },
                     pointer: {
-                        length: '68%', width: 6,
-                        itemStyle: { color: '#E84752', shadowBlur: 16, shadowColor: 'rgba(232,71,82,0.9)' }
+                        length: '75%', width: 5, icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                        offsetCenter: [0, '-10%'],
+                        itemStyle: { color: '#1D3557', shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.1)' }
                     },
                     anchor: {
-                        show: true, showAbove: true, size: 14,
-                        itemStyle: {
-                            color: '#0a0a0a', borderColor: '#E84752', borderWidth: 2,
-                            shadowBlur: 10, shadowColor: '#E84752'
-                        }
+                        show: true, showAbove: true, size: 10,
+                        itemStyle: { color: '#1D3557', borderColor: '#fff', borderWidth: 2 }
                     },
                     detail: {
                         valueAnimation: true,
-                        offsetCenter: [0, '28%'],
-                        formatter: () => `{val|${fmtFn(actual)}}\n{pct|${pctRaw.toFixed(1)}%}`,
+                        offsetCenter: [0, '25%'],
+                        formatter: () => `{pct|${pctRaw.toFixed(1)}%}`,
                         rich: {
-                            val: { fontSize: 18, fontWeight: '700', color: '#ffffff', lineHeight: 26 },
                             pct: {
-                                fontSize: 13, color: pct >= 100 ? '#E84752' : '#888',
-                                fontWeight: '700', lineHeight: 20
+                                fontSize: 16, color: pct >= 100 ? '#10B981' : '#475569',
+                                fontWeight: '800', lineHeight: 24,
+                                backgroundColor: '#F8FAFC', padding: [4, 12], borderRadius: 6,
+                                borderBottom: '2px solid' + (pct >= 100 ? '#10B981' : '#CBD5E1')
                             }
                         }
                     },
@@ -539,8 +517,15 @@
                 }]
             });
 
+            const valId = id + '-val';
+            if (document.getElementById(valId)) {
+                document.getElementById(valId).textContent = fmtFn(actual);
+            }
+
             if (subId) document.getElementById(subId).textContent = `OBJ: ${fmtFn(objetivo)}`;
         }
+
+        // Remove the accidental renderCharts function from previous edit if it exists
 
         function renderBurnChart(chartData) {
             if (!chartData || !chartData.dates) {
@@ -548,44 +533,82 @@
                 return;
             }
 
+            console.log('Rendering Burn Chart with data:', chartData);
             const dom = document.getElementById('chart-avance');
-            if (!dom) return;
-
+            if (!dom) {
+                console.error('Chart container #chart-avance not found');
+                return;
+            }
             const myChart = echarts.init(dom);
 
             const option = {
-                tooltip: { trigger: 'axis' },
-                legend: { show: false },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: { type: 'category', boundaryGap: false, data: chartData.dates },
-                yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderColor: '#E2E8F0',
+                    textStyle: { color: '#1E293B' }
+                },
+                legend: {
+                    show: true,
+                    top: '0%',
+                    right: '5%',
+                    textStyle: { color: '#475569', fontWeight: '600', fontSize: 11 },
+                    itemGap: 20
+                },
+                grid: { left: '3%', right: '4%', bottom: '5%', top: '15%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: chartData.dates,
+                    axisLabel: { color: '#475569', fontWeight: '600', fontSize: 11 },
+                    axisLine: { lineStyle: { color: '#CBD5E1', width: 1 } },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { type: 'dashed', color: '#E2E8F0' } },
+                    axisLabel: { color: '#475569', fontWeight: '600', fontSize: 11 },
+                    axisLine: { show: false }
+                },
                 series: [
                     {
-                        name: 'Objetivo',
+                        name: 'OBJETIVO',
                         type: 'line',
                         data: chartData.ideal,
-                        lineStyle: { type: 'dashed', color: '#999' },
-                        showSymbol: false
+                        lineStyle: { type: 'dashed', color: '#94A3B8', width: 2 },
+                        showSymbol: false,
+                        itemStyle: { color: '#94A3B8' }
                     },
                     {
-                        name: 'Real',
+                        name: 'VENTA REAL',
                         type: 'line',
                         data: chartData.actual,
-                        itemStyle: { color: '#007AFF' },
-                        areaStyle: { color: 'rgba(0,122,255,0.1)' }
+                        lineStyle: { width: 4, cap: 'round' },
+                        itemStyle: { color: '#1D3557' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(29, 53, 87, 0.15)' },
+                                { offset: 1, color: 'rgba(29, 53, 87, 0)' }
+                            ])
+                        },
+                        symbolSize: 6,
+                        showSymbol: true
                     },
                     {
-                        name: 'Real + Pendiente',
+                        name: 'VENTA + PENDIENTE',
                         type: 'line',
                         data: chartData.real_plus_pend,
-                        itemStyle: { color: '#4CD964' },
-                        lineStyle: { width: 2 }
+                        itemStyle: { color: '#E84752' },
+                        lineStyle: { width: 3, type: 'dashed' },
+                        symbolSize: 6,
+                        showSymbol: true
                     },
                     {
-                        name: 'Proyección',
+                        name: 'PROYECCIÓN',
                         type: 'line',
                         data: chartData.projection,
-                        lineStyle: { type: 'dotted', color: '#FF9500' }
+                        lineStyle: { type: 'dotted', color: '#6A5ACD', width: 3 },
+                        itemStyle: { color: '#6A5ACD' }
                     }
 
                 ]
