@@ -262,8 +262,17 @@ def api_dashboard():
 
     # 4. Get Client List (Top 100)
     # Include monetary objectives and Tier
+    # Previous month for trend
+    ym_row2 = conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()
+    cur_ym2 = ym_row2[0] if ym_row2 else datetime.now().strftime('%Y-%m')
+    y2, m2 = map(int, cur_ym2.split('-'))
+    prev_dt2 = datetime(y2, m2, 1) - timedelta(days=1)
+    prev_ym2 = prev_dt2.strftime('%Y-%m')
+
     clientes_rows = conn.execute(f"""
-        SELECT 
+        SELECT
             av.cod_cliente,
             av.nom_cliente,
             av.venta_actual as facturacion,
@@ -272,15 +281,19 @@ def api_dashboard():
             av.objetivo_pesos,
             av.frecuencia,
             av.nom_vendedor,
-            s.tier
+            s.tier,
+            h_prev.kg_vendidos as kg_prev_month
         FROM fact_avance_cliente_vendedor_month av
-        LEFT JOIN fact_client_segmentation s ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN fact_client_segmentation s
+            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN fact_cliente_historico h_prev
+            ON av.cod_cliente = h_prev.cod_cliente AND h_prev.year_month = ?
         WHERE av.{where_clause} AND av.year_month = (
             SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month
         )
         ORDER BY COALESCE(av.objetivo, 0) DESC
         LIMIT 100
-    """, params).fetchall()
+    """, [prev_ym2] + params).fetchall()
 
 
     # Calculate Average Price per KG from Vendor Objectives (for missing client $ goals)
@@ -300,11 +313,20 @@ def api_dashboard():
     for r in clientes_rows:
         d = dict(r)
         d['facturacion_pesos'] = sales_pesos_map.get(r['cod_cliente'], 0)
-        
+
         # Dynamic Objective Calculation
         if not d['objetivo_pesos'] and d['objetivo'] and avg_price_per_kg > 0:
             d['objetivo_pesos'] = d['objetivo'] * avg_price_per_kg
-            
+
+        # Trend vs previous month
+        prev_kg = d.pop('kg_prev_month', None) or 0
+        if prev_kg and prev_kg > 0:
+            d['trend_pct'] = round((d['facturacion'] - prev_kg) / prev_kg * 100, 1)
+        elif d['facturacion'] and d['facturacion'] > 0 and prev_kg == 0:
+            d['trend_pct'] = None  # new buyer, no prior data
+        else:
+            d['trend_pct'] = 0
+
         clientes_list.append(d)
     
     
@@ -995,6 +1017,242 @@ def api_save_geocode(cod_cliente):
 @app.route('/coberturas')
 def coberturas_page():
     return render_template('coberturas.html')
+
+
+@app.route('/api/insights')
+def api_insights():
+    """
+    Generate automatic intelligence insights for the dashboard:
+    - forecast: month-end projection with confidence interval
+    - risk: high-value clients who bought last month but not this month
+    - opportunities: top clients ranked by priority score (tier × pendiente)
+    - new_buyers: clients that bought for the first time this month (no history)
+    """
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe = request.args.get('jefe', '')
+    zona = request.args.get('zona', '')
+
+    if not any([cod_vendedor, jefe, zona]):
+        return jsonify({'error': 'filter required'}), 400
+
+    conn = get_db()
+
+    # Build WHERE clause
+    if cod_vendedor:
+        where = "av.cod_vendedor = ?"
+        params = [cod_vendedor]
+        vendor_where = "cod_vendedor = ?"
+        vendor_params = [cod_vendedor]
+    elif jefe:
+        where = "av.jefe = ?"
+        params = [jefe]
+        vendor_where = "jefe = ?"
+        vendor_params = [jefe]
+    else:
+        where = "av.zona = ?"
+        params = [zona]
+        vendor_where = "zona = ?"
+        vendor_params = [zona]
+
+    # Get active year_month
+    ym_row = conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()
+    cur_ym = ym_row[0] if ym_row else datetime.now().strftime('%Y-%m')
+    year, month = map(int, cur_ym.split('-'))
+
+    # Previous month
+    prev_dt = datetime(year, month, 1) - timedelta(days=1)
+    prev_ym = prev_dt.strftime('%Y-%m')
+
+    # ── 1. FORECAST ─────────────────────────────────────────────────
+    summary = conn.execute(f"""
+        SELECT SUM(av.venta_actual) as fact, SUM(av.pendiente) as pend,
+               SUM(av.objetivo) as obj
+        FROM fact_avance_cliente_vendedor_month av
+        WHERE {where} AND av.year_month = ?
+    """, params + [cur_ym]).fetchone()
+
+    fact_kg = summary['fact'] or 0
+    pend_kg = summary['pend'] or 0
+    obj_kg  = summary['obj'] or 0
+
+    # Daily sales from fact_facturacion for variance
+    vendor_codes_rows = conn.execute(f"""
+        SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month
+        WHERE {vendor_where} AND year_month = ?
+    """, vendor_params + [cur_ym]).fetchall()
+    vendor_codes = [r['cod_vendedor'] for r in vendor_codes_rows]
+
+    days_in_month = calendar.monthrange(year, month)[1]
+    today = datetime.now()
+    is_cur_month = (cur_ym == today.strftime('%Y-%m'))
+    elapsed_days = today.day if is_cur_month else days_in_month
+    remaining_days = max(0, days_in_month - elapsed_days)
+
+    # Daily variance for confidence interval
+    daily_variance = 0
+    projected_kg = fact_kg
+    if vendor_codes and elapsed_days > 0:
+        ph = ','.join(['?'] * len(vendor_codes))
+        daily_rows = conn.execute(f"""
+            SELECT strftime('%d', fecha_emision) as dia, SUM(cantidad) as kg
+            FROM fact_facturacion
+            WHERE cod_vendedor IN ({ph}) AND year_month = ?
+            GROUP BY dia
+        """, vendor_codes + [cur_ym]).fetchall()
+
+        daily_vals = [r['kg'] for r in daily_rows if r['kg']]
+        if daily_vals:
+            avg_daily = sum(daily_vals) / elapsed_days  # average over full elapsed period
+            if len(daily_vals) > 1:
+                import statistics
+                daily_variance = statistics.stdev(daily_vals)
+            projected_kg = fact_kg + avg_daily * remaining_days
+
+    proj_pct   = round(projected_kg / obj_kg * 100, 1) if obj_kg else 0
+    conf_range = daily_variance * (remaining_days ** 0.5)  # sqrt(n) scaling
+    low_kg     = max(0, projected_kg - conf_range)
+    high_kg    = projected_kg + conf_range
+    low_pct    = round(low_kg / obj_kg * 100, 1) if obj_kg else 0
+    high_pct   = round(high_kg / obj_kg * 100, 1) if obj_kg else 0
+
+    # Daily needed to hit 100%
+    daily_needed = round((obj_kg - fact_kg) / remaining_days, 0) if remaining_days > 0 else 0
+
+    # Trend vs last month (prev month final actual from historico)
+    prev_total_row = conn.execute(f"""
+        SELECT SUM(h.kg_vendidos) as kg
+        FROM fact_cliente_historico h
+        JOIN fact_avance_cliente_vendedor_month av
+          ON h.cod_cliente = av.cod_cliente
+        WHERE {where} AND av.year_month = ?
+          AND h.year_month = ?
+    """, params + [cur_ym, prev_ym]).fetchone()
+    prev_kg = prev_total_row['kg'] or 0
+    trend_vs_prev = round((fact_kg - prev_kg) / prev_kg * 100, 1) if prev_kg else None
+
+    forecast = {
+        'projected_kg': round(projected_kg, 0),
+        'proj_pct': proj_pct,
+        'low_pct': low_pct,
+        'high_pct': high_pct,
+        'fact_kg': round(fact_kg, 0),
+        'obj_kg': round(obj_kg, 0),
+        'pend_kg': round(pend_kg, 0),
+        'days_remaining': remaining_days,
+        'elapsed_days': elapsed_days,
+        'daily_needed': daily_needed,
+        'trend_vs_prev_pct': trend_vs_prev,
+    }
+
+    # ── 2. RISK — clients who bought last month but 0 this month ────
+    tier_weight = {'AAA': 4, 'AA': 3, 'A': 2, 'B': 1, 'CN': 3}
+
+    risk_rows = conn.execute(f"""
+        SELECT
+            av.cod_cliente,
+            av.nom_cliente,
+            av.objetivo,
+            av.venta_actual,
+            s.tier,
+            h.kg_vendidos as kg_prev_month,
+            dc.telefono,
+            dc.contacto
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s
+            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN fact_cliente_historico h
+            ON av.cod_cliente = h.cod_cliente AND h.year_month = ?
+        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
+        WHERE {where}
+          AND av.year_month = ?
+          AND av.venta_actual = 0
+          AND h.kg_vendidos > 0
+        ORDER BY (CASE s.tier WHEN 'AAA' THEN 4 WHEN 'AA' THEN 3 WHEN 'CN' THEN 3 WHEN 'A' THEN 2 ELSE 1 END) DESC,
+                 h.kg_vendidos DESC
+        LIMIT 8
+    """, [prev_ym] + params + [cur_ym]).fetchall()
+
+    risk = []
+    for r in risk_rows:
+        d = dict(r)
+        d['telefono'] = str(d['telefono']).replace('.0','') if d['telefono'] else None
+        risk.append(d)
+
+    # ── 3. OPPORTUNITIES — active clients ranked by priority score ──
+    opp_rows = conn.execute(f"""
+        SELECT
+            av.cod_cliente,
+            av.nom_cliente,
+            av.venta_actual,
+            av.pendiente,
+            av.objetivo,
+            av.frecuencia,
+            s.tier,
+            dc.telefono,
+            dc.contacto
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s
+            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
+        WHERE {where}
+          AND av.year_month = ?
+          AND av.venta_actual > 0
+          AND av.pendiente > 0
+        ORDER BY
+            (CASE s.tier WHEN 'AAA' THEN 4 WHEN 'AA' THEN 3 WHEN 'CN' THEN 3 WHEN 'A' THEN 2 ELSE 1 END) DESC,
+            av.pendiente DESC
+        LIMIT 8
+    """, params + [cur_ym]).fetchall()
+
+    opportunities = []
+    for r in opp_rows:
+        d = dict(r)
+        pct = round(d['venta_actual'] / d['objetivo'] * 100, 1) if d['objetivo'] else 0
+        tw = tier_weight.get(d['tier'], 1)
+        # Priority score: weighted combination of tier + % remaining + abs pendiente
+        pct_remaining = max(0, 100 - pct) / 100
+        norm_pend = min(d['pendiente'] / 5000, 1.0)  # normalize vs 5000 KG cap
+        d['priority_score'] = round((tw / 4 * 0.4 + pct_remaining * 0.4 + norm_pend * 0.2) * 100)
+        d['pct_objetivo'] = pct
+        d['telefono'] = str(d['telefono']).replace('.0','') if d['telefono'] else None
+        opportunities.append(d)
+
+    # Sort by priority score descending
+    opportunities.sort(key=lambda x: x['priority_score'], reverse=True)
+
+    # ── 4. NEW BUYERS — first purchase this month ───────────────────
+    new_buyers_rows = conn.execute(f"""
+        SELECT
+            av.cod_cliente,
+            av.nom_cliente,
+            av.venta_actual as kg_actual,
+            s.tier
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s
+            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        LEFT JOIN fact_cliente_historico h
+            ON av.cod_cliente = h.cod_cliente AND h.year_month = ?
+        WHERE {where}
+          AND av.year_month = ?
+          AND av.venta_actual > 0
+          AND (h.kg_vendidos IS NULL OR h.kg_vendidos = 0)
+        ORDER BY av.venta_actual DESC
+        LIMIT 5
+    """, [prev_ym] + params + [cur_ym]).fetchall()
+
+    new_buyers = [dict(r) for r in new_buyers_rows]
+
+    conn.close()
+
+    return jsonify({
+        'mes': cur_ym,
+        'forecast': forecast,
+        'risk': risk,
+        'opportunities': opportunities,
+        'new_buyers': new_buyers,
+    })
 
 
 @app.route('/api/coberturas')

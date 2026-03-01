@@ -242,6 +242,61 @@
             }
         </style>
 
+        <!-- ── INSIGHTS PANEL ─────────────────────────────────────── -->
+        <div id="insights-panel" style="display:none; margin-bottom:1.5rem;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <span style="font-size:1rem; font-weight:800; color:var(--text-primary); letter-spacing:-0.3px;">Inteligencia Automática</span>
+                <span id="insights-mes-badge" style="font-size:0.7rem;font-weight:700;background:var(--primary);color:white;padding:2px 8px;border-radius:20px;"></span>
+                <span style="font-size:0.75rem;color:var(--text-muted);font-weight:500;">Generado en tiempo real · actualiza con cada carga de datos</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 300px 1fr 1fr; gap:14px; align-items:start;">
+
+                <!-- FORECAST CARD -->
+                <div id="insight-forecast" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border:1px solid #BFDBFE; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(29,53,87,0.08);">
+                    <div style="font-size:0.68rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">📈 Proyección de Cierre</div>
+                    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+                        <span id="fc-pct" style="font-size:2.4rem;font-weight:900;color:#1D3557;line-height:1;">—</span>
+                        <span style="font-size:1rem;font-weight:700;color:#64748B;">%</span>
+                    </div>
+                    <div id="fc-range" style="font-size:0.78rem;color:#475569;font-weight:600;margin-bottom:10px;">rango —</div>
+                    <!-- Progress bar -->
+                    <div style="background:#BFDBFE;border-radius:4px;height:6px;margin-bottom:10px;overflow:hidden;">
+                        <div id="fc-bar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,#3B82F6,#1D3557);transition:width 0.8s ease;width:0%"></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;text-align:center;">
+                            <div id="fc-daily-needed" style="font-size:1rem;font-weight:800;color:#1D3557;">—</div>
+                            <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">KG/día necesarios</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;text-align:center;">
+                            <div id="fc-days-left" style="font-size:1rem;font-weight:800;color:#1D3557;">—</div>
+                            <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">Días restantes</div>
+                        </div>
+                    </div>
+                    <div id="fc-trend" style="margin-top:10px;font-size:0.78rem;font-weight:700;color:#475569;padding:6px 10px;background:rgba(255,255,255,0.5);border-radius:8px;text-align:center;"></div>
+                </div>
+
+                <!-- RISK CARD -->
+                <div style="background:linear-gradient(135deg,#FFF5F5,#FEE2E2); border:1px solid #FECACA; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(232,71,82,0.08);">
+                    <div style="font-size:0.68rem;font-weight:800;color:#DC2626;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🔴 Clientes en Riesgo <span id="risk-count" style="background:#FCA5A5;color:#7F1D1D;padding:1px 7px;border-radius:10px;font-size:0.7rem;">0</span></div>
+                    <div id="risk-list" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;">
+                        <div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">Cargando...</div>
+                    </div>
+                    <div style="margin-top:10px;font-size:0.72rem;color:#94A3B8;font-weight:500;">Compraron el mes anterior · 0 KG este mes</div>
+                </div>
+
+                <!-- OPPORTUNITIES CARD -->
+                <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border:1px solid #BBF7D0; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(16,185,129,0.08);">
+                    <div style="font-size:0.68rem;font-weight:800;color:#15803D;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🟢 Oportunidades del Día <span id="opp-count" style="background:#86EFAC;color:#14532D;padding:1px 7px;border-radius:10px;font-size:0.7rem;">0</span></div>
+                    <div id="opp-list" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;">
+                        <div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">Cargando...</div>
+                    </div>
+                    <div style="margin-top:10px;font-size:0.72rem;color:#94A3B8;font-weight:500;">Activos con mayor pendiente · ordenados por prioridad</div>
+                </div>
+
+            </div>
+        </div>
+
         <div class="charts-grid">
             <div class="chart-card">
                 <h3>Evolución Diaria (KG) (vs Objetivo)</h3>
@@ -285,6 +340,7 @@
                         <th class="sortable text-right" onclick="changeSort('objetivo_pesos')" id="col-objetivo_pesos">
                             Obj ($)</th>
                         <th class="sortable text-right" onclick="changeSort('pct')" id="col-pct">%</th>
+                        <th class="sortable text-right" onclick="changeSort('trend_pct')" id="col-trend_pct" title="Variación vs mes anterior">Tend.</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
@@ -665,6 +721,22 @@
                 const rowClass = sinCompra ? 'row-sin-compra' : '';
                 const alertIcon = sinCompra ? '<span class="alert-icon" title="Sin compra este mes">⚠️</span>' : '';
 
+                // Trend indicator
+                let trendHtml = '<td class="text-right">—</td>';
+                if (c.trend_pct !== null && c.trend_pct !== undefined) {
+                    const tp = c.trend_pct;
+                    if (tp === 0) {
+                        trendHtml = `<td class="text-right" style="color:#94A3B8;font-weight:600;font-size:0.8rem;">→</td>`;
+                    } else {
+                        const sign = tp > 0 ? '+' : '';
+                        const col  = tp > 0 ? '#10B981' : '#E84752';
+                        const arr  = tp > 0 ? '↑' : '↓';
+                        trendHtml = `<td class="text-right" style="color:${col};font-weight:700;font-size:0.8rem;">${arr} ${sign}${tp}%</td>`;
+                    }
+                } else if (c.facturacion > 0) {
+                    trendHtml = `<td class="text-right" style="color:#F59E0B;font-weight:700;font-size:0.75rem;" title="Nuevo comprador">★ Nuevo</td>`;
+                }
+
                 return `
                     <tr class="${rowClass}" onclick="window.location.href='/cliente/${c.cod_cliente}?vendedor=${vendedor || ''}'">
                         <td><strong>${c.nom_cliente || 'N/A'}</strong>${alertIcon}</td>
@@ -675,6 +747,7 @@
                         <td class="text-right">${formatPesos(c.facturacion_pesos || 0)}</td>
                         <td class="text-right">${formatPesos(c.objetivo_pesos || 0)}</td>
                         <td class="text-right"><strong>${pctValue}%</strong></td>
+                        ${trendHtml}
                         <td><span class="status-badge ${status}">${pctValue}%</span></td>
                     </tr>
                 `;
@@ -693,6 +766,104 @@
         }
 
 
+        // ── INSIGHTS ──────────────────────────────────────────────────
+        const TIER_COLOR = { AAA: '#D4AF37', AA: '#94A3B8', A: '#CD7F32', B: '#64748B', CN: '#6D28D9' };
+        const fmtKg = v => v ? Math.round(v).toLocaleString('es-AR') + ' kg' : '—';
+
+        function renderInsightItem(item, type) {
+            const tier = item.tier || 'B';
+            const tc = TIER_COLOR[tier] || '#94A3B8';
+            const telHtml = item.telefono
+                ? `<a href="tel:${item.telefono}" onclick="event.stopPropagation()" style="font-size:0.7rem;color:#64748B;text-decoration:none;" title="Llamar">📞</a>`
+                : '';
+
+            if (type === 'risk') {
+                return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;"
+                    onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
+                    <span style="font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:4px;background:${tc}22;color:${tc};flex-shrink:0;">${tier}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.78rem;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
+                        <div style="font-size:0.7rem;color:#64748B;">Ant: ${fmtKg(item.kg_prev_month)} · ${item.contacto || ''}</div>
+                    </div>
+                    ${telHtml}
+                </div>`;
+            } else {
+                const pct = item.pct_objetivo || 0;
+                const sc = item.priority_score || 0;
+                return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;"
+                    onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
+                    <span style="font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:4px;background:${tc}22;color:${tc};flex-shrink:0;">${tier}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.78rem;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
+                        <div style="font-size:0.7rem;color:#64748B;">Pend: ${fmtKg(item.pendiente)} · ${pct}% obj · Score ${sc}</div>
+                    </div>
+                    ${telHtml}
+                </div>`;
+            }
+        }
+
+        async function loadInsights() {
+            if (!vendedor && !jefe && !zona) return;
+            let q = [];
+            if (vendedor) q.push(`vendedor=${vendedor}`);
+            if (jefe) q.push(`jefe=${encodeURIComponent(jefe)}`);
+            if (zona) q.push(`zona=${encodeURIComponent(zona)}`);
+
+            try {
+                const res = await fetch(`/api/insights?${q.join('&')}`);
+                if (!res.ok) return;
+                const d = await res.json();
+
+                document.getElementById('insights-panel').style.display = 'block';
+
+                // Mes badge
+                if (d.mes) {
+                    const [y, m] = d.mes.split('-');
+                    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                    document.getElementById('insights-mes-badge').textContent = `${meses[parseInt(m)-1]} ${y}`;
+                }
+
+                // Forecast
+                const fc = d.forecast;
+                const fcPct = fc.proj_pct;
+                document.getElementById('fc-pct').textContent = fcPct;
+                document.getElementById('fc-pct').style.color = fcPct >= 80 ? '#10B981' : fcPct >= 50 ? '#F59E0B' : '#E84752';
+                document.getElementById('fc-range').textContent = `rango ${fc.low_pct}% – ${fc.high_pct}%`;
+                document.getElementById('fc-bar').style.width = Math.min(fcPct, 100) + '%';
+                document.getElementById('fc-bar').style.background = fcPct >= 80
+                    ? 'linear-gradient(90deg,#10B981,#059669)'
+                    : fcPct >= 50 ? 'linear-gradient(90deg,#F59E0B,#D97706)' : 'linear-gradient(90deg,#E84752,#DC2626)';
+                document.getElementById('fc-daily-needed').textContent = fc.daily_needed
+                    ? Math.round(fc.daily_needed).toLocaleString('es-AR')
+                    : '—';
+                document.getElementById('fc-days-left').textContent = fc.days_remaining ?? '—';
+
+                if (fc.trend_vs_prev_pct !== null && fc.trend_vs_prev_pct !== undefined) {
+                    const tp = fc.trend_vs_prev_pct;
+                    const sign = tp >= 0 ? '+' : '';
+                    const col = tp >= 0 ? '#10B981' : '#E84752';
+                    const arr = tp >= 0 ? '↑' : '↓';
+                    document.getElementById('fc-trend').innerHTML =
+                        `<span style="color:${col}">${arr} ${sign}${tp}% vs mes anterior</span>`;
+                } else {
+                    document.getElementById('fc-trend').style.display = 'none';
+                }
+
+                // Risk
+                document.getElementById('risk-count').textContent = d.risk.length;
+                document.getElementById('risk-list').innerHTML = d.risk.length
+                    ? d.risk.map(r => renderInsightItem(r, 'risk')).join('')
+                    : '<div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">✅ Sin clientes en riesgo</div>';
+
+                // Opportunities
+                document.getElementById('opp-count').textContent = d.opportunities.length;
+                document.getElementById('opp-list').innerHTML = d.opportunities.length
+                    ? d.opportunities.map(o => renderInsightItem(o, 'opp')).join('')
+                    : '<div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">Sin oportunidades pendientes</div>';
+
+            } catch (e) { console.error('Insights error:', e); }
+        }
+
         window.addEventListener('resize', () => {
             echarts.getInstanceByDom(document.getElementById('chart-avance'))?.resize();
             echarts.getInstanceByDom(document.getElementById('chart-clientes'))?.resize();
@@ -700,6 +871,7 @@
 
         loadMeta();
         loadDashboard();
+        loadInsights();
     </script>
 </body>
 
