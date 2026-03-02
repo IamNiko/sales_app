@@ -1219,8 +1219,8 @@ class SalesETL:
         self._reconcile_lanzamiento_estados(ym)
 
     def _reconcile_lanzamiento_estados(self, ym: str):
-        """Upgrade estado to COMPRADOR for clients who actually bought the launch
-        category in fact_facturacion but were missed by the Excel tracking."""
+        """Upgrade estado to COMPRADOR and fill actual kg for clients who bought the
+        launch category in fact_facturacion but were missed by the Excel tracking."""
         CATEGORY_MAP = {
             'PAPAS':     'Papas',
             'EMBUTIDOS': 'Chorizos',
@@ -1235,43 +1235,41 @@ class SalesETL:
             "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura WHERE year_month = ?", (ym,)
         ).fetchall()}
 
+        def _upgrade(cat, lanz_name):
+            # Get actual kg per client for this category from fact_facturacion
+            buyers = self.conn.execute("""
+                SELECT f.cod_cliente, ROUND(SUM(f.cantidad), 2) as kg_real
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.year_month = ? AND p.categoria = ? AND f.cantidad > 0
+                GROUP BY f.cod_cliente
+            """, (ym, cat)).fetchall()
+            count = 0
+            for row in buyers:
+                cid, kg_real = row[0], row[1]
+                # Only update rows that are not already COMPRADOR
+                cur = self.conn.execute("""
+                    UPDATE fact_lanzamiento_cobertura
+                    SET estado   = 'COMPRADOR',
+                        fact_feb = CASE WHEN fact_feb = 0 OR fact_feb IS NULL THEN ? ELSE fact_feb END,
+                        total_feb = CASE WHEN total_feb = 0 OR total_feb IS NULL THEN ? ELSE total_feb END
+                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
+                      AND estado != 'COMPRADOR'
+                """, (kg_real, kg_real, cid, lanz_name, ym))
+                count += cur.rowcount
+            return count
+
         updated = 0
         for cat, lanz_name in CATEGORY_MAP.items():
             if lanz_name not in active_lanz:
                 continue
-            buyers = self.conn.execute("""
-                SELECT DISTINCT f.cod_cliente
-                FROM fact_facturacion f
-                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
-                WHERE f.year_month = ? AND p.categoria = ? AND f.cantidad > 0
-            """, (ym, cat)).fetchall()
-            for row in buyers:
-                cur = self.conn.execute("""
-                    UPDATE fact_lanzamiento_cobertura
-                    SET estado = 'COMPRADOR'
-                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
-                      AND estado != 'COMPRADOR'
-                """, (row[0], lanz_name, ym))
-                updated += cur.rowcount
+            updated += _upgrade(cat, lanz_name)
 
         # REBOZADOS → both RB lanzamiento names
         for ln in RB_LANZAMIENTOS:
             if ln not in active_lanz:
                 continue
-            buyers = self.conn.execute("""
-                SELECT DISTINCT f.cod_cliente
-                FROM fact_facturacion f
-                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
-                WHERE f.year_month = ? AND p.categoria = 'REBOZADOS' AND f.cantidad > 0
-            """, (ym,)).fetchall()
-            for row in buyers:
-                cur = self.conn.execute("""
-                    UPDATE fact_lanzamiento_cobertura
-                    SET estado = 'COMPRADOR'
-                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
-                      AND estado != 'COMPRADOR'
-                """, (row[0], ln, ym))
-                updated += cur.rowcount
+            updated += _upgrade('REBOZADOS', ln)
 
         self.conn.commit()
         if updated:

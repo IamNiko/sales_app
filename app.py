@@ -1601,38 +1601,32 @@ def api_coberturas():
             "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura WHERE year_month = ?",
             (lanz_ym,)
         ).fetchall()}
-        for cat, lanz_name in CATEGORY_MAP.items():
-            if lanz_name not in active_lanz:
-                continue
+        def _upgrade_lanz(cat, lanz_name):
             buyers = conn.execute("""
-                SELECT DISTINCT f.cod_cliente
+                SELECT f.cod_cliente, ROUND(SUM(f.cantidad), 2) as kg_real
                 FROM fact_facturacion f
                 JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
                 WHERE f.year_month = ? AND p.categoria = ? AND f.cantidad > 0
+                GROUP BY f.cod_cliente
             """, (fact_ym, cat)).fetchall()
             for row in buyers:
                 conn.execute("""
                     UPDATE fact_lanzamiento_cobertura
-                    SET estado = 'COMPRADOR'
+                    SET estado    = 'COMPRADOR',
+                        fact_feb  = CASE WHEN fact_feb  = 0 OR fact_feb  IS NULL THEN ? ELSE fact_feb  END,
+                        total_feb = CASE WHEN total_feb = 0 OR total_feb IS NULL THEN ? ELSE total_feb END
                     WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
                       AND estado != 'COMPRADOR'
-                """, (row['cod_cliente'], lanz_name, lanz_ym))
+                """, (row['kg_real'], row['kg_real'], row['cod_cliente'], lanz_name, lanz_ym))
+
+        for cat, lanz_name in CATEGORY_MAP.items():
+            if lanz_name not in active_lanz:
+                continue
+            _upgrade_lanz(cat, lanz_name)
         for ln in RB_LANZAMIENTOS:
             if ln not in active_lanz:
                 continue
-            buyers = conn.execute("""
-                SELECT DISTINCT f.cod_cliente
-                FROM fact_facturacion f
-                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
-                WHERE f.year_month = ? AND p.categoria = 'REBOZADOS' AND f.cantidad > 0
-            """, (fact_ym,)).fetchall()
-            for row in buyers:
-                conn.execute("""
-                    UPDATE fact_lanzamiento_cobertura
-                    SET estado = 'COMPRADOR'
-                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
-                      AND estado != 'COMPRADOR'
-                """, (row['cod_cliente'], ln, lanz_ym))
+            _upgrade_lanz('REBOZADOS', ln)
         conn.commit()
 
     # 1. Resumen per launch product
