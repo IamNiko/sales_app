@@ -93,6 +93,16 @@ body {
 
 .navbar-brand:hover { opacity: 0.88; }
 
+/* Logo image in navbar — white tint via brightness to blend on dark bg */
+.brand-logo {
+    height: 30px;
+    width: auto;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1);   /* force white so it shows on dark navbar */
+    opacity: 0.92;
+}
+
+/* Fallback text elements kept for any template not yet migrated */
 .brand-icon {
     background: white;
     color: var(--primary);
@@ -124,8 +134,24 @@ body {
     color: rgba(255,255,255,0.55);
     font-weight: 400;
     font-size: 0.75rem;
-    margin-left: 4px;
+    margin-left: 2px;
     white-space: nowrap;
+}
+
+/* Valores watermark fixed bottom-right */
+.valores-watermark {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 50;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+.valores-watermark img {
+    height: 36px;
+    width: auto;
+    display: block;
 }
 
 /* Nav links */

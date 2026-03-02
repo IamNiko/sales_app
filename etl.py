@@ -572,6 +572,65 @@ class SalesETL:
         self.conn.commit()
         logging.info(f"  → {fname}: {rows_inserted} rows inserted (minerva, full reload)")
         self.processed_files.append(fname)
+
+        # ── Auto-classify new products found in this Minerva file ─────────────
+        # Map Minerva product family strings to our internal categoria
+        MINERVA_FAMILY_MAP = {
+            'PAPAS':        'PAPAS',
+            'HAMBURGUESA':  'HAMBURGUESAS',
+            'MEDALLON':     'HAMBURGUESAS',
+            'CHORIZO':      'EMBUTIDOS',
+            'SALCHICHA':    'EMBUTIDOS',
+            'EMBUTIDO':     'EMBUTIDOS',
+            'REBOZADO':     'REBOZADOS',
+            'MILANESA':     'REBOZADOS',
+            'BOCADITO':     'REBOZADOS',
+            'VEGGIE':       'VEGGIES',
+            'VEGETAL':      'VEGGIES',
+            'UNTABLE':      'UNTABLES',
+            'PICADILLO':    'UNTABLES',
+            'ATUN':         'PESCADOS',
+            'PESCADO':      'PESCADOS',
+            'GRASA':        'BOVINOS',
+            'HUESO':        'BOVINOS',
+            'LOMO':         'BOVINOS',
+            'CARNE':        'BOVINOS',
+            'CUERO':        'BOVINOS',
+        }
+
+        new_products = 0
+        if 'COD_ITEM' in df.columns and 'DES_ITEM' in df.columns:
+            seen = set()
+            for _, row in df.iterrows():
+                cod = normalize_key(str(row.get('COD_ITEM', '')))
+                if not cod or cod in seen:
+                    continue
+                seen.add(cod)
+                existing = self.conn.execute(
+                    "SELECT 1 FROM dim_product_classification WHERE cod_producto = ?", (cod,)
+                ).fetchone()
+                if existing:
+                    continue
+                desc = str(row.get('DES_ITEM', '')).strip().upper()
+                familia = str(row.get('FAMILIA_COMERCIAL', '')).strip().upper() if 'FAMILIA_COMERCIAL' in df.columns else ''
+                # Determine categoria
+                cat = None
+                for keyword, mapped_cat in MINERVA_FAMILY_MAP.items():
+                    if keyword in desc or keyword in familia:
+                        cat = mapped_cat
+                        break
+                if cat:
+                    self.conn.execute("""
+                        INSERT OR IGNORE INTO dim_product_classification
+                        (cod_producto, descripcion, categoria, subcategoria)
+                        VALUES (?, ?, ?, ?)
+                    """, (cod, desc.title(), cat, 'COMMODITY'))
+                    new_products += 1
+
+            if new_products:
+                self.conn.commit()
+                logging.info(f"  → Auto-classified {new_products} new products from Minerva file")
+
         return rows_inserted
 
 
@@ -611,11 +670,33 @@ class SalesETL:
             logging.error("Avance x Cliente-Vendedor not found!")
             return
 
-        _, ym = parse_date_from_filename(f_path.name, self.year)
-        if not ym: raise ValueError("Could not determine month from filename.")
-        
-        self.target_month = ym
-        logging.info(f"Target Month detected: {self.target_month} for file {f_path.name}")
+        # ── Phase 1: load historical columns first to derive target_month ──
+        df_pre = pd.read_excel(f_path, header=1)
+        df_pre.columns = [str(c).strip().upper() for c in df_pre.columns]
+        self.process_cliente_historico(df_pre)
+
+        # ── Derive target_month: last historical month + 1 ──────────────
+        # This makes target_month independent of the filename and always
+        # consistent: "current month" = one month after the last closed month.
+        row = self.conn.execute("SELECT MAX(year_month) FROM fact_cliente_historico").fetchone()
+        max_hist = row[0] if row and row[0] else None
+
+        if max_hist:
+            y_h, m_h = map(int, max_hist.split('-'))
+            if m_h == 12:
+                y_h, m_h = y_h + 1, 1
+            else:
+                m_h += 1
+            self.target_month = f"{y_h}-{m_h:02d}"
+            logging.info(f"Target Month derived from historico MAX({max_hist})+1 → {self.target_month}")
+        else:
+            # Fallback to filename parsing if no historical data exists yet
+            _, ym = parse_date_from_filename(f_path.name, self.year)
+            if not ym: raise ValueError("Could not determine month from filename.")
+            self.target_month = ym
+            logging.warning(f"No historico data — target_month from filename: {self.target_month}")
+
+        logging.info(f"Target Month: {self.target_month} for file {f_path.name}")
 
         # Header is at row 1
         df = pd.read_excel(f_path, header=1)
@@ -628,8 +709,8 @@ class SalesETL:
         unmatched_count = 0
         
         # Detect sales column dynamically: FEB '25, ENE '25, etc. or FACTURACIÓN
-        month_abbr = datetime.strptime(ym, '%Y-%m').strftime('%b').upper()[:3]
-        year_short = ym[2:4]
+        month_abbr = datetime.strptime(self.target_month, '%Y-%m').strftime('%b').upper()[:3]
+        year_short = self.target_month[2:4]
         month_patterns = [
             f"{month_abbr} '{year_short}",  # "FEB '25"
             f"{month_abbr}'{year_short}",   # "FEB'25"
@@ -690,9 +771,18 @@ class SalesETL:
         self.conn.commit()
         logging.info(f"Avance Vendedor processed: {len(rows_data)} rows. Unmatched clients: {unmatched_count}")
         self.processed_files.append(f_path.name)
-        
-        # Now extract historical months
-        self.process_cliente_historico(df)
+
+        # ── Clean up any avance rows for months AFTER target_month ──────
+        # Prevents ghost data from previous ETL runs with wrong month files
+        deleted = self.conn.execute(
+            "DELETE FROM fact_avance_cliente_vendedor_month WHERE year_month > ?",
+            (self.target_month,)
+        ).rowcount
+        if deleted:
+            logging.warning(f"Cleaned up {deleted} avance rows for months after {self.target_month}")
+        self.conn.commit()
+
+        # Historical columns were already loaded in Phase 1 (top of this method)
         
     def sync_facturacion_to_avance(self):
 
@@ -1121,6 +1211,71 @@ class SalesETL:
         self.conn.commit()
         self.processed_files.append(f_path.name)
         logging.info(f"Lanzamientos TOTAL: {total} rows (current month) + {hist_total} rows (historical) across {len(sheets)} products")
+
+        # ── Reconcile ESTADO with fact_facturacion ─────────────────────────────
+        # The lanzamiento Excel may only track selected SKUs per launch.
+        # Override any non-COMPRADOR record to COMPRADOR when fact_facturacion
+        # confirms actual purchases from the same product category this month.
+        self._reconcile_lanzamiento_estados(ym)
+
+    def _reconcile_lanzamiento_estados(self, ym: str):
+        """Upgrade estado to COMPRADOR for clients who actually bought the launch
+        category in fact_facturacion but were missed by the Excel tracking."""
+        CATEGORY_MAP = {
+            'PAPAS':     'Papas',
+            'EMBUTIDOS': 'Chorizos',
+            'PESCADOS':  'ATUN',
+            'UNTABLES':  'Untables',
+            'VEGGIES':   'Veggies',
+        }
+        RB_LANZAMIENTOS = ['RB (Kids+Crunchies)', 'RB (Milanesitas)']
+
+        # Collect all active lanzamientos for this month
+        active_lanz = {r[0] for r in self.conn.execute(
+            "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura WHERE year_month = ?", (ym,)
+        ).fetchall()}
+
+        updated = 0
+        for cat, lanz_name in CATEGORY_MAP.items():
+            if lanz_name not in active_lanz:
+                continue
+            buyers = self.conn.execute("""
+                SELECT DISTINCT f.cod_cliente
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.year_month = ? AND p.categoria = ? AND f.cantidad > 0
+            """, (ym, cat)).fetchall()
+            for row in buyers:
+                cur = self.conn.execute("""
+                    UPDATE fact_lanzamiento_cobertura
+                    SET estado = 'COMPRADOR'
+                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
+                      AND estado != 'COMPRADOR'
+                """, (row[0], lanz_name, ym))
+                updated += cur.rowcount
+
+        # REBOZADOS → both RB lanzamiento names
+        for ln in RB_LANZAMIENTOS:
+            if ln not in active_lanz:
+                continue
+            buyers = self.conn.execute("""
+                SELECT DISTINCT f.cod_cliente
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.year_month = ? AND p.categoria = 'REBOZADOS' AND f.cantidad > 0
+            """, (ym,)).fetchall()
+            for row in buyers:
+                cur = self.conn.execute("""
+                    UPDATE fact_lanzamiento_cobertura
+                    SET estado = 'COMPRADOR'
+                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
+                      AND estado != 'COMPRADOR'
+                """, (row[0], ln, ym))
+                updated += cur.rowcount
+
+        self.conn.commit()
+        if updated:
+            logging.info(f"  Reconciliation: {updated} clients upgraded to COMPRADOR via fact_facturacion cross-check")
 
 
 

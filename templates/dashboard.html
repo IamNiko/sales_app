@@ -164,7 +164,6 @@
 <body>
     <nav class="navbar">
         <a class="navbar-brand" href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">
-            <div class="brand-icon">M</div>
             <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
             <span class="brand-sub">Sales Intelligence</span>
         </a>
@@ -187,12 +186,16 @@
                     <span>●</span> <span id="freshness-label">Cargando...</span>
                 </div>
             </div>
-            <div class="month-badge" id="month-badge">—</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <!-- Quick month filter buttons (populated by loadMeses) -->
+                <div id="month-filters" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                <div class="month-badge" id="month-badge">—</div>
+            </div>
         </div>
 
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="label">Objetivo Mensual</div>
+                <div class="label" id="kpi-objetivo-label">Objetivo Mensual</div>
                 <div class="value" id="kpi-objetivo-kg">-</div>
                 <div class="unit">KG</div>
             </div>
@@ -201,7 +204,7 @@
                 <div class="value" id="kpi-facturado-kg">-</div>
                 <div class="unit">KG</div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card" id="kpi-pendiente-card">
                 <div class="label">Pendiente</div>
                 <div class="value" id="kpi-pendiente-kg">-</div>
                 <div class="unit">KG</div>
@@ -209,7 +212,27 @@
             <div class="kpi-card" id="card-cumplimiento">
                 <div class="label">Cumplimiento</div>
                 <div class="value"><span id="kpi-cumplimiento">-</span>%</div>
-                <div class="unit">vs Objetivo</div>
+                <div class="unit" id="kpi-cumplimiento-unit">vs Objetivo</div>
+            </div>
+        </div>
+
+        <!-- Monthly evolution mini-chart -->
+        <div id="evol-row" style="margin-bottom:16px;display:none;">
+            <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:12px 14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <div style="font-size:0.68rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;">
+                        Evolución mensual
+                        <span style="color:#94A3B8;font-weight:500;text-transform:none;letter-spacing:0;">· click para ver ese mes · </span>
+                        <button id="evol-reset-btn" onclick="activeMonth=null;loadDashboard();loadMeses();"
+                            style="font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1.5px solid #1D3557;background:transparent;color:#1D3557;cursor:pointer;font-weight:700;">
+                            ↩ Mes Actual
+                        </button>
+                    </div>
+                </div>
+                <!-- Scrollable chart wrapper so all bars fit -->
+                <div style="overflow-x:auto;">
+                    <div id="chart-evolucion" style="height:95px;min-width:420px;"></div>
+                </div>
             </div>
         </div>
 
@@ -253,17 +276,20 @@
 
                 <!-- FORECAST CARD -->
                 <div id="insight-forecast" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border:1px solid #BFDBFE; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(29,53,87,0.08);">
-                    <div style="font-size:0.68rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">📈 Proyección de Cierre</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+                        <span style="font-size:0.68rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1.5px;" id="fc-section-title">📈 Cierre de Mes</span>
+                        <span id="fc-closed-badge" style="display:none;font-size:0.6rem;font-weight:800;background:#E84752;color:white;padding:1px 6px;border-radius:8px;">MES CERRADO</span>
+                    </div>
                     <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
                         <span id="fc-pct" style="font-size:2.4rem;font-weight:900;color:#1D3557;line-height:1;">—</span>
                         <span style="font-size:1rem;font-weight:700;color:#64748B;">%</span>
+                        <span id="fc-ym-label" style="font-size:0.72rem;color:#64748B;font-weight:600;"></span>
                     </div>
                     <div id="fc-range" style="font-size:0.78rem;color:#475569;font-weight:600;margin-bottom:10px;">rango —</div>
-                    <!-- Progress bar -->
                     <div style="background:#BFDBFE;border-radius:4px;height:6px;margin-bottom:10px;overflow:hidden;">
                         <div id="fc-bar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,#3B82F6,#1D3557);transition:width 0.8s ease;width:0%"></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="fc-grid-current">
                         <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;text-align:center;">
                             <div id="fc-daily-needed" style="font-size:1rem;font-weight:800;color:#1D3557;">—</div>
                             <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">KG/día necesarios</div>
@@ -273,7 +299,18 @@
                             <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">Días restantes</div>
                         </div>
                     </div>
-                    <div id="fc-trend" style="margin-top:10px;font-size:0.78rem;font-weight:700;color:#475569;padding:6px 10px;background:rgba(255,255,255,0.5);border-radius:8px;text-align:center;"></div>
+                    <div id="fc-trend" style="margin-top:8px;font-size:0.78rem;font-weight:700;color:#475569;padding:6px 10px;background:rgba(255,255,255,0.5);border-radius:8px;text-align:center;"></div>
+                    <!-- Next month forecast (shown when current month is closed) -->
+                    <div id="fc-next" style="display:none;margin-top:10px;border-top:1px solid #BFDBFE;padding-top:10px;">
+                        <div style="font-size:0.65rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🔮 Previsión <span id="fc-next-ym"></span></div>
+                        <div style="display:flex;align-items:baseline;gap:4px;">
+                            <span id="fc-next-kg" style="font-size:1.3rem;font-weight:900;color:#1D3557;"></span>
+                            <span style="font-size:0.75rem;color:#64748B;font-weight:600;">kg</span>
+                            <span id="fc-next-pct" style="font-size:0.85rem;font-weight:700;margin-left:4px;"></span>
+                        </div>
+                        <div id="fc-next-range" style="font-size:0.72rem;color:#64748B;margin-top:2px;"></div>
+                        <div id="fc-next-confidence" style="font-size:0.7rem;color:#94A3B8;margin-top:3px;"></div>
+                    </div>
                 </div>
 
                 <!-- RISK CARD -->
@@ -412,21 +449,132 @@
             } catch (e) { console.log('meta fetch error', e); }
         }
 
+        let activeMonth = null;   // null = current avance month
+        let baseQuery = '';
+
+        async function loadMeses() {
+            if (!vendedor && !jefe && !zona) return;
+            let q = vendedor ? `vendedor=${vendedor}` : jefe ? `jefe=${encodeURIComponent(jefe)}` : `zona=${encodeURIComponent(zona)}`;
+            try {
+                const res = await fetch(`/api/dashboard/meses-disponibles?${q}`);
+                const data = await res.json();
+                const container = document.getElementById('month-filters');
+                container.innerHTML = '';
+                (data.meses || []).forEach(m => {
+                    const btn = document.createElement('button');
+                    btn.textContent = m.label;
+                    btn.dataset.ym = m.ym;
+                    btn.style.cssText = `font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:20px;border:1.5px solid;cursor:pointer;transition:all 0.2s;`;
+                    const isSelected = (activeMonth === m.ym) || (activeMonth === null && m.is_active);
+                    btn.style.background    = isSelected ? '#1D3557' : 'transparent';
+                    btn.style.color         = isSelected ? '#fff' : '#475569';
+                    btn.style.borderColor   = isSelected ? '#1D3557' : '#CBD5E1';
+                    btn.onclick = () => {
+                        activeMonth = m.ym;
+                        loadDashboard();
+                        loadMeses();  // re-render buttons
+                    };
+                    container.appendChild(btn);
+                });
+            } catch(e) { console.warn('loadMeses error', e); }
+        }
+
+        function renderEvolMiniChart(evol) {
+            if (!evol || evol.length < 2) { document.getElementById('evol-row').style.display = 'none'; return; }
+            document.getElementById('evol-row').style.display = 'block';
+
+            // Show/hide "Mes Actual" reset button
+            const resetBtn = document.getElementById('evol-reset-btn');
+            resetBtn.style.display = (activeMonth && !evol.find(e=>e.ym===activeMonth)?.is_active) ? 'inline' : 'none';
+
+            const dom = document.getElementById('chart-evolucion');
+            // Resize to fit all bars (min 60px per bar)
+            dom.style.minWidth = Math.max(420, evol.length * 72) + 'px';
+            let chart = echarts.getInstanceByDom(dom);
+            if (chart) chart.dispose();
+            chart = echarts.init(dom);
+
+            const mesNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+            const labels = evol.map(e => {
+                const [y,m] = e.ym.split('-');
+                return mesNames[parseInt(m)-1]+' '+y.slice(2) + (e.is_active ? ' ★' : '');
+            });
+            const vals = evol.map(e => e.kg);
+
+            chart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: p => {
+                        const e = evol[p[0].dataIndex];
+                        const tag = e.is_active ? ' <b>(Mes Activo)</b>' : '';
+                        return `<b>${p[0].name.replace(' ★','')}</b>${tag}<br/>${formatKgShort(p[0].value)} kg`;
+                    }
+                },
+                grid: { top: 8, right: 8, bottom: 28, left: 52 },
+                xAxis: {
+                    type: 'category', data: labels,
+                    axisLabel: { fontSize: 10, color: '#475569', fontWeight: '600' },
+                    axisLine: { lineStyle: { color: '#E2E8F0' } }, axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { fontSize: 9, color: '#94A3B8', formatter: v => v>=1000?(v/1000).toFixed(0)+'t':v },
+                    splitLine: { lineStyle: { color: '#F1F5F9' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: vals.map((v,i) => {
+                        const e = evol[i];
+                        const isSelected = e.is_selected || (activeMonth === null && e.is_active) || (activeMonth === e.ym);
+                        const color = e.is_active ? '#E84752' : (isSelected ? '#1D3557' : '#93C5FD');
+                        return {
+                            value: v,
+                            itemStyle: {
+                                color, borderRadius: [4,4,0,0],
+                                opacity: isSelected ? 1 : 0.7
+                            }
+                        };
+                    }),
+                    barWidth: '58%',
+                    label: { show: true, position: 'top', fontSize: 9, color: '#475569', fontWeight: '700',
+                             formatter: p => formatKgShort(p.value) }
+                }]
+            });
+            chart.off('click');
+            chart.on('click', params => {
+                const clicked = evol[params.dataIndex];
+                // If clicking the active month → reset to live view
+                if (clicked.is_active) {
+                    activeMonth = null;
+                } else {
+                    activeMonth = clicked.ym;
+                }
+                loadDashboard();
+                loadMeses();
+            });
+        }
+
         async function loadDashboard() {
             // Allow loading if any filter is present
             if (!vendedor && !jefe && !zona) { window.location.href = '/filters'; return; }
 
-            let query = '';
-            if (vendedor) query = `vendedor=${vendedor}`;
-            else if (jefe) query = `jefe=${encodeURIComponent(jefe)}`;
-            else if (zona) query = `zona=${encodeURIComponent(zona)}`;
+            if (!baseQuery) {
+                if (vendedor) baseQuery = `vendedor=${vendedor}`;
+                else if (jefe) baseQuery = `jefe=${encodeURIComponent(jefe)}`;
+                else if (zona) baseQuery = `zona=${encodeURIComponent(zona)}`;
+            }
 
-            const response = await fetch(`/api/dashboard?${query}`);
+            const monthParam = activeMonth ? `&month=${activeMonth}` : '';
+            const response = await fetch(`/api/dashboard?${baseQuery}${monthParam}`);
             const data = await response.json();
             if (data.error) { alert(data.error); return; }
 
             // Save for toggle
             globalClientes = data.clientes || [];
+
+            const isHistorical = data.is_historical || false;
+            const monthLabel   = data.month_label || '';
 
             // Dynamic title
             const type = data.vendedor.type ? `[${data.vendedor.type}] ` : '';
@@ -435,39 +583,58 @@
 
             // Header
             document.getElementById('vendedor-name').textContent = nombreCompleto;
-
             let meta = '';
             if (data.vendedor.zona) meta += data.vendedor.zona;
             if (data.vendedor.jefe) meta += ` • ${data.vendedor.jefe}`;
             meta += ` • ${data.vendedor.total_clientes} clientes`;
-
+            if (isHistorical) meta += ` · 📅 ${monthLabel}`;
             document.getElementById('vendedor-meta').textContent = meta;
+
+            // Month badge
+            if (monthLabel) document.getElementById('month-badge').textContent = monthLabel;
 
             // KPIs
             document.getElementById('kpi-objetivo-kg').textContent = formatKgShort(data.kpis.objetivo);
             document.getElementById('kpi-facturado-kg').textContent = formatKgShort(data.kpis.facturacion);
-            document.getElementById('kpi-pendiente-kg').textContent = formatKgShort(data.kpis.pendiente);
+
+            if (isHistorical) {
+                // Historical: hide pendiente, show compradores count instead
+                document.getElementById('kpi-pendiente-card').style.opacity = '0.4';
+                document.getElementById('kpi-pendiente-kg').textContent = data.kpis.compradores ? `${data.kpis.compradores} cl.` : '—';
+                document.getElementById('kpi-pendiente-card').querySelector('.label').textContent = 'Compradores';
+                document.getElementById('kpi-objetivo-label').textContent = 'Obj. Ref. (Actual)';
+                document.getElementById('kpi-cumplimiento-unit').textContent = 'vs Obj. Actual';
+            } else {
+                document.getElementById('kpi-pendiente-card').style.opacity = '1';
+                document.getElementById('kpi-pendiente-kg').textContent = formatKgShort(data.kpis.pendiente);
+                document.getElementById('kpi-pendiente-card').querySelector('.label').textContent = 'Pendiente';
+                document.getElementById('kpi-objetivo-label').textContent = 'Objetivo Mensual';
+                document.getElementById('kpi-cumplimiento-unit').textContent = 'vs Objetivo';
+            }
 
             const pct = data.kpis.cumplimiento_pct;
             const card = document.getElementById('card-cumplimiento');
             card.style.background = pct >= 80 ? 'linear-gradient(135deg, #30D158, #208e3b)' :
                 pct >= 50 ? 'linear-gradient(135deg, #FF9F0A, #d48806)' :
                     'linear-gradient(135deg, #FF453A, #c0392b)';
-
             document.getElementById('kpi-cumplimiento').textContent = data.kpis.cumplimiento_pct;
             document.getElementById('total-clientes').textContent = `${data.clientes.length} clientes`;
 
-            renderBurnChart(data.chart);
+            // Monthly evolution chart
+            renderEvolMiniChart(data.evolucion || []);
 
-            // Populate Plan Widget
-            const date = new Date();
-            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            document.getElementById('plan-date').textContent = `${dayNames[date.getDay()]} ${date.getDate()}`;
+            if (!isHistorical) {
+                renderBurnChart(data.chart);
+                // Populate Plan Widget
+                const date = new Date();
+                const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                document.getElementById('plan-date').textContent = `${dayNames[date.getDay()]} ${date.getDate()}`;
+            }
 
             renderClientsTable(globalClientes);
 
-            // Load monetary facturacion + Planning Summary
-            loadFacturacion(query);
+            // Load monetary facturacion + Planning Summary (only for live month)
+            if (!isHistorical) loadFacturacion(baseQuery);
         }
 
         async function loadFacturacion(query) {
@@ -826,17 +993,38 @@
                 // Forecast
                 const fc = d.forecast;
                 const fcPct = fc.proj_pct;
+                const isClosed = fc.is_month_closed;
+
+                // Month label
+                const ymParts = (fc.cur_ym || '').split('-');
+                const mesNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                const ymLabel = ymParts.length===2 ? mesNames[parseInt(ymParts[1])-1]+' '+ymParts[0] : '';
+                document.getElementById('fc-ym-label').textContent = ymLabel;
+
+                if (isClosed) {
+                    document.getElementById('fc-section-title').textContent = '✅ Resultado Final';
+                    document.getElementById('fc-closed-badge').style.display = 'inline';
+                    document.getElementById('fc-grid-current').style.display = 'none';
+                    document.getElementById('fc-range').style.display = 'none';
+                    // Show pendiente note if any
+                    if (fc.pend_kg && fc.pend_kg > 0) {
+                        const pendNote = document.getElementById('fc-trend');
+                        pendNote.style.display = 'block';
+                        pendNote.innerHTML = `<span style="color:#F59E0B;">⚠ Incluye ${Math.round(fc.pend_kg).toLocaleString('es-AR')} kg pendientes sin facturar</span>`;
+                    }
+                } else {
+                    document.getElementById('fc-range').textContent = `rango ${fc.low_pct}% – ${fc.high_pct}%`;
+                    document.getElementById('fc-daily-needed').textContent = fc.daily_needed
+                        ? Math.round(fc.daily_needed).toLocaleString('es-AR') : '—';
+                    document.getElementById('fc-days-left').textContent = fc.days_remaining ?? '—';
+                }
+
                 document.getElementById('fc-pct').textContent = fcPct;
                 document.getElementById('fc-pct').style.color = fcPct >= 80 ? '#10B981' : fcPct >= 50 ? '#F59E0B' : '#E84752';
-                document.getElementById('fc-range').textContent = `rango ${fc.low_pct}% – ${fc.high_pct}%`;
                 document.getElementById('fc-bar').style.width = Math.min(fcPct, 100) + '%';
                 document.getElementById('fc-bar').style.background = fcPct >= 80
                     ? 'linear-gradient(90deg,#10B981,#059669)'
                     : fcPct >= 50 ? 'linear-gradient(90deg,#F59E0B,#D97706)' : 'linear-gradient(90deg,#E84752,#DC2626)';
-                document.getElementById('fc-daily-needed').textContent = fc.daily_needed
-                    ? Math.round(fc.daily_needed).toLocaleString('es-AR')
-                    : '—';
-                document.getElementById('fc-days-left').textContent = fc.days_remaining ?? '—';
 
                 if (fc.trend_vs_prev_pct !== null && fc.trend_vs_prev_pct !== undefined) {
                     const tp = fc.trend_vs_prev_pct;
@@ -847,6 +1035,25 @@
                         `<span style="color:${col}">${arr} ${sign}${tp}% vs mes anterior</span>`;
                 } else {
                     document.getElementById('fc-trend').style.display = 'none';
+                }
+
+                // Next-month multi-factor forecast
+                if (fc.next_forecast_kg) {
+                    document.getElementById('fc-next').style.display = 'block';
+                    const nymParts = (fc.next_ym || '').split('-');
+                    document.getElementById('fc-next-ym').textContent = nymParts.length===2 ? mesNames[parseInt(nymParts[1])-1]+' '+nymParts[0] : '';
+                    document.getElementById('fc-next-kg').textContent = Math.round(fc.next_forecast_kg).toLocaleString('es-AR');
+                    if (fc.next_proj_pct) {
+                        const npct = fc.next_proj_pct;
+                        const nc = npct >= 100 ? '#10B981' : npct >= 80 ? '#F59E0B' : '#E84752';
+                        document.getElementById('fc-next-pct').innerHTML = `<span style="color:${nc};font-weight:800;">${npct}%</span> <span style="font-size:0.7rem;color:#94A3B8;">del objetivo</span>`;
+                    }
+                    if (fc.next_low_kg && fc.next_high_kg) {
+                        document.getElementById('fc-next-range').textContent =
+                            `Rango: ${Math.round(fc.next_low_kg).toLocaleString('es-AR')} – ${Math.round(fc.next_high_kg).toLocaleString('es-AR')} kg`;
+                    }
+                    document.getElementById('fc-next-confidence').textContent =
+                        `Confianza: ${fc.next_confidence || '—'}% · Baseline + Tendencia + Estacionalidad + Recencia`;
                 }
 
                 // Risk
@@ -871,8 +1078,13 @@
 
         loadMeta();
         loadDashboard();
+        loadMeses();
         loadInsights();
     </script>
+
+    <div class="valores-watermark">
+        <img src="/static/img/valores_minerva.png" alt="Valores Minerva Foods">
+    </div>
 </body>
 
 </html>

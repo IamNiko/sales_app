@@ -156,12 +156,69 @@ def api_filters():
     })
 
 
+@app.route('/api/dashboard/meses-disponibles')
+def api_dashboard_meses():
+    """Return the last N billing months available for quick-filter buttons."""
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe         = request.args.get('jefe', '')
+    zona         = request.args.get('zona', '')
+
+    conn = get_db()
+    # Use plain column names (no table prefix); the JOIN query uses av. prefix explicitly
+    if cod_vendedor:
+        av_where = "av.cod_vendedor = ?"
+        p = [cod_vendedor]
+    elif jefe:
+        av_where = "av.jefe = ?"
+        p = [jefe]
+    else:
+        av_where = "av.zona = ?"
+        p = [zona]
+
+    # Active avance month
+    avance_ym = (conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()[0] or '')
+
+    # Historical months from fact_cliente_historico scoped to this filter
+    hist_rows = conn.execute(f"""
+        SELECT DISTINCT h.year_month
+        FROM fact_cliente_historico h
+        JOIN fact_avance_cliente_vendedor_month av
+          ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+        WHERE {av_where}
+        ORDER BY h.year_month DESC
+        LIMIT 5
+    """, [avance_ym] + p).fetchall()
+
+    mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+
+    meses = []
+    # Active month first
+    if avance_ym:
+        yp, mp = avance_ym.split('-')
+        meses.append({'ym': avance_ym, 'label': mes_names[int(mp)-1]+' '+yp, 'is_active': True})
+
+    for r in hist_rows:
+        ym2 = r['year_month']
+        if ym2 == avance_ym:
+            continue
+        yp2, mp2 = ym2.split('-')
+        meses.append({'ym': ym2, 'label': mes_names[int(mp2)-1]+' '+yp2, 'is_active': False})
+
+    conn.close()
+    return jsonify({'meses': meses[:4]})  # active + up to 3 historical
+
+
 @app.route('/api/dashboard')
 def api_dashboard():
-    """Return KPIs and chart data for a vendedor, jefe, or zona."""
+    """Return KPIs and chart data for a vendedor, jefe, or zona.
+    Optional ?month=YYYY-MM returns historical data from fact_cliente_historico.
+    """
     cod_vendedor = request.args.get('vendedor', '')
     jefe = request.args.get('jefe', '')
     zona = request.args.get('zona', '')
+    req_month = request.args.get('month', '')  # optional historical month override
     
     if not any([cod_vendedor, jefe, zona]):
         return jsonify({'error': 'vendedor, jefe, or zona required'}), 400
@@ -195,6 +252,132 @@ def api_dashboard():
         params = [zona]
         entity_name = zona
         entity_type = "Zona"
+
+    # ── Historical month override ────────────────────────────────────────
+    # When ?month=YYYY-MM points to a past month (not in fact_avance), we
+    # serve data from fact_cliente_historico + fact_facturacion instead.
+    avance_ym_row = conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()
+    avance_ym = avance_ym_row[0] if avance_ym_row else ''
+
+    if req_month and req_month != avance_ym:
+        # Historical month view
+        mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+        yp, mp = req_month.split('-')
+        month_label = mes_names[int(mp)-1] + ' ' + yp
+
+        # Resolve vendor codes for this filter
+        vc_rows = conn.execute(f"""
+            SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month
+            WHERE {where_clause} AND year_month = ?
+        """, params + [avance_ym]).fetchall()
+        vc = [r['cod_vendedor'] for r in vc_rows]
+
+        # av_where: same filter but with explicit av. table prefix to avoid ambiguity
+        av_where = where_clause.replace('cod_vendedor', 'av.cod_vendedor') \
+                               .replace('jefe', 'av.jefe') \
+                               .replace('zona', 'av.zona')
+
+        # Summary from historico
+        hist_summary = conn.execute(f"""
+            SELECT SUM(h.kg_vendidos) as kg_total,
+                   COUNT(DISTINCT CASE WHEN h.kg_vendidos > 0 THEN h.cod_cliente END) as compradores,
+                   COUNT(DISTINCT h.cod_cliente) as total_clientes
+            FROM fact_cliente_historico h
+            JOIN fact_avance_cliente_vendedor_month av
+              ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+            WHERE {av_where} AND h.year_month = ?
+        """, [avance_ym] + params + [req_month]).fetchone()
+
+        kg_total = hist_summary['kg_total'] or 0
+
+        # Current avance objective as reference baseline
+        obj_row = conn.execute(f"""
+            SELECT SUM(objetivo) as obj FROM fact_avance_cliente_vendedor_month
+            WHERE {where_clause} AND year_month = ?
+        """, params + [avance_ym]).fetchone()
+        obj_kg = obj_row['obj'] or 0
+        pct_hist = round(kg_total / obj_kg * 100, 1) if obj_kg else 0
+
+        # Client list for that month (use vendor codes to avoid ambiguity)
+        if vc:
+            ph2 = ','.join(['?']*len(vc))
+            cli_rows = conn.execute(f"""
+                SELECT h.cod_cliente,
+                       av.nom_cliente,
+                       h.kg_vendidos   as facturacion,
+                       av.objetivo,
+                       av.pendiente,
+                       av.frecuencia,
+                       av.nom_vendedor,
+                       s.tier
+                FROM fact_cliente_historico h
+                JOIN fact_avance_cliente_vendedor_month av
+                  ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+                LEFT JOIN fact_client_segmentation s
+                  ON h.cod_cliente = s.cod_cliente AND s.year_month = ?
+                WHERE h.cod_vendedor IN ({ph2}) AND h.year_month = ?
+                ORDER BY h.kg_vendidos DESC LIMIT 100
+            """, [avance_ym, avance_ym] + vc + [req_month]).fetchall()
+        else:
+            cli_rows = []
+
+        clientes_hist = []
+        for r in cli_rows:
+            d = dict(r)
+            d['facturacion_pesos'] = 0
+            d['trend_pct'] = 0
+            d['kg_prev_month'] = None
+            clientes_hist.append(d)
+
+        # Monthly evolution — last 7 historical months + always include the active avance month
+        evol_rows = conn.execute(f"""
+            SELECT h.year_month, SUM(h.kg_vendidos) as kg
+            FROM fact_cliente_historico h
+            JOIN fact_avance_cliente_vendedor_month av
+              ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+            WHERE {av_where}
+            GROUP BY h.year_month
+            ORDER BY h.year_month DESC LIMIT 7
+        """, [avance_ym] + params).fetchall()
+        avance_kg_row = conn.execute(f"""
+            SELECT SUM(venta_actual) as kg FROM fact_avance_cliente_vendedor_month
+            WHERE {where_clause} AND year_month = ?
+        """, params + [avance_ym]).fetchone()
+        avance_kg = round(avance_kg_row['kg'] or 0, 0) if avance_kg_row else 0
+        evol = [{'ym': r['year_month'], 'kg': round(r['kg'] or 0, 0),
+                 'is_active': r['year_month'] == avance_ym} for r in reversed(evol_rows)]
+        # Ensure active month is present
+        if not any(e['ym'] == avance_ym for e in evol):
+            evol.append({'ym': avance_ym, 'kg': avance_kg, 'is_active': True})
+            evol.sort(key=lambda x: x['ym'])
+        # Mark selected month
+        for e in evol:
+            e['is_selected'] = (e['ym'] == req_month)
+
+        conn.close()
+        return jsonify({
+            'is_historical': True,
+            'month': req_month,
+            'month_label': month_label,
+            'vendedor': {
+                'nombre': entity_name,
+                'zona': '', 'jefe': '',
+                'total_clientes': hist_summary['total_clientes'] or 0,
+                'type': entity_type
+            },
+            'kpis': {
+                'facturacion': round(kg_total, 0),
+                'pendiente': None,
+                'objetivo': round(obj_kg, 0),
+                'cumplimiento_pct': pct_hist,
+                'compradores': hist_summary['compradores'] or 0,
+            },
+            'chart': None,
+            'evolucion': evol,
+            'clientes': clientes_hist,
+        })
 
     # Get summary
     summary = conn.execute(f"""
@@ -319,10 +502,11 @@ def api_dashboard():
             d['objetivo_pesos'] = d['objetivo'] * avg_price_per_kg
 
         # Trend vs previous month
-        prev_kg = d.pop('kg_prev_month', None) or 0
+        prev_kg  = d.pop('kg_prev_month', None) or 0
+        fact_kg_ = d['facturacion'] or 0
         if prev_kg and prev_kg > 0:
-            d['trend_pct'] = round((d['facturacion'] - prev_kg) / prev_kg * 100, 1)
-        elif d['facturacion'] and d['facturacion'] > 0 and prev_kg == 0:
+            d['trend_pct'] = round((fact_kg_ - prev_kg) / prev_kg * 100, 1)
+        elif fact_kg_ > 0 and prev_kg == 0:
             d['trend_pct'] = None  # new buyer, no prior data
         else:
             d['trend_pct'] = 0
@@ -443,9 +627,6 @@ def api_dashboard():
             'composition': composition
         }
 
-
-    conn.close()
-    
     total_facturado = summary['facturacion'] or 0
     total_pendiente = summary['pendiente'] or 0
     # total_objetivo already defined above
@@ -453,8 +634,33 @@ def api_dashboard():
     
     # Determine display name
     display_name = summary['nom_vendedor'] if cod_vendedor else (jefe if jefe else zona)
-    
+
+    # Monthly evolution (last 6 months) for the clickable evol chart
+    # Use av. prefix on where_clause columns to avoid ambiguous column names
+    av_where_main = where_clause.replace('cod_vendedor', 'av.cod_vendedor') \
+                                .replace('jefe', 'av.jefe') \
+                                .replace('zona', 'av.zona')
+    evol_rows = conn.execute(f"""
+        SELECT h.year_month, SUM(h.kg_vendidos) as kg
+        FROM fact_cliente_historico h
+        JOIN fact_avance_cliente_vendedor_month av
+          ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+        WHERE {av_where_main}
+        GROUP BY h.year_month
+        ORDER BY h.year_month DESC LIMIT 5
+    """, [avance_ym] + params).fetchall()
+    # Add the active month (avance)
+    evol_active = {'ym': avance_ym, 'kg': round(total_facturado, 0), 'is_active': True, 'is_selected': True}
+    evol = [evol_active] + [{'ym': r['year_month'], 'kg': round(r['kg'] or 0, 0),
+                              'is_active': False, 'is_selected': False}
+                             for r in evol_rows if r['year_month'] != avance_ym]
+    evol.sort(key=lambda x: x['ym'])
+
+    conn.close()
+
     return jsonify({
+        'is_historical': False,
+        'month': avance_ym,
         'vendedor': {
             'nombre': display_name,
             'zona': summary['zona'] if not zona else zona,
@@ -469,6 +675,7 @@ def api_dashboard():
             'cumplimiento_pct': pct
         },
         'chart': chart_data,
+        'evolucion': evol,
         'clientes': clientes_list
     })
 
@@ -602,10 +809,11 @@ def api_planning():
     # Days logic
     import calendar
     last_day = calendar.monthrange(target_date.year, target_date.month)[1]
+    month_end = target_date.replace(day=last_day)
     days_remaining = 0
     current = target_date
-    while current.day <= last_day:
-        if current.weekday() < 5: # Mon-Fri
+    while current <= month_end:
+        if current.weekday() < 5:  # Mon-Fri
             days_remaining += 1
         current += timedelta(days=1)
     
@@ -675,31 +883,40 @@ def api_cliente(cod_cliente):
     current_ym_row = conn.execute("SELECT MAX(year_month) FROM fact_facturacion").fetchone()
     current_ym = current_ym_row[0] if current_ym_row else None
     
-    # Get historical sales from fact_cliente_historico (from Jan 2025)
+    # Historia chart: use fact_cliente_historico (net, from avance Excel) for closed months.
+    # These already reflect NC deductions. Add the current billing month from fact_facturacion.
+    # NOTE: legacy TXT months include NCs (negative rows) so their net sum matches the Excel.
+    #       Minerva-format months (Feb26+) may be gross (no NCs in file) — we label them clearly.
     historia_rows = conn.execute("""
-        SELECT 
-            year_month,
-            kg_vendidos as total_kg
+        SELECT year_month,
+               kg_vendidos as total_kg,
+               NULL as total_importe,
+               NULL as n_productos,
+               0 as has_nc_risk
         FROM fact_cliente_historico
-        WHERE cod_cliente = ? AND year_month >= '2025-01'
+        WHERE cod_cliente = ?
         ORDER BY year_month ASC
     """, (cod_cliente,)).fetchall()
-    
     historia = [dict(h) for h in historia_rows]
-    
-    # Add current month data from fact_facturacion if not present in history
+
+    # Add current month from fact_facturacion (gross) if not in history
     if current_ym and not any(h['year_month'] == current_ym for h in historia):
-        current_kg = conn.execute("""
-            SELECT SUM(cantidad) 
-            FROM fact_facturacion 
-            WHERE cod_cliente = ? AND year_month = ?
-        """, (cod_cliente, current_ym)).fetchone()[0] or 0
-        
-        historia.append({
-            'year_month': current_ym,
-            'total_kg': current_kg
-        })
-        historia.sort(key=lambda x: x['year_month'])
+        cur_row = conn.execute("""
+            SELECT SUM(cantidad) as total_kg, SUM(importe) as total_importe,
+                   COUNT(DISTINCT cod_producto) as n_productos,
+                   SUM(CASE WHEN cantidad < 0 THEN cantidad ELSE 0 END) as kg_nc
+            FROM fact_facturacion WHERE cod_cliente = ? AND year_month = ?
+        """, (cod_cliente, current_ym)).fetchone()
+        if cur_row and cur_row['total_kg']:
+            nc_risk = 1 if (cur_row['kg_nc'] or 0) == 0 else 0  # 1 = no NCs found (may be gross)
+            historia.append({
+                'year_month': current_ym,
+                'total_kg': cur_row['total_kg'],
+                'total_importe': cur_row['total_importe'],
+                'n_productos': cur_row['n_productos'],
+                'has_nc_risk': nc_risk
+            })
+            historia.sort(key=lambda x: x['year_month'])
 
     # Get the last N available year_months from fact_facturacion for this client's data
     all_months = conn.execute("""
@@ -1058,7 +1275,7 @@ def api_insights():
     ym_row = conn.execute(
         "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
     ).fetchone()
-    cur_ym = ym_row[0] if ym_row else datetime.now().strftime('%Y-%m')
+    cur_ym = (ym_row[0] if ym_row else None) or datetime.now().strftime('%Y-%m')
     year, month = map(int, cur_ym.split('-'))
 
     # Previous month
@@ -1084,15 +1301,17 @@ def api_insights():
     """, vendor_params + [cur_ym]).fetchall()
     vendor_codes = [r['cod_vendedor'] for r in vendor_codes_rows]
 
+    import statistics as _stats
+
     days_in_month = calendar.monthrange(year, month)[1]
     today = datetime.now()
     is_cur_month = (cur_ym == today.strftime('%Y-%m'))
     elapsed_days = today.day if is_cur_month else days_in_month
     remaining_days = max(0, days_in_month - elapsed_days)
 
-    # Daily variance for confidence interval
+    # ── Current-month in-progress projection (linear) ────────────
     daily_variance = 0
-    projected_kg = fact_kg
+    projected_kg_linear = fact_kg
     if vendor_codes and elapsed_days > 0:
         ph = ','.join(['?'] * len(vendor_codes))
         daily_rows = conn.execute(f"""
@@ -1101,26 +1320,88 @@ def api_insights():
             WHERE cod_vendedor IN ({ph}) AND year_month = ?
             GROUP BY dia
         """, vendor_codes + [cur_ym]).fetchall()
-
         daily_vals = [r['kg'] for r in daily_rows if r['kg']]
         if daily_vals:
-            avg_daily = sum(daily_vals) / elapsed_days  # average over full elapsed period
+            avg_daily = sum(daily_vals) / elapsed_days
             if len(daily_vals) > 1:
-                import statistics
-                daily_variance = statistics.stdev(daily_vals)
-            projected_kg = fact_kg + avg_daily * remaining_days
+                daily_variance = _stats.stdev(daily_vals)
+            projected_kg_linear = fact_kg + avg_daily * remaining_days
 
-    proj_pct   = round(projected_kg / obj_kg * 100, 1) if obj_kg else 0
-    conf_range = daily_variance * (remaining_days ** 0.5)  # sqrt(n) scaling
-    low_kg     = max(0, projected_kg - conf_range)
-    high_kg    = projected_kg + conf_range
-    low_pct    = round(low_kg / obj_kg * 100, 1) if obj_kg else 0
-    high_pct   = round(high_kg / obj_kg * 100, 1) if obj_kg else 0
+    # ── Next-month multi-factor forecast (algorithm) ─────────────
+    next_m_num = month + 1 if month < 12 else 1
+    next_y_num = year if month < 12 else year + 1
+    next_ym_fc = f"{next_y_num}-{next_m_num:02d}"
 
-    # Daily needed to hit 100%
+    # Aggregate historical monthly totals for the whole filter scope
+    scope_hist_rows = conn.execute(f"""
+        SELECT h.year_month, SUM(h.kg_vendidos) as kg
+        FROM fact_cliente_historico h
+        JOIN fact_avance_cliente_vendedor_month av
+          ON h.cod_cliente = av.cod_cliente AND av.year_month = ?
+        WHERE {where} AND h.kg_vendidos > 0
+        GROUP BY h.year_month ORDER BY h.year_month
+    """, params + [cur_ym]).fetchall()
+    scope_hist = [(r['year_month'], r['kg']) for r in scope_hist_rows]
+
+    next_forecast_kg = None
+    next_low_kg = None
+    next_high_kg = None
+    next_confidence = None
+
+    if scope_hist:
+        scope_vals = [kg for _, kg in scope_hist]
+        scope_months = [ym2 for ym2, _ in scope_hist]
+
+        # Baseline: trimmed 6M mean
+        r6 = scope_vals[-6:]
+        if len(r6) >= 4:
+            baseline_fc = _stats.mean(sorted(r6)[1:-1])
+        else:
+            baseline_fc = _stats.mean(r6)
+
+        # Trend: slope last 3 months
+        r3 = scope_vals[-3:]
+        n3 = len(r3)
+        if n3 >= 2:
+            xm3 = _stats.mean(range(n3))
+            ym3 = _stats.mean(r3)
+            denom3 = sum((xi - xm3)**2 for xi in range(n3))
+            slope3 = sum((xi-xm3)*(yi-ym3) for xi,yi in zip(range(n3),r3)) / denom3 if denom3 else 0
+            trend_fc = 1.0 + max(-0.30, min(0.30, slope3 / baseline_fc))
+        else:
+            trend_fc = 1.0
+
+        # Seasonality: same month in prior data
+        same_m = [kg for ym2, kg in scope_hist if int(ym2.split('-')[1]) == next_m_num]
+        all_mean_fc = _stats.mean(scope_vals) if scope_vals else baseline_fc
+        season_fc = _stats.mean(same_m) / all_mean_fc if same_m and all_mean_fc > 0 else 1.0
+        season_fc = max(0.65, min(1.50, season_fc))
+
+        # Recency: did the scope sell last month?
+        recency_fc = 1.0 if (scope_vals and scope_vals[-1] > 0) else 0.85
+
+        next_forecast_kg = round(max(0, baseline_fc * trend_fc * season_fc * recency_fc), 0)
+        std_fc = _stats.stdev(scope_vals) if len(scope_vals) >= 2 else baseline_fc * 0.20
+        next_low_kg  = round(max(0, next_forecast_kg - std_fc), 0)
+        next_high_kg = round(next_forecast_kg + std_fc, 0)
+        next_confidence = min(85, 30 + 5 * len(scope_vals))
+
+    # ── Current-month closing projection ─────────────────────────
+    # For a closed month: final result = facturado + pendiente (avance pending)
+    if not is_cur_month and pend_kg > 0:
+        final_kg = fact_kg + pend_kg
+    else:
+        final_kg = projected_kg_linear
+    proj_pct = round(final_kg / obj_kg * 100, 1) if obj_kg else 0
+    conf_range = daily_variance * (remaining_days ** 0.5)
+    low_kg  = max(0, projected_kg_linear - conf_range)
+    high_kg = projected_kg_linear + conf_range
+    low_pct  = round(low_kg / obj_kg * 100, 1) if obj_kg else 0
+    high_pct = round(high_kg / obj_kg * 100, 1) if obj_kg else 0
+
     daily_needed = round((obj_kg - fact_kg) / remaining_days, 0) if remaining_days > 0 else 0
 
-    # Trend vs last month (prev month final actual from historico)
+    # Trend vs last month
     prev_total_row = conn.execute(f"""
         SELECT SUM(h.kg_vendidos) as kg
         FROM fact_cliente_historico h
@@ -1133,7 +1414,8 @@ def api_insights():
     trend_vs_prev = round((fact_kg - prev_kg) / prev_kg * 100, 1) if prev_kg else None
 
     forecast = {
-        'projected_kg': round(projected_kg, 0),
+        # Current month progress
+        'projected_kg': round(final_kg, 0),
         'proj_pct': proj_pct,
         'low_pct': low_pct,
         'high_pct': high_pct,
@@ -1144,6 +1426,15 @@ def api_insights():
         'elapsed_days': elapsed_days,
         'daily_needed': daily_needed,
         'trend_vs_prev_pct': trend_vs_prev,
+        'is_month_closed': not is_cur_month,
+        'cur_ym': cur_ym,
+        # Next month multi-factor forecast
+        'next_ym': next_ym_fc,
+        'next_forecast_kg': next_forecast_kg,
+        'next_low_kg': next_low_kg,
+        'next_high_kg': next_high_kg,
+        'next_confidence': next_confidence,
+        'next_proj_pct': round(next_forecast_kg / obj_kg * 100, 1) if (next_forecast_kg and obj_kg) else None,
     }
 
     # ── 2. RISK — clients who bought last month but 0 this month ────
@@ -1286,6 +1577,64 @@ def api_coberturas():
 
     where = " AND ".join(where_parts)
 
+    # ── Reconciliation: cross-check lanzamiento estado with fact_facturacion ──
+    # The launch Excel may track only selected SKUs. Any client who bought from
+    # the launch product category in fact_facturacion is upgraded to COMPRADOR.
+    CATEGORY_MAP = {
+        'PAPAS':     'Papas',
+        'EMBUTIDOS': 'Chorizos',
+        'PESCADOS':  'ATUN',
+        'UNTABLES':  'Untables',
+        'VEGGIES':   'Veggies',
+    }
+    RB_LANZAMIENTOS = ['RB (Kids+Crunchies)', 'RB (Milanesitas)']
+
+    lanz_ym = conn.execute(
+        "SELECT MAX(year_month) FROM fact_lanzamiento_cobertura"
+    ).fetchone()[0]
+    fact_ym = conn.execute(
+        "SELECT MAX(year_month) FROM fact_facturacion"
+    ).fetchone()[0]
+
+    if lanz_ym and fact_ym and lanz_ym == fact_ym:
+        active_lanz = {r[0] for r in conn.execute(
+            "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura WHERE year_month = ?",
+            (lanz_ym,)
+        ).fetchall()}
+        for cat, lanz_name in CATEGORY_MAP.items():
+            if lanz_name not in active_lanz:
+                continue
+            buyers = conn.execute("""
+                SELECT DISTINCT f.cod_cliente
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.year_month = ? AND p.categoria = ? AND f.cantidad > 0
+            """, (fact_ym, cat)).fetchall()
+            for row in buyers:
+                conn.execute("""
+                    UPDATE fact_lanzamiento_cobertura
+                    SET estado = 'COMPRADOR'
+                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
+                      AND estado != 'COMPRADOR'
+                """, (row['cod_cliente'], lanz_name, lanz_ym))
+        for ln in RB_LANZAMIENTOS:
+            if ln not in active_lanz:
+                continue
+            buyers = conn.execute("""
+                SELECT DISTINCT f.cod_cliente
+                FROM fact_facturacion f
+                JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                WHERE f.year_month = ? AND p.categoria = 'REBOZADOS' AND f.cantidad > 0
+            """, (fact_ym,)).fetchall()
+            for row in buyers:
+                conn.execute("""
+                    UPDATE fact_lanzamiento_cobertura
+                    SET estado = 'COMPRADOR'
+                    WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
+                      AND estado != 'COMPRADOR'
+                """, (row['cod_cliente'], ln, lanz_ym))
+        conn.commit()
+
     # 1. Resumen per launch product
     resumen = conn.execute(f"""
         SELECT
@@ -1347,6 +1696,127 @@ def api_coberturas():
         'resumen': [dict(r) for r in resumen],
         'detalle': [dict(d) for d in detalle],
         'rotacion': [dict(r) for r in rotacion]
+    })
+
+
+@app.route('/api/cliente/<cod_cliente>/mes/<year_month>')
+def api_cliente_mes(cod_cliente, year_month):
+    """
+    Detailed breakdown for a client for a specific historical month.
+    Returns: kg total, top products, category breakdown, and coverage snapshot.
+    """
+    conn = get_db()
+
+    # KG and pesos for that month from fact_facturacion
+    # Separate gross (positive rows) and NC (negative rows) for transparency
+    month_summary = conn.execute("""
+        SELECT SUM(cantidad)                                         as kg_neto,
+               SUM(CASE WHEN cantidad > 0 THEN cantidad ELSE 0 END) as kg_bruto,
+               SUM(CASE WHEN cantidad < 0 THEN cantidad ELSE 0 END) as kg_nc,
+               SUM(importe)                                         as pesos_total,
+               COUNT(DISTINCT cod_producto)                         as n_productos,
+               COUNT(CASE WHEN cantidad < 0 THEN 1 END)             as n_nc_rows
+        FROM fact_facturacion
+        WHERE cod_cliente = ? AND year_month = ?
+    """, (cod_cliente, year_month)).fetchone()
+
+    kg_total    = month_summary['kg_neto']  or 0
+    kg_bruto    = month_summary['kg_bruto'] or 0
+    kg_nc       = month_summary['kg_nc']    or 0
+    pesos_total = month_summary['pesos_total'] or 0
+    n_prods     = month_summary['n_productos'] or 0
+    has_nc      = (month_summary['n_nc_rows'] or 0) > 0
+    # If no NC rows found in fact_facturacion, check if historico (net) differs from gross
+    hist_row_check = conn.execute("""
+        SELECT kg_vendidos FROM fact_cliente_historico
+        WHERE cod_cliente = ? AND year_month = ?
+    """, (cod_cliente, year_month)).fetchone()
+    kg_historico_net = hist_row_check['kg_vendidos'] if hist_row_check else None
+    # Warn if gross differs from net by more than 2%
+    nc_missing_warning = (
+        not has_nc and
+        kg_historico_net is not None and
+        kg_bruto > 0 and
+        abs(kg_bruto - kg_historico_net) / kg_bruto > 0.02
+    )
+
+    # Top 10 products
+    top_prods = conn.execute("""
+        SELECT f.cod_producto,
+               COALESCE(p.descripcion, f.cod_producto) as descripcion,
+               COALESCE(p.categoria, 'SIN CAT') as categoria,
+               SUM(f.cantidad) as kg,
+               SUM(f.importe) as pesos
+        FROM fact_facturacion f
+        LEFT JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        WHERE f.cod_cliente = ? AND f.year_month = ?
+        GROUP BY f.cod_producto
+        ORDER BY kg DESC LIMIT 10
+    """, (cod_cliente, year_month)).fetchall()
+
+    # Category breakdown
+    categorias = conn.execute("""
+        SELECT COALESCE(p.categoria, 'SIN CATEGORIA') as categoria,
+               SUM(f.cantidad) as kg,
+               SUM(f.importe) as pesos
+        FROM fact_facturacion f
+        LEFT JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        WHERE f.cod_cliente = ? AND f.year_month = ?
+        GROUP BY categoria ORDER BY kg DESC
+    """, (cod_cliente, year_month)).fetchall()
+
+    # Coverage snapshot: which launch products did they buy this month?
+    # Match via product description prefix (same logic as historial-3m)
+    launches = conn.execute("""
+        SELECT lz.lanzamiento,
+               CASE WHEN EXISTS (
+                   SELECT 1 FROM fact_facturacion f
+                   JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+                   WHERE f.cod_cliente = ?
+                     AND f.year_month = ?
+                     AND (UPPER(p.descripcion) LIKE '%' || UPPER(SUBSTR(lz.lanzamiento,1,8)) || '%'
+                          OR UPPER(p.categoria)  LIKE '%' || UPPER(SUBSTR(lz.lanzamiento,1,8)) || '%')
+               ) THEN 'COMPRADOR' ELSE 'NO COMPRADOR' END as estado
+        FROM (SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura) lz
+        ORDER BY lz.lanzamiento
+    """, (cod_cliente, year_month)).fetchall()
+
+    # Current avance month objective for reference
+    obj_row = conn.execute("""
+        SELECT objetivo FROM fact_avance_cliente_vendedor_month
+        WHERE cod_cliente = ? ORDER BY year_month DESC LIMIT 1
+    """, (cod_cliente,)).fetchone()
+    objetivo_ref = obj_row['objetivo'] if obj_row else None
+
+    # Historical kg for this month (from historico table)
+    hist_row = conn.execute("""
+        SELECT kg_vendidos FROM fact_cliente_historico
+        WHERE cod_cliente = ? AND year_month = ?
+    """, (cod_cliente, year_month)).fetchone()
+    kg_historico = hist_row['kg_vendidos'] if hist_row else kg_total
+
+    conn.close()
+
+    mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    yp, mp = year_month.split('-')
+    month_label = mes_names[int(mp)-1] + ' ' + yp
+
+    return jsonify({
+        'year_month': year_month,
+        'month_label': month_label,
+        'kg_total': round(kg_total, 0),            # net (bruto - NCs)
+        'kg_bruto': round(kg_bruto, 0),            # gross invoiced
+        'kg_nc': round(kg_nc, 0),                  # NC deductions (negative value)
+        'kg_historico_net': round(kg_historico_net, 0) if kg_historico_net else None,
+        'has_nc': has_nc,
+        'nc_missing_warning': nc_missing_warning,  # True when gross >> net (NCs not in TXT)
+        'pesos_total': round(pesos_total, 0),
+        'n_productos': n_prods,
+        'objetivo_ref': objetivo_ref,
+        'pct_objetivo': round(kg_total / objetivo_ref * 100, 1) if objetivo_ref and kg_total else None,
+        'top_productos': [dict(r) for r in top_prods],
+        'categorias': [dict(r) for r in categorias],
+        'coberturas': [dict(r) for r in launches],
     })
 
 
@@ -1597,6 +2067,382 @@ def api_cliente_evolucion():
         'categorias': cat_set,
         'series': series,
         'totales_mes': totales_mes
+    })
+
+
+@app.route('/api/coberturas/historial-3m')
+def api_coberturas_historial_3m():
+    """
+    Compares coverage (unique buyers) of each launch product across the last 3
+    billing months using fact_facturacion + dim_product_classification.
+    This shows whether launch adoption is growing, stable or declining.
+    """
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe         = request.args.get('jefe', '')
+    zona         = request.args.get('zona', '')
+
+    if not any([cod_vendedor, jefe, zona]):
+        return jsonify({'error': 'filter required'}), 400
+
+    conn = get_db()
+
+    # Build vendor filter
+    if cod_vendedor:
+        where_av = "av.cod_vendedor = ?"
+        av_params = [cod_vendedor]
+    elif jefe:
+        where_av = "av.jefe = ?"
+        av_params = [jefe]
+    else:
+        where_av = "av.zona = ?"
+        av_params = [zona]
+
+    # Resolve vendor codes for fact_facturacion filter
+    cur_ym = conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()[0]
+    vendor_codes_rows = conn.execute(f"""
+        SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month
+        WHERE {where_av} AND year_month = ?
+    """, av_params + [cur_ym]).fetchall()
+    vendor_codes = [r['cod_vendedor'] for r in vendor_codes_rows]
+
+    if not vendor_codes:
+        conn.close()
+        return jsonify({'meses': [], 'lanzamientos': [], 'series': {}})
+
+    # Total clients in scope (denominator for coverage %)
+    total_clients = conn.execute(f"""
+        SELECT COUNT(DISTINCT cod_cliente) FROM fact_avance_cliente_vendedor_month
+        WHERE {where_av} AND year_month = ?
+    """, av_params + [cur_ym]).fetchone()[0] or 1
+
+    ph = ','.join(['?'] * len(vendor_codes))
+
+    # Get last 3 billing months available
+    months_rows = conn.execute(f"""
+        SELECT DISTINCT year_month FROM fact_facturacion
+        WHERE cod_vendedor IN ({ph})
+        ORDER BY year_month DESC LIMIT 3
+    """, vendor_codes).fetchall()
+    months = sorted([r['year_month'] for r in months_rows])
+
+    if not months:
+        conn.close()
+        return jsonify({'meses': [], 'lanzamientos': [], 'series': {}})
+
+    # Buyers per launch product per month
+    # A "launch" is identified by categoria in dim_product_classification
+    # We reuse the same launch taxonomy from fact_lanzamiento_cobertura
+    launch_names_rows = conn.execute(
+        "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura ORDER BY lanzamiento"
+    ).fetchall()
+    launch_names = [r['lanzamiento'] for r in launch_names_rows]
+
+    # Map launch name → product categories that belong to it
+    # (fact_lanzamiento_cobertura.lanzamiento is the product name directly)
+    # We join via dim_product_classification by matching categoria/descripcion
+    # Simpler: count unique buyers who purchased any product in the same category as the launch
+    # For now: use dim_product_classification.categoria as proxy for launch grouping
+    # and join against fact_lanzamiento_cobertura to get the correct launch names
+
+    # Get clients per launch per month from fact_facturacion
+    # Match launch products by joining fact_lanzamiento_cobertura → dim_product_classification
+    rows = conn.execute(f"""
+        SELECT
+            f.year_month,
+            lz.lanzamiento,
+            COUNT(DISTINCT f.cod_cliente) as compradores,
+            SUM(f.cantidad) as kg_total
+        FROM fact_facturacion f
+        JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        JOIN (
+            SELECT DISTINCT lanzamiento,
+                   SUBSTR(lanzamiento, 1, 8) as prefix
+            FROM fact_lanzamiento_cobertura
+        ) lz ON UPPER(p.descripcion) LIKE '%' || UPPER(SUBSTR(lz.lanzamiento, 1, 8)) || '%'
+                OR UPPER(p.categoria) LIKE '%' || UPPER(SUBSTR(lz.lanzamiento, 1, 8)) || '%'
+        WHERE f.cod_vendedor IN ({ph})
+          AND f.year_month IN ({','.join(['?']*len(months))})
+        GROUP BY f.year_month, lz.lanzamiento
+        ORDER BY lz.lanzamiento, f.year_month
+    """, vendor_codes + months).fetchall()
+
+    # Build series structure
+    series = {}   # launch → {month → {compradores, kg, pct}}
+    for r in rows:
+        lz = r['lanzamiento']
+        ym = r['year_month']
+        if lz not in series:
+            series[lz] = {}
+        series[lz][ym] = {
+            'compradores': r['compradores'],
+            'kg': round(r['kg_total'] or 0, 0),
+            'pct': round(r['compradores'] / total_clients * 100, 1)
+        }
+
+    # Fill missing months with zeros
+    for lz in series:
+        for m in months:
+            if m not in series[lz]:
+                series[lz][m] = {'compradores': 0, 'kg': 0, 'pct': 0}
+
+    # Compute trend: last month vs first month
+    for lz in series:
+        if len(months) >= 2:
+            first = series[lz][months[0]]['compradores']
+            last  = series[lz][months[-1]]['compradores']
+            series[lz]['_trend'] = round((last - first) / first * 100, 1) if first > 0 else (100 if last > 0 else 0)
+        else:
+            series[lz]['_trend'] = 0
+
+    conn.close()
+
+    # Month labels
+    mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    mes_labels = [mes_names[int(m.split('-')[1]) - 1] + ' ' + m.split('-')[0][2:] for m in months]
+
+    return jsonify({
+        'meses': months,
+        'mes_labels': mes_labels,
+        'total_clientes': total_clients,
+        'lanzamientos': [lz for lz in series.keys()],
+        'series': series
+    })
+
+
+@app.route('/api/forecast')
+def api_forecast():
+    """
+    Multi-factor sales forecast per client.
+    Algorithm: BASELINE × TREND × SEASONALITY × RECENCY
+    - BASELINE: trimmed 6-month mean (drop outliers)
+    - TREND: linear slope of last 3 months, capped ±30%
+    - SEASONALITY: ratio of same-month-prior-years vs annual mean
+    - RECENCY: penalises clients who missed recent months (churn signal)
+    Confidence interval: ±1σ of monthly distribution (≈68%)
+    """
+    import statistics
+
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe         = request.args.get('jefe', '')
+    zona         = request.args.get('zona', '')
+
+    if not any([cod_vendedor, jefe, zona]):
+        return jsonify({'error': 'filter required'}), 400
+
+    conn = get_db()
+
+    if cod_vendedor:
+        where_av = "av.cod_vendedor = ?"
+        av_params = [cod_vendedor]
+    elif jefe:
+        where_av = "av.jefe = ?"
+        av_params = [jefe]
+    else:
+        where_av = "av.zona = ?"
+        av_params = [zona]
+
+    cur_ym = conn.execute(
+        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
+    ).fetchone()[0]
+    y_cur, m_cur = map(int, cur_ym.split('-'))
+    next_m = m_cur + 1 if m_cur < 12 else 1
+    next_y = y_cur if m_cur < 12 else y_cur + 1
+    next_ym = f"{next_y}-{next_m:02d}"
+
+    # Clients in scope
+    clients = conn.execute(f"""
+        SELECT av.cod_cliente, av.nom_cliente, av.objetivo, av.venta_actual,
+               s.tier, s.score
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN fact_client_segmentation s
+            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+        WHERE {where_av} AND av.year_month = ?
+    """, av_params + [cur_ym]).fetchall()
+
+    # Zone-level monthly average for benchmark
+    zone_monthly_avgs = conn.execute(f"""
+        SELECT h.year_month, AVG(h.kg_vendidos) as avg_kg
+        FROM fact_cliente_historico h
+        JOIN fact_avance_cliente_vendedor_month av
+            ON h.cod_cliente = av.cod_cliente
+        WHERE {where_av} AND av.year_month = ?
+          AND h.kg_vendidos > 0
+        GROUP BY h.year_month
+        ORDER BY h.year_month
+    """, av_params + [cur_ym]).fetchall()
+    zone_avg_map = {r['year_month']: r['avg_kg'] for r in zone_monthly_avgs}
+
+    # Launch engagement count per client (active in lanzamientos this month)
+    launch_counts = conn.execute(f"""
+        SELECT lz.cod_cliente, COUNT(DISTINCT lz.lanzamiento) as n_launches
+        FROM fact_lanzamiento_cobertura lz
+        JOIN fact_avance_cliente_vendedor_month av
+            ON lz.cod_cliente = av.cod_cliente
+        WHERE {where_av} AND av.year_month = ?
+          AND lz.year_month = ?
+          AND lz.estado = 'COMPRADOR'
+        GROUP BY lz.cod_cliente
+    """, av_params + [cur_ym, cur_ym]).fetchall()
+    launch_map = {r['cod_cliente']: r['n_launches'] for r in launch_counts}
+    max_launches = max(launch_map.values(), default=1)
+
+    forecasts = []
+    for client in clients:
+        cid = client['cod_cliente']
+
+        # Full history from fact_cliente_historico (sorted asc)
+        hist_rows = conn.execute("""
+            SELECT year_month, kg_vendidos FROM fact_cliente_historico
+            WHERE cod_cliente = ? AND kg_vendidos > 0
+            ORDER BY year_month ASC
+        """, (cid,)).fetchall()
+        hist = [(r['year_month'], r['kg_vendidos']) for r in hist_rows]
+
+        if not hist:
+            # No history: use current venta_actual as single data point
+            if client['venta_actual'] and client['venta_actual'] > 0:
+                fc = round(client['venta_actual'], 0)
+                forecasts.append({
+                    'cod_cliente': cid,
+                    'nom_cliente': client['nom_cliente'],
+                    'tier': client['tier'],
+                    'forecast_kg': fc,
+                    'low_kg': round(fc * 0.75, 0),
+                    'high_kg': round(fc * 1.25, 0),
+                    'confidence': 30,
+                    'factors': {'note': 'sin historial — estimado desde mes actual'},
+                    'objetivo_kg': client['objetivo'],
+                    'venta_actual': client['venta_actual'],
+                })
+            continue
+
+        vals = [kg for _, kg in hist]
+        months_list = [ym for ym, _ in hist]
+
+        # ── 1. BASELINE: trimmed 6M mean ──────────────────────────
+        recent_6 = vals[-6:]
+        if len(recent_6) >= 4:
+            s6 = sorted(recent_6)
+            baseline = statistics.mean(s6[1:-1])   # drop min and max
+        else:
+            baseline = statistics.mean(recent_6)
+
+        if baseline <= 0:
+            continue
+
+        # ── 2. TREND: linear slope on last 3 months ───────────────
+        r3 = vals[-3:]
+        n3 = len(r3)
+        if n3 >= 2:
+            x = list(range(n3))
+            xm, ym_ = statistics.mean(x), statistics.mean(r3)
+            denom = sum((xi - xm)**2 for xi in x)
+            slope = sum((xi-xm)*(yi-ym_) for xi, yi in zip(x,r3)) / denom if denom else 0
+            trend_factor = 1.0 + max(-0.30, min(0.30, slope / baseline))
+        else:
+            trend_factor = 1.0
+
+        # ── 3. SEASONALITY: same month in prior data vs overall mean ─
+        target_m_num = next_m
+        same_m_vals = [kg for ym_, kg in hist if int(ym_.split('-')[1]) == target_m_num and kg > 0]
+        all_mean = statistics.mean(vals) if vals else baseline
+        if same_m_vals and all_mean > 0:
+            season_factor = statistics.mean(same_m_vals) / all_mean
+            season_factor = max(0.65, min(1.50, season_factor))
+        else:
+            season_factor = 1.0
+
+        # ── 4. RECENCY: penalise missed recent months ──────────────
+        last_2 = vals[-2:]
+        zeros_recent = sum(1 for v in last_2 if v == 0)
+        recency_factor = 1.0 if zeros_recent == 0 else (0.80 if zeros_recent == 1 else 0.60)
+
+        # ── 5. LAUNCH engagement bonus ─────────────────────────────
+        n_lz = launch_map.get(cid, 0)
+        launch_factor = 1.0 + 0.08 * (n_lz / max(max_launches, 1))  # up to +8% for top buyer
+
+        # ── 6. ZONE benchmark ──────────────────────────────────────
+        # client's last 3M avg relative to zone avg → small corrective weight
+        zone_avg_3m = statistics.mean([
+            zone_avg_map.get(m, 0) for m in months_list[-3:]
+        ]) if zone_avg_map else 0
+        client_avg_3m = statistics.mean(vals[-3:]) if vals else 0
+        if zone_avg_3m > 0:
+            zone_ratio = client_avg_3m / zone_avg_3m
+            zone_factor = 1.0 + 0.05 * max(-1, min(1, zone_ratio - 1))  # ±5% weight
+        else:
+            zone_factor = 1.0
+
+        # ── Combined forecast ──────────────────────────────────────
+        forecast_kg = baseline * trend_factor * season_factor * recency_factor * launch_factor * zone_factor
+        forecast_kg = max(0, round(forecast_kg, 0))
+
+        # ── Confidence interval: ±1σ of historical distribution ───
+        if len(vals) >= 2:
+            std = statistics.stdev(vals)
+        else:
+            std = baseline * 0.20
+        low_kg  = max(0, round(forecast_kg - std, 0))
+        high_kg = round(forecast_kg + std, 0)
+
+        # Confidence: grows with history length (30% for 1M, 85% for 12M+)
+        confidence = min(85, 30 + 5 * len(vals))
+
+        forecasts.append({
+            'cod_cliente': cid,
+            'nom_cliente': client['nom_cliente'],
+            'tier': client['tier'],
+            'forecast_kg': forecast_kg,
+            'low_kg': low_kg,
+            'high_kg': high_kg,
+            'confidence': confidence,
+            'objetivo_kg': client['objetivo'],
+            'venta_actual': client['venta_actual'],
+            'hist_months': len(vals),
+            'factors': {
+                'baseline_kg': round(baseline, 0),
+                'trend': round(trend_factor, 3),
+                'seasonality': round(season_factor, 3),
+                'recency': recency_factor,
+                'launch_engagement': round(launch_factor, 3),
+                'zone_benchmark': round(zone_factor, 3),
+            }
+        })
+
+    conn.close()
+
+    # Sort by forecast desc
+    forecasts.sort(key=lambda x: x['forecast_kg'], reverse=True)
+
+    # Aggregate forecast for header
+    total_forecast = sum(f['forecast_kg'] for f in forecasts)
+    total_low = sum(f['low_kg'] for f in forecasts)
+    total_high = sum(f['high_kg'] for f in forecasts)
+
+    # Objective for next month (same as current, no new file yet)
+    total_obj = conn2 = None
+    try:
+        conn2 = get_db()
+        obj_row = conn2.execute(f"""
+            SELECT SUM(objetivo) as obj FROM fact_avance_cliente_vendedor_month
+            WHERE {where_av} AND year_month = ?
+        """, av_params + [cur_ym]).fetchone()
+        total_obj = round(obj_row['obj'] or 0, 0)
+        conn2.close()
+    except Exception:
+        if conn2: conn2.close()
+
+    return jsonify({
+        'next_month': next_ym,
+        'current_month': cur_ym,
+        'total_forecast_kg': round(total_forecast, 0),
+        'total_low_kg': round(total_low, 0),
+        'total_high_kg': round(total_high, 0),
+        'total_objetivo_kg': total_obj,
+        'proj_pct_of_obj': round(total_forecast / total_obj * 100, 1) if total_obj else None,
+        'clients': forecasts
     })
 
 

@@ -11,6 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
         /* Professional KPI Grid */
         .kpi-grid-professional {
             display: grid;
@@ -307,7 +311,6 @@
 <body>
     <nav class="navbar">
         <a class="navbar-brand" href="javascript:history.back()">
-            <div class="brand-icon">M</div>
             <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
             <span class="brand-sub">Detalle Cliente</span>
         </a>
@@ -569,8 +572,37 @@
         <div class="charts-grid">
             <div class="chart-card chart-full">
                 <h3>Evolución de Compras <span id="hist-periodo-label"
-                        style="font-size:0.75rem;color:#8E96A3;font-weight:400;"></span></h3>
+                        style="font-size:0.75rem;color:#8E96A3;font-weight:400;"></span>
+                    <span style="font-size:0.68rem;color:#94A3B8;font-weight:400;margin-left:8px;">· click en un mes para ver su detalle</span>
+                </h3>
                 <div id="chart-historia" class="chart-container"></div>
+            </div>
+
+            <!-- Month detail panel (shown on chart click) -->
+            <div id="mes-detail-panel" class="chart-card chart-full" style="display:none;border:2px solid #1D3557;
+                 animation:slideDown 0.25s ease;overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <h3 style="margin:0;" id="mes-detail-title">Detalle del mes</h3>
+                    <button onclick="document.getElementById('mes-detail-panel').style.display='none'"
+                        style="background:none;border:1px solid #CBD5E1;border-radius:8px;padding:4px 10px;color:#64748B;cursor:pointer;font-size:0.8rem;">✕ Cerrar</button>
+                </div>
+                <!-- KPI strip -->
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;" id="mes-detail-kpis"></div>
+                <!-- Products + Categories + Coverage in 3 columns -->
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;" id="mes-detail-grid">
+                    <div>
+                        <div style="font-size:0.68rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Top Productos</div>
+                        <div id="mes-detail-prods"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.68rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Categorías</div>
+                        <div id="mes-detail-cats"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.68rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Coberturas Lanzamiento</div>
+                        <div id="mes-detail-cobs"></div>
+                    </div>
+                </div>
             </div>
             <div class="chart-card">
                 <h3>Compras por Categoría <span id="cat-periodo-label"
@@ -1027,6 +1059,103 @@
                         }
                     }]
                 });
+
+                // Click on a bar → load that month's detail
+                chart.off('click');
+                chart.on('click', params => {
+                    if (params.componentType === 'series') {
+                        const ym = data[params.dataIndex].year_month;
+                        loadMesDetail(ym);
+                    }
+                });
+            }
+
+            async function loadMesDetail(yearMonth) {
+                const panel = document.getElementById('mes-detail-panel');
+                panel.style.display = 'none';   // reset for re-animation
+                void panel.offsetWidth;          // force reflow
+                panel.style.display = 'block';
+                panel.style.animation = 'none';
+                void panel.offsetWidth;
+                panel.style.animation = 'slideDown 0.25s ease';
+                // Scroll into view after a brief tick so the element has height
+                setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+                document.getElementById('mes-detail-title').textContent = 'Cargando…';
+                document.getElementById('mes-detail-kpis').innerHTML = '';
+                document.getElementById('mes-detail-prods').innerHTML = '';
+                document.getElementById('mes-detail-cats').innerHTML = '';
+                document.getElementById('mes-detail-cobs').innerHTML = '';
+
+                try {
+                    const res = await fetch(`/api/cliente/${codCliente}/mes/${yearMonth}`);
+                    const d = await res.json();
+
+                    document.getElementById('mes-detail-title').textContent = `Detalle · ${d.month_label}`;
+
+                    // KPIs
+                    const kgLabel = d.has_nc ? 'KG Neto (c/NC)' : (d.nc_missing_warning ? 'KG Bruto ⚠' : 'KG Facturado');
+                    const kgColor = d.nc_missing_warning ? '#F59E0B' : '#1D3557';
+                    const kpiDefs = [
+                        { label: kgLabel, val: formatKg(d.kg_total), color: kgColor },
+                        { label: 'Ventas $', val: formatPesos(d.pesos_total), color: '#1D3557' },
+                        { label: 'Productos', val: d.n_productos, color: '#475569' },
+                        { label: '% vs Obj. Actual *', val: d.pct_objetivo ? `${d.pct_objetivo}%` : '—',
+                          color: d.pct_objetivo >= 100 ? '#10B981' : d.pct_objetivo >= 80 ? '#F59E0B' : '#E84752' },
+                    ];
+                    let kpiHtml = kpiDefs.map(k => `
+                        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 12px;text-align:center;">
+                            <div style="font-size:1.1rem;font-weight:800;color:${k.color};">${k.val}</div>
+                            <div style="font-size:0.65rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-top:2px;">${k.label}</div>
+                        </div>`).join('');
+                    // NC breakdown row
+                    if (d.has_nc && d.kg_nc) {
+                        kpiHtml += `<div style="grid-column:1/-1;background:#FEF9C3;border:1px solid #FDE68A;border-radius:8px;padding:6px 12px;font-size:0.72rem;color:#92400E;">
+                            📋 Bruto: <b>${formatKg(d.kg_bruto)}</b> · NC deducidas: <b>${formatKg(d.kg_nc)}</b> · Neto: <b>${formatKg(d.kg_total)}</b>
+                        </div>`;
+                    } else if (d.nc_missing_warning) {
+                        kpiHtml += `<div style="grid-column:1/-1;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:6px 12px;font-size:0.72rem;color:#9A3412;">
+                            ⚠ NC no incluidas en archivo fuente — dato bruto. Neto según avance: <b>${d.kg_historico_net ? formatKg(d.kg_historico_net) : '—'}</b>
+                        </div>`;
+                    }
+                    if (d.objetivo_ref) {
+                        kpiHtml += `<div style="grid-column:1/-1;font-size:0.62rem;color:#94A3B8;margin-top:2px;">* Objetivo de referencia = mes activo actual (objetivos históricos no disponibles)</div>`;
+                    }
+                    document.getElementById('mes-detail-kpis').innerHTML = kpiHtml;
+
+                    // Top products
+                    document.getElementById('mes-detail-prods').innerHTML = (d.top_productos || []).slice(0,8).map(p => `
+                        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F1F5F9;font-size:0.75rem;">
+                            <span style="color:#1E293B;font-weight:600;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.descripcion}">${p.descripcion}</span>
+                            <span style="color:#64748B;font-weight:700;">${formatKg(p.kg)}</span>
+                        </div>`).join('') || '<div style="color:#94A3B8;font-size:0.8rem;">Sin datos</div>';
+
+                    // Categories
+                    const catTotal = (d.categorias||[]).reduce((s,c)=>s+(c.kg||0),0);
+                    document.getElementById('mes-detail-cats').innerHTML = (d.categorias || []).map(c => {
+                        const pct = catTotal > 0 ? Math.round(c.kg/catTotal*100) : 0;
+                        return `<div style="margin-bottom:8px;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.73rem;margin-bottom:3px;">
+                                <span style="font-weight:600;color:#1E293B;">${c.categoria}</span>
+                                <span style="color:#64748B;">${pct}%</span>
+                            </div>
+                            <div style="background:#E2E8F0;border-radius:4px;height:5px;overflow:hidden;">
+                                <div style="height:100%;border-radius:4px;background:#1D3557;width:${pct}%;"></div>
+                            </div></div>`;
+                    }).join('') || '<div style="color:#94A3B8;font-size:0.8rem;">Sin datos</div>';
+
+                    // Coverage
+                    document.getElementById('mes-detail-cobs').innerHTML = (d.coberturas || []).map(c => {
+                        const ok = c.estado === 'COMPRADOR';
+                        return `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #F1F5F9;font-size:0.73rem;">
+                            <span style="font-size:0.85rem;">${ok ? '✅' : '❌'}</span>
+                            <span style="font-weight:600;color:${ok ? '#1D3557' : '#94A3B8'};flex:1;">${c.lanzamiento}</span>
+                        </div>`;
+                    }).join('') || '<div style="color:#94A3B8;font-size:0.8rem;">Sin coberturas registradas</div>';
+
+                } catch(e) {
+                    document.getElementById('mes-detail-title').textContent = 'Error cargando datos';
+                    console.error(e);
+                }
             }
 
             function renderCategoriasChart() {
@@ -1314,6 +1443,10 @@
             loadCliente();
             loadCoberturas();
     </script>
+
+    <div class="valores-watermark">
+        <img src="/static/img/valores_minerva.png" alt="Valores Minerva Foods">
+    </div>
 </body>
 
 </html>
