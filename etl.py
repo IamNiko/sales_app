@@ -267,12 +267,141 @@ class SalesETL:
                 PRIMARY KEY (cod_cliente, year_month)
             );
 
+            -- ==================== CRM ADM TABLES (Account Development Manager) ====================
+            -- Enrichment layer on top of dim_clients for CRM-specific fields
+            CREATE TABLE IF NOT EXISTS crm_accounts (
+                cod_cliente TEXT PRIMARY KEY REFERENCES dim_clients(cliente_id),
+                nivel TEXT DEFAULT 'ESTANDAR', -- ESTRATEGICO, DESARROLLO, ESTANDAR
+                estado TEXT DEFAULT 'ACTIVO',  -- ACTIVO, EN_RIESGO, INACTIVO
+                contacto_nombre TEXT,
+                contacto_telefono TEXT,
+                contacto_email TEXT,
+                frecuencia_visita TEXT,  -- SEMANAL, QUINCENAL, MENSUAL
+                notas_cuenta TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Log of all interactions with each distributor's team
+            CREATE TABLE IF NOT EXISTS crm_gestiones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cod_cliente TEXT,
+                contacto TEXT,
+                tipo TEXT,  -- VISITA_PRESENCIAL, REUNION_EQUIPO, LLAMADA, ANALISIS_SELLOUT
+                fecha DATE DEFAULT (date('now')),
+                resultado TEXT,
+                compromisos TEXT,
+                proximo_paso TEXT,
+                proximo_paso_fecha DATE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Formal commitments agreed with each account per period
+            CREATE TABLE IF NOT EXISTS crm_compromisos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cod_cliente TEXT,
+                periodo TEXT,  -- '2026-03'
+                tipo TEXT,     -- VOLUMEN, MIX, COBERTURA_PDV, LANZAMIENTO
+                descripcion TEXT,
+                valor_acordado REAL,
+                valor_real REAL,
+                estado TEXT DEFAULT 'PENDIENTE',  -- PENDIENTE, CUMPLIDO, INCUMPLIDO
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Executive planning (monthly/weekly/daily)
+            CREATE TABLE IF NOT EXISTS crm_planificacion (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tipo TEXT,   -- MENSUAL, SEMANAL, DIARIA
+                fecha DATE,
+                cod_cliente TEXT,
+                objetivo TEXT,
+                completado INTEGER DEFAULT 0,
+                resultado TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- PDVs managed by each distributor client
+            CREATE TABLE IF NOT EXISTS crm_pdv (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cod_cliente TEXT,  -- The distributor who serves this PDV
+                nombre TEXT,
+                direccion TEXT,
+                ciudad TEXT,
+                lat REAL,
+                lon REAL,
+                activo INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Monthly sell-out loaded per distributor (raw, from Excel)
+            CREATE TABLE IF NOT EXISTS crm_sellout_pdv (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cod_cliente TEXT,
+                pdv_id INTEGER REFERENCES crm_pdv(id),
+                periodo TEXT,  -- '2026-02'
+                sku_externo TEXT,
+                descripcion_producto TEXT,
+                volumen REAL,
+                es_swift INTEGER DEFAULT 0,  -- 1 if matched to Swift product
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            -- ==================== BI & PRICING TABLES ====================
+            CREATE TABLE IF NOT EXISTS canales (
+                id TEXT PRIMARY KEY,          -- 'DH', 'MAY', 'MB', 'SUP', 'RV'
+                nombre TEXT,
+                tipo TEXT                     -- 'distribuidor', 'mayorista', 'supermercado'
+            );
+            CREATE TABLE IF NOT EXISTS prices_list (
+                id INTEGER PRIMARY KEY,
+                sku INTEGER,
+                descripcion TEXT,
+                canal TEXT REFERENCES canales(id),
+                precio REAL,
+                periodo TEXT,                 -- '2026-03'
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS verbas (
+                id INTEGER PRIMARY KEY,
+                sku INTEGER,
+                canal TEXT REFERENCES canales(id),
+                precio_e REAL,               -- Precio de lista
+                dcto_f REAL,                 -- Descuento
+                precio_g REAL,               -- Precio factura
+                ppa REAL,                    -- Precio Público Apuntado
+                periodo_desde DATE,
+                periodo_hasta DATE,
+                usuario TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS auditoria (
+                id INTEGER PRIMARY KEY,
+                tabla TEXT,
+                registro_id INTEGER,
+                campo TEXT,
+                valor_anterior TEXT,
+                valor_nuevo TEXT,
+                usuario TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS dim_zones (
+                provincia TEXT,
+                zona TEXT PRIMARY KEY,
+                jefe TEXT,
+                distribuidor TEXT
+            );
 
         """);
         # Indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fact_fact_ym ON fact_facturacion(year_month)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fact_avance_ym ON fact_avance_cliente_vendedor_month(year_month)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fact_fact_vendedor ON fact_facturacion(cod_vendedor)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_crm_inter_cli ON crm_interactions(cod_cliente)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_prices_sku_canal ON prices_list(sku, canal, periodo)")
+        
+        # Initial data for channels
+        cursor.executemany("INSERT OR IGNORE INTO canales (id, nombre, tipo) VALUES (?, ?, ?)", [
+            ('DH', 'Distribuidores Horeca', 'distribuidor'),
+            ('MAY', 'Mayoristas', 'mayorista'),
+            ('MB', 'Mayores Buenos Aires', 'mayorista'),
+            ('SUP', 'Supermercados Regionales', 'supermercado'),
+            ('RV', 'Retail Vanguardia', 'supermercado')
+        ])
         self.conn.commit()
 
     def start_run(self):

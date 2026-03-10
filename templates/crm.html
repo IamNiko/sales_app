@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Sales | Desarrollo de Cuentas</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤝</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* ─── CRM SPECIFIC STYLES ─── */
+        .crm-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            width: fit-content;
+        }
+        .crm-tab {
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .crm-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(29,53,87,0.25);
+        }
+
+        /* ─── PORTFOLIO TABLE ─── */
+        .portfolio-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .portfolio-table th {
+            background: #F1F5F9;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+        }
+        .portfolio-table td {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+        .portfolio-table tr:last-child td { border-bottom: none; }
+        .portfolio-table tr:hover td { background: #F8FAFC; cursor: pointer; }
+
+        /* ─── BADGES ─── */
+        .badge {
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-estrategico { background: rgba(29,53,87,0.1); color: #1D3557; }
+        .badge-desarrollo { background: rgba(245,158,11,0.1); color: #B45309; }
+        .badge-estandar { background: rgba(100,116,139,0.1); color: #475569; }
+        .badge-activo { background: rgba(16,185,129,0.1); color: #059669; }
+        .badge-en_riesgo { background: rgba(232,71,82,0.1); color: #E84752; }
+        .badge-inactivo { background: rgba(156,163,175,0.1); color: #9CA3AF; }
+
+        /* ─── ACCOUNT FILTERS ─── */
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-row select, .filter-row input {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            background: var(--card);
+            color: var(--text-primary);
+        }
+        .filter-row .counter {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* ─── DAYS SINCE badge ─── */
+        .dias-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .dias-ok { background: #DCFCE7; color: #166534; }
+        .dias-warn { background: #FEF9C3; color: #92400E; }
+        .dias-danger { background: #FEE2E2; color: #991B1B; }
+        .dias-none { background: #F1F5F9; color: #94A3B8; }
+
+        /* ─── PLANNING PANEL ─── */
+        .plan-day {
+            display: flex;
+            gap: 1.25rem;
+        }
+        .plan-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+        }
+        .plan-main { flex: 1; }
+        .plan-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+            background: white;
+            transition: all 0.15s;
+        }
+        .plan-item.done { opacity: 0.55; }
+        .plan-item.done .plan-title { text-decoration: line-through; color: #94A3B8; }
+        .plan-item:hover { border-color: var(--primary); }
+        .plan-check { width: 18px; height: 18px; accent-color: var(--primary); margin-top: 2px; cursor: pointer; }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 520px;
+            max-width: 95vw;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-box h3 { font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 1.25rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.68rem; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 10px; font-family: inherit; font-size: 0.88rem;
+            background: #F8FAFC; color: var(--text-primary); transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary); background: white; outline: none;
+            box-shadow: 0 0 0 3px rgba(29,53,87,0.06);
+        }
+        .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+        .btn-cancel { padding: 10px 20px; border: 1px solid var(--border); border-radius: 10px; background: white; cursor: pointer; font-weight: 700; font-size: 0.85rem; }
+        .btn-save { padding: 10px 24px; border: none; border-radius: 10px; background: var(--primary); color: white; cursor: pointer; font-weight: 800; font-size: 0.85rem; }
+
+        @media (max-width: 900px) {
+            .plan-day { flex-direction: column; }
+            .plan-sidebar { width: 100%; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,71,82,0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(232,71,82,0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,71,82,0); }
+        }
+    </style>
+</head>
+<body>
+    {% set active_page = 'crm' %}{% include 'navbar.html' %}
+    <script>
+        function getCtx() {
+            const sp = new URLSearchParams(window.location.search);
+            const v = sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '';
+            const j = sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '';
+            const z = sp.get('zona') || sessionStorage.getItem('ctx_zona') || '';
+            const p = [];
+            if (v) p.push('vendedor=' + encodeURIComponent(v));
+            else if (j) p.push('jefe=' + encodeURIComponent(j));
+            else if (z) p.push('zona=' + encodeURIComponent(z));
+            return p.join('&');
+        }
+        function goTo(page) { window.location.href = page + (getCtx() ? '?' + getCtx() : ''); }
+        function ctxParams() {
+            const sp = new URLSearchParams(window.location.search);
+            return {
+                vendedor: sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '',
+                jefe: sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '',
+                zona: sp.get('zona') || sessionStorage.getItem('ctx_zona') || ''
+            };
+        }
+    </script>
+
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h2>Desarrollo de Cuentas</h2>
+                <div class="meta" id="crm-meta">Gestión comercial de distribuidores y mayoristas</div>
+            </div>
+            <div class="month-badge">CRM ACTIVO</div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="label">Cartera Total</div>
+                <div class="value" id="kpi-total">—</div>
+                <div class="unit">Cuentas activas</div>
+            </div>
+            <div class="kpi-card" style="border-left: 3px solid #1D3557;">
+                <div class="label">Estratégicas</div>
+                <div class="value" id="kpi-estrategico" style="color:#1D3557;">—</div>
+                <div class="unit">Sin gestionar en &gt;14d: <span id="kpi-sin-gestion" style="color:var(--accent);font-weight:800;">—</span></div>
+            </div>
+            <div class="kpi-card" onclick="showAlertsModal()" style="cursor:pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="label">Gestiones este mes</div>
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                    <div class="value" id="kpi-gestiones">—</div>
+                    <div id="alert-badge-count" style="display:none; background:var(--accent); color:white; border-radius:12px; padding:2px 8px; font-size:0.7rem; font-weight:800; animation: pulse 2s infinite;">0</div>
+                </div>
+                <div class="unit">Visitas + Llamadas</div>
+            </div>
+            <div class="kpi-card" style="background:linear-gradient(135deg,#1D3557,#457B9D);color:white;">
+                <div class="label" style="color:rgba(255,255,255,0.7)">Plan del Día</div>
+                <div class="value" id="kpi-plan-hoy" style="color:white;font-size:2rem;">—</div>
+                <div class="unit" style="color:rgba(255,255,255,0.7)">Visitas programadas</div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="crm-tabs">
+            <button class="crm-tab active" onclick="showTab('cartera')">&#128203; Cartera</button>
+            <button class="crm-tab" onclick="showTab('planificacion')">&#128197; Planificación</button>
+            <button class="crm-tab" onclick="showTab('hoy')">&#9200; Hoy</button>
+        </div>
+
+        <!-- ─── TAB: CARTERA ─── -->
+        <div id="tab-cartera">
+            <div class="filter-row">
+                <select id="filter-canal" onchange="renderPortfolio()">
+                    <option value="">Todos los canales</option>
+                    <option value="Distribuidores">Distribuidores</option>
+                    <option value="Mayoristas">Mayoristas</option>
+                    <option value="Cadenas">Cadenas</option>
+                    <option value="Supermercados">Supermercados</option>
+                </select>
+                <select id="filter-nivel" onchange="renderPortfolio()">
+                    <option value="">Todos los niveles</option>
+                    <option value="ESTRATEGICO">Estratégico</option>
+                    <option value="DESARROLLO">Desarrollo</option>
+                    <option value="ESTANDAR">Estándar</option>
+                </select>
+                <select id="filter-estado" onchange="renderPortfolio()">
+                    <option value="">Todos los estados</option>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="EN_RIESGO">En Riesgo</option>
+                    <option value="INACTIVO">Inactivo</option>
+                </select>
+                <input type="text" id="filter-search" placeholder="🔍 Buscar cuenta..." oninput="renderPortfolio()" style="min-width:200px;">
+                <button onclick="showAlertsModal()" id="btn-gestiones-mes"
+                    style="padding:8px 16px; border:1.5px solid var(--accent); border-radius:10px; background:white; color:var(--accent); font-weight:800; font-size:0.78rem; cursor:pointer; display:flex; align-items:center; gap:6px;"
+                    >⚡ Alertas de Gestión <span id="btn-alert-count" style="background:var(--accent); color:white; border-radius:10px; padding:1px 6px; font-size:0.65rem;">0</span></button>
+                <span class="counter" id="counter-cuentas">— cuentas</span>
+                <span id="notif-hoy" style="display:none; background:#E84752; color:white; border-radius:20px; padding:3px 12px; font-size:0.72rem; font-weight:800;">🔔 <span id="notif-count">0</span> seguimiento hoy</span>
+            </div>
+
+            <table class="portfolio-table" id="portfolio-table">
+                <thead>
+                    <tr>
+                        <th onclick="sortBy('nom_cliente')" style="cursor:pointer; user-select:none;">Cuenta <span id="sort-nom_cliente"></span></th>
+                        <th onclick="sortBy('canal')" style="cursor:pointer; user-select:none;">Canal <span id="sort-canal"></span></th>
+                        <th onclick="sortBy('nivel')" style="cursor:pointer; user-select:none;">Nivel <span id="sort-nivel"></span></th>
+                        <th onclick="sortBy('estado')" style="cursor:pointer; user-select:none;">Estado <span id="sort-estado"></span></th>
+                        <th onclick="sortBy('ultima_gestion')" style="cursor:pointer; user-select:none;">Última Gestión <span id="sort-ultima_gestion"></span></th>
+                        <th>PDVs</th>
+                        <th>Compromisos</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolio-body">
+                    <tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">Cargando cartera...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ─── TAB: PLANIFICACIÓN ─── -->
+        <div id="tab-planificacion" style="display:none;">
+            <div class="plan-day">
+                <!-- Sidebar: week mini-calendar -->
+                <div class="plan-sidebar">
+                    <div class="section-card">
+                        <h3>📅 Semana</h3>
+                        <div id="week-nav" style="display:flex; gap:6px; margin-bottom:1rem; flex-wrap:wrap;"></div>
+                        <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Plan mensual activo</div>
+                        <div id="plan-mensual-items" style="font-size:0.82rem; color:var(--text-muted);">Sin objetivos mensuales cargados.</div>
+                        <button onclick="openPlanModal('MENSUAL')" style="margin-top:12px; width:100%; padding:8px; background:transparent; border:1.5px dashed var(--border); border-radius:10px; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--text-muted);">+ Agregar objetivo mensual</button>
+                    </div>
+                </div>
+
+                <!-- Main: daily checklist -->
+                <div class="plan-main">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <div>
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Agenda del día</div>
+                            <div style="font-size:1.1rem; font-weight:800; color:var(--text-primary);" id="plan-fecha-label">—</div>
+                        </div>
+                        <button onclick="openPlanModal('DIARIA')" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.8rem;">+ Agregar visita</button>
+                    </div>
+                    <div id="plan-diaria-items">
+                        <div style="text-align:center; color:var(--text-muted); padding:50px; font-size:0.85rem;">
+                            Agenda libre hoy.<br>Agregá una visita para comenzar.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── TAB: HOY ─── -->
+        <div id="tab-hoy" style="display:none;">
+            <!-- Header del día -->
+            <div style="background:linear-gradient(135deg,var(--primary),#1E40AF); border-radius:16px; padding:20px 22px; margin-bottom:1.25rem; color:white;">
+                <div style="font-size:0.7rem; font-weight:800; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">Plan del Día</div>
+                <div style="font-size:1.5rem; font-weight:900; margin:4px 0;" id="hoy-fecha-label">—</div>
+                <div style="font-size:0.78rem; opacity:0.85;" id="hoy-saludo"></div>
+            </div>
+
+            <!-- KPIs del día -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem;">
+                <div style="background:white; border-radius:12px; padding:12px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+                    <div style="font-size:1.5rem; font-weight:900; color:var(--primary);" id="hoy-kpi-visitas">&mdash;</div>
+                    <div style="font-size:0.64rem; color:var(--text-muted); font-weight:700;" id="hoy-label-visitas">Clientes del día</div>
+                </div>
+                <div style="background:white; border-radius:12px; padding:12px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+                    <div style="font-size:1.5rem; font-weight:900; color:#10B981;" id="hoy-kpi-hechas">&mdash;</div>
+                    <div style="font-size:0.64rem; color:var(--text-muted); font-weight:700;" id="hoy-label-hechas">Frecuencia</div>
+                </div>
+                <div style="background:white; border-radius:12px; padding:12px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+                    <div style="font-size:1.5rem; font-weight:900; color:#F59E0B;" id="hoy-kpi-pendientes">&mdash;</div>
+                    <div style="font-size:0.64rem; color:var(--text-muted); font-weight:700;" id="hoy-label-pendientes">Necesario KG</div>
+                </div>
+                <div style="background:white; border-radius:12px; padding:12px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+                    <div style="font-size:1.3rem; font-weight:900; color:#7C3AED;" id="hoy-kpi-potencial">&mdash;</div>
+                    <div style="font-size:0.64rem; color:var(--text-muted); font-weight:700;" id="hoy-label-potencial">Obj. Clientes</div>
+                </div>
+            </div>
+
+            <!-- Cards de visitas -->
+            <div id="hoy-visitas-list">
+                <div style="text-align:center; color:var(--text-muted); padding:60px 20px; font-size:0.88rem;">
+                    Agenda libre hoy.<br>Usá el tab Planificación para agregar visitas.
+                </div>
+            </div>
+
+            <button onclick="openPlanModal('DIARIA')" style="width:100%; margin-top:1rem; padding:14px; background:var(--primary); color:white; border:none; border-radius:14px; cursor:pointer; font-weight:900; font-size:0.9rem;">
+                + Agregar visita de hoy
+            </button>
+        </div>
+
+    </div><!-- /container -->
+
+    <!-- ─── MODAL: NUEVA GESTIÓN ─── -->
+    <div class="modal-overlay" id="modal-gestion">
+        <div class="modal-box">
+            <h3>📝 Registrar Gestión</h3>
+            <input type="hidden" id="g-cod-cliente">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Gestión</label>
+                    <select id="g-tipo">
+                        <option value="VISITA_PRESENCIAL">Visita Presencial</option>
+                        <option value="REUNION_EQUIPO">Reunión con Equipo</option>
+                        <option value="LLAMADA">Llamada</option>
+                        <option value="ANALISIS_SELLOUT">Análisis Sell-out</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="g-fecha">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Contacto del Distribuidor</label>
+                <input type="text" id="g-contacto" placeholder="Nombre del referente...">
+            </div>
+            <div class="form-group">
+                <label>Resultado / Resumen</label>
+                <textarea id="g-resultado" rows="3" placeholder="Qué se acordó, qué se revisó..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Compromisos acordados</label>
+                <textarea id="g-compromisos" rows="2" placeholder="Qué queda pendiente del distribuidor..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Próximo paso</label>
+                    <input type="text" id="g-proximo-paso" placeholder="Ej: Enviar lista de precios">
+                </div>
+                <div class="form-group">
+                    <label>Fecha próximo paso</label>
+                    <input type="date" id="g-proximo-fecha">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-gestion')">Cancelar</button>
+                <button class="btn-save" onclick="saveGestion()">Guardar Gestión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── MODAL: PLANIFICACIÓN ─── -->
+    <div class="modal-overlay" id="modal-plan">
+        <div class="modal-box">
+            <h3>📅 <span id="plan-modal-title">Nueva Visita</span></h3>
+            <input type="hidden" id="plan-tipo">
+            <div class="form-group">
+                <label>Cuenta (Distribuidor/Mayorista)</label>
+                <select id="plan-cuenta">
+                    <option value="">Seleccionar cuenta...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Fecha</label>
+                <input type="date" id="plan-fecha">
+            </div>
+            <div class="form-group">
+                <label>Objetivo de la visita / acción</label>
+                <textarea id="plan-objetivo" rows="3" placeholder="Qué querés lograr..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-plan')">Cancelar</button>
+                <button class="btn-save" onclick="savePlan()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── STATE ───────────────────────────────────────────────
+        let portfolio = [];
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let sortField = '';
+        let sortDir = 1; // 1 = asc, -1 = desc
+        let showGestionesMes = false;
+
+        // ─── SORT ────────────────────────────────────────────────
+        function sortBy(field) {
+            if (sortField === field) { sortDir *= -1; }
+            else { sortField = field; sortDir = 1; }
+            // Update header indicators
+            ['nom_cliente','canal','nivel','estado','ultima_gestion'].forEach(f => {
+                const el = document.getElementById('sort-' + f);
+                if (!el) return;
+                el.textContent = f === sortField ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
+            });
+            renderPortfolio();
+        }
+
+        // ─── GESTIONES DEL MES FILTER ───────────────────────────
+        function toggleGestionesMes() {
+            showGestionesMes = !showGestionesMes;
+            const btn = document.getElementById('btn-gestiones-mes');
+            btn.style.background = showGestionesMes ? 'var(--primary)' : 'white';
+            btn.style.color = showGestionesMes ? 'white' : 'var(--primary)';
+            renderPortfolio();
+        }
+
+        // ─── CONTEXT ─────────────────────────────────────────────
+        const ctx = ctxParams();
+        const ctxQ = Object.entries(ctx).filter(([,v])=>v).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+
+        // ─── TABS ─────────────────────────────────────────────────
+        function showTab(name) {
+            ['cartera','planificacion','hoy'].forEach(t => {
+                document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
+            });
+            document.querySelectorAll('.crm-tab').forEach((btn, i) => {
+                btn.classList.toggle('active', ['cartera','planificacion','hoy'][i] === name);
+            });
+            if (name === 'planificacion') loadPlanificacion();
+            if (name === 'hoy') loadHoy();
+        }
+
+        // ─── UTILITIES ───────────────────────────────────────────
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function today() { return new Date().toISOString().split('T')[0]; }
+        function daysSince(d) {
+            if (!d) return null;
+            return Math.floor((Date.now() - new Date(d + 'T00:00:00').getTime()) / 86400000);
+        }
+        function diasBadge(d) {
+            const n = daysSince(d);
+            if (n === null) return '<span class="dias-badge dias-none">Sin gestión</span>';
+            if (n < 0) return `<span class="dias-badge" style="background:#DBEAFE;color:#1D4ED8;">En ${Math.abs(n)}d</span>`;
+            const cls = n <= 7 ? 'dias-ok' : n <= 14 ? 'dias-warn' : 'dias-danger';
+            const lbl = n === 0 ? 'Hoy' : `Hace ${n}d`;
+            return `<span class="dias-badge ${cls}">${lbl}</span>`;
+        }
+        function nivelBadge(n) {
+            const map = { ESTRATEGICO: 'estrategico', DESARROLLO: 'desarrollo', ESTANDAR: 'estandar' };
+            const lbl = { ESTRATEGICO: '★ Estratégico', DESARROLLO: '◎ Desarrollo', ESTANDAR: 'Estándar' };
+            return `<span class="badge badge-${map[n] || 'estandar'}">${lbl[n] || n}</span>`;
+        }
+        function estadoBadge(e) {
+            const map = { ACTIVO: 'activo', EN_RIESGO: 'en_riesgo', INACTIVO: 'inactivo' };
+            const lbl = { ACTIVO: '● Activo', EN_RIESGO: '⚠ En Riesgo', INACTIVO: '○ Inactivo' };
+            return `<span class="badge badge-${map[e] || 'activo'}">${lbl[e] || e}</span>`;
+        }
+        function tipoIcon(t) {
+            return { VISITA_PRESENCIAL: '🤝', REUNION_EQUIPO: '👥', LLAMADA: '📞', ANALISIS_SELLOUT: '📊' }[t] || '📋';
+        }
+
+        // ─── PORTFOLIO ───────────────────────────────────────────
+        async function loadPortfolio() {
+            const res = await fetch('/api/crm/portfolio' + (ctxQ ? `?${ctxQ}` : ''));
+            portfolio = await res.json();
+
+            // KPIs
+            document.getElementById('kpi-total').textContent = portfolio.length;
+            document.getElementById('kpi-estrategico').textContent = portfolio.filter(p=>p.nivel==='ESTRATEGICO').length;
+
+            const sinGestion = portfolio.filter(p => p.nivel === 'ESTRATEGICO' && (daysSince(p.ultima_gestion) > 14 || !p.ultima_gestion)).length;
+            document.getElementById('kpi-sin-gestion').textContent = sinGestion;
+
+            const totalGestiones = portfolio.reduce((acc, p) => acc + (p.total_gestiones || 0), 0);
+            document.getElementById('kpi-gestiones').textContent = totalGestiones;
+
+            // Populate plan account selector
+            const sel = document.getElementById('plan-cuenta');
+            sel.innerHTML = '<option value="">Seleccionar cuenta...</option>';
+            portfolio.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.cod_cliente;
+                opt.textContent = p.nom_cliente;
+                sel.appendChild(opt);
+            });
+
+            checkTodayNotifications();
+            renderPortfolio();
+        }
+
+        function renderPortfolio() {
+            const canal = document.getElementById('filter-canal').value;
+            const nivel = document.getElementById('filter-nivel').value;
+            const estado = document.getElementById('filter-estado').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const mes = new Date().toISOString().slice(0, 7);
+
+            let filtered = portfolio.filter(p => {
+                if (canal && p.canal !== canal) return false;
+                if (nivel && p.nivel !== nivel) return false;
+                if (estado && p.estado !== estado) return false;
+                if (search && !p.nom_cliente.toLowerCase().includes(search)) return false;
+                if (showGestionesMes) {
+                    return p.ultima_gestion && p.ultima_gestion.startsWith(mes);
+                }
+                return true;
+            });
+
+            if (sortField) {
+                const nivelOrder = { ESTRATEGICO: 0, DESARROLLO: 1, ESTANDAR: 2 };
+                filtered.sort((a, b) => {
+                    let va = a[sortField] || '';
+                    let vb = b[sortField] || '';
+                    if (sortField === 'nivel') { va = nivelOrder[va] ?? 9; vb = nivelOrder[vb] ?? 9; }
+                    if (sortField === 'ultima_gestion') {
+                        va = va ? new Date(va).getTime() : 0;
+                        vb = vb ? new Date(vb).getTime() : 0;
+                    }
+                    if (va < vb) return -1 * sortDir;
+                    if (va > vb) return 1 * sortDir;
+                    return 0;
+                });
+            }
+
+            document.getElementById('counter-cuentas').textContent = `${filtered.length} cuentas`;
+
+            const tbody = document.getElementById('portfolio-body');
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Sin cuentas con estos filtros.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => {
+                const pdvs = p.pdvs_activos || 0;
+                const comp = p.compromisos_pendientes || 0;
+                const gestionCell = p.ultima_gestion_tipo
+                    ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${tipoIcon(p.ultima_gestion_tipo)} ${p.ultima_gestion || ''}</div>`
+                    : `<div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Click para ver &rarr;</div>`;
+
+                return `<tr onclick="openFichaModal('${p.cod_cliente}', '${p.nom_cliente}')">
+                    <td>
+                        <div style="font-weight:700; font-size:0.9rem;">${p.nom_cliente}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">${p.ciudad || ''} ${p.contacto_nombre ? '&middot; ' + p.contacto_nombre : ''}</div>
+                    </td>
+                    <td><span style="font-size:0.8rem; font-weight:700; color:#475569;">${p.canal || '&mdash;'}</span></td>
+                    <td>${nivelBadge(p.nivel)}</td>
+                    <td>${estadoBadge(p.estado)}</td>
+                    <td onclick="event.stopPropagation(); openGestionesHistorial('${p.cod_cliente}', '${p.nom_cliente}')" style="cursor:pointer;" title="Ver gestiones">
+                        ${diasBadge(p.ultima_gestion)}
+                        ${gestionCell}
+                    </td>
+                    <td><span style="font-weight:700; color:${pdvs > 0 ? 'var(--primary)' : 'var(--text-muted)'};">${pdvs}</span></td>
+                    <td>${comp > 0 ? `<span class="badge badge-en_riesgo">${comp} pend.</span>` : '<span style="color:var(--text-muted);font-size:0.78rem;">&mdash;</span>'}</td>
+                    <td>
+                        <button onclick="event.stopPropagation(); openGestionModal('${p.cod_cliente}', '${p.nom_cliente}')"
+                            style="padding:5px 12px; font-size:0.72rem; font-weight:800; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer;">
+                            + Gesti&oacute;n
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ─── GESTIONES HISTORIAL ─────────────────────────────────
+        async function openGestionesHistorial(cod, nombre) {
+            const gestiones = await fetch(`/api/crm/gestiones/${cod}`).then(r => r.json());
+            if (!gestiones.length) {
+                openGestionModal(cod, nombre);
+                return;
+            }
+            document.getElementById('hist-nombre').textContent = nombre;
+            const container = document.getElementById('hist-list');
+            container.innerHTML = gestiones.map(g => {
+                const nextStep = g.proximo_paso
+                    ? `<div style="font-size:0.75rem; color:var(--primary); margin-top:4px;">&rarr; ${g.proximo_paso}${g.proximo_paso_fecha ? ' (' + g.proximo_paso_fecha + ')' : ''}</div>`
+                    : '';
+                const compromisos = g.compromisos
+                    ? `<div style="font-size:0.75rem; color:#F59E0B; font-weight:600;">&#128203; ${g.compromisos}</div>`
+                    : '';
+                const resultado = g.resultado
+                    ? `<div style="font-size:0.82rem; margin-bottom:3px;">${g.resultado}</div>`
+                    : '';
+                return `<div style="border-left:3px solid var(--primary); padding:10px 14px; margin-bottom:10px; background:#F8FAFC; border-radius:0 10px 10px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-weight:800; font-size:0.82rem;">${tipoIcon(g.tipo)} ${g.tipo.replace(/_/g,' ')}</span>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">${g.fecha || ''} ${g.contacto ? '&middot; ' + g.contacto : ''}</span>
+                    </div>
+                    ${resultado}${compromisos}${nextStep}
+                </div>`;
+            }).join('');
+            document.getElementById('hist-nueva-btn').onclick = () => {
+                closeModal('modal-historial');
+                openGestionModal(cod, nombre);
+            };
+            openModal('modal-historial');
+        }
+
+        // ─── TODAY NOTIFICATIONS ─────────────────────────────────
+        function checkTodayNotifications() {
+            fetch('/api/crm/planificacion?tipo=DIARIA&fecha=' + today())
+                .then(r => r.json())
+                .then(items => {
+                    const pend = items.filter(i => !i.completado).length;
+                    if (pend > 0) {
+                        document.getElementById('notif-hoy').style.display = '';
+                        document.getElementById('notif-count').textContent = pend;
+                    }
+                });
+        }
+
+        // ─── GESTION MODAL ────────────────────────────────────────
+        function openGestionModal(cod, nombre) {
+            document.getElementById('g-cod-cliente').value = cod;
+            document.getElementById('g-fecha').value = today();
+            document.getElementById('g-contacto').value = '';
+            document.getElementById('g-resultado').value = '';
+            document.getElementById('g-compromisos').value = '';
+            document.getElementById('g-proximo-paso').value = '';
+            document.getElementById('g-proximo-fecha').value = '';
+            openModal('modal-gestion');
+        }
+
+        async function saveGestion() {
+            const cod = document.getElementById('g-cod-cliente').value;
+            const data = {
+                tipo: document.getElementById('g-tipo').value,
+                fecha: document.getElementById('g-fecha').value,
+                contacto: document.getElementById('g-contacto').value,
+                resultado: document.getElementById('g-resultado').value,
+                compromisos: document.getElementById('g-compromisos').value,
+                proximo_paso: document.getElementById('g-proximo-paso').value,
+                proximo_paso_fecha: document.getElementById('g-proximo-fecha').value
+            };
+            const res = await fetch(`/api/crm/gestiones/${cod}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                closeModal('modal-gestion');
+                loadPortfolio();
+            }
+        }
+
+        // ─── HOY ──────────────────────────────────────────────────
+        async function loadHoy() {
+            const t = today();
+            const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const d = new Date(t + 'T00:00:00');
+            document.getElementById('hoy-fecha-label').textContent =
+                `${d.toLocaleDateString('es-AR',{weekday:'long'})} ${d.getDate()} de ${meses[d.getMonth()]}`;
+            const hora = new Date().getHours();
+            document.getElementById('hoy-saludo').textContent =
+                hora < 12 ? '¡Buenos días! Revisá el plan de hoy.' :
+                hora < 18 ? '¡Buenas tardes! Chequeá el progreso.' : '¡Buenas noches! Cerrá el dia.';
+
+            const ctx = ctxParams();
+            const q = Object.entries(ctx).filter(([,v])=>v).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+            const data = await fetch(`/api/planning?date=${t}${q ? '&'+q : ''}`).then(r => r.json());
+
+            const s = data.stats || {};
+            const clients = data.clients || [];
+
+            // KPI panel — same 4 cards but now with real planning data
+            document.getElementById('hoy-kpi-visitas').textContent = s.count || 0;
+            document.getElementById('hoy-kpi-hechas').textContent = data.target_frequencies ? data.target_frequencies.join('/') : '—';
+            const needed = s.daily_needed || 0;
+            document.getElementById('hoy-kpi-pendientes').textContent =
+                needed > 0 ? (needed/1000).toFixed(1)+'K' : '0';
+            document.getElementById('hoy-kpi-potencial').textContent =
+                s.clients_objective_sum > 0 ? (s.clients_objective_sum/1000).toFixed(1)+'K' : '—';
+
+            // Update KPI labels dynamically
+            document.getElementById('hoy-label-visitas').textContent = 'Clientes del día';
+            document.getElementById('hoy-label-hechas').textContent = 'Frecuencia';
+            document.getElementById('hoy-label-pendientes').textContent = 'Necesario KG';
+            document.getElementById('hoy-label-potencial').textContent = 'Obj. Clientes';
+
+            // Brecha banner
+            const gap = s.gap || 0;
+            const gapColor = gap > 0 ? '#E84752' : '#10B981';
+            const gapLabel = gap > 0
+                ? `Brecha: ${(gap/1000).toFixed(1)}K KG con ${s.days_remaining || '?'} días hábiles restantes`
+                : `Objetivo cubierto. Superávit: ${(Math.abs(gap)/1000).toFixed(1)}K KG`;
+
+            const container = document.getElementById('hoy-visitas-list');
+
+            if (!clients.length) {
+                container.innerHTML = `
+                    <div style="background:${gapColor}15; border:1px solid ${gapColor}30; border-radius:12px; padding:14px 18px; margin-bottom:1rem; font-size:0.82rem; color:${gapColor}; font-weight:700;">
+                        ${gapLabel}
+                    </div>
+                    <div style="text-align:center; color:var(--text-muted); padding:40px 20px; font-size:0.88rem;">
+                        Sin clientes programados para la frecuencia de hoy.<br>
+                        <span style="font-size:0.75rem;">Frecuencia del día: ${(data.target_frequencies||[]).join(', ') || '—'}</span>
+                    </div>`;
+                return;
+            }
+
+            // Build portfolio map for CRM enrichment
+            const portMap = {};
+            portfolio.forEach(p => { portMap[p.cod_cliente] = p; });
+
+            container.innerHTML = `
+                <div style="background:${gapColor}15; border:1px solid ${gapColor}30; border-radius:12px; padding:12px 16px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.8rem; color:${gapColor}; font-weight:800;">${gapLabel}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">Prom. diario: ${(s.daily_average/1000||0).toFixed(1)}K KG</div>
+                </div>
+                ${clients.map(c => {
+                    const cumpl = c.objetivo > 0 ? Math.round((c.facturacion / c.objetivo) * 100) : null;
+                    const cumplColor = cumpl === null ? '#94A3B8' : cumpl >= 80 ? '#10B981' : cumpl >= 60 ? '#F59E0B' : '#E84752';
+                    const crm = portMap[c.cod_cliente] || {};
+                    const nivelColor = { ESTRATEGICO:'#E84752', DESARROLLO:'#F59E0B', ESTANDAR:'#94A3B8' }[crm.nivel] || '#94A3B8';
+                    const comp = crm.compromisos_pendientes || 0;
+                    const freqBg = { LUNES:'#EEF2FF', MARTES:'#F0FDF4', MIERCOLES:'#FFF7ED', JUEVES:'#FDF4FF', VIERNES:'#F0F9FF', SABADO:'#FFF1F2' };
+
+                    return `<div style="background:white; border-radius:16px; padding:16px; margin-bottom:10px; box-shadow:0 2px 6px rgba(0,0,0,0.07); border-left:4px solid ${nivelColor};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div style="flex:1;">
+                                <div style="font-weight:900; font-size:0.92rem; line-height:1.2;">${c.nom_cliente}</div>
+                                <div style="display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; align-items:center;">
+                                    <span style="background:${freqBg[c.frecuencia]||'#F1F5F9'}; color:#475569; padding:2px 8px; border-radius:20px; font-size:0.65rem; font-weight:800;">${c.frecuencia||'—'}</span>
+                                    ${nivelBadge(crm.nivel||'')}
+                                    ${comp > 0 ? `<span style="background:#FEF9C3; color:#854D0E; padding:2px 8px; border-radius:20px; font-size:0.65rem; font-weight:800;">${comp} compromisos</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="text-align:right; min-width:60px;">
+                                <div style="font-size:1.4rem; font-weight:900; color:${cumplColor};">${cumpl !== null ? cumpl+'%' : '—'}</div>
+                                <div style="font-size:0.6rem; color:var(--text-muted); font-weight:700;">del objetivo</div>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:12px;">
+                            <div style="background:#F8FAFC; border-radius:8px; padding:7px; text-align:center;">
+                                <div style="font-size:0.75rem; font-weight:900; color:#475569;">${c.historico > 0 ? (c.historico/1000).toFixed(1)+'K' : '—'}</div>
+                                <div style="font-size:0.58rem; color:var(--text-muted); font-weight:700;">Histórico</div>
+                            </div>
+                            <div style="background:#F8FAFC; border-radius:8px; padding:7px; text-align:center;">
+                                <div style="font-size:0.75rem; font-weight:900; color:var(--primary);">${c.objetivo > 0 ? (c.objetivo/1000).toFixed(1)+'K' : '—'}</div>
+                                <div style="font-size:0.58rem; color:var(--text-muted); font-weight:700;">Objetivo</div>
+                            </div>
+                            <div style="background:#F8FAFC; border-radius:8px; padding:7px; text-align:center;">
+                                <div style="font-size:0.75rem; font-weight:900; color:#10B981;">${c.facturacion > 0 ? (c.facturacion/1000).toFixed(1)+'K' : '0'}</div>
+                                <div style="font-size:0.58rem; color:var(--text-muted); font-weight:700;">Facturado</div>
+                            </div>
+                            <div style="background:#FEF9C3; border-radius:8px; padding:7px; text-align:center;">
+                                <div style="font-size:0.75rem; font-weight:900; color:#854D0E;">${c.pendiente > 0 ? (c.pendiente/1000).toFixed(1)+'K' : '0'}</div>
+                                <div style="font-size:0.58rem; color:#854D0E; font-weight:700;">Pendiente</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="openGestionModal('${c.cod_cliente}','${(c.nom_cliente||'').replace(/'/g,'')}')"
+                                style="flex:2; padding:9px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.75rem;">
+                                + Gestión
+                            </button>
+                            <button onclick="openFichaModal('${c.cod_cliente}','${(c.nom_cliente||'').replace(/'/g,'')}')"
+                                style="flex:2; padding:9px; background:#F1F5F9; color:#475569; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.75rem;">
+                                Ver Ficha
+                            </button>
+                            <button onclick="openGestionesHistorial('${c.cod_cliente}','${(c.nom_cliente||'').replace(/'/g,'')}')"
+                                style="flex:1; padding:9px; background:#F1F5F9; color:#475569; border:none; border-radius:10px; cursor:pointer; font-size:0.82rem;">
+                                📋
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('')}`;
+        }
+
+        // ─── PLANIFICACIÓN ─────────────────────────────────────────
+        function loadPlanificacion() {
+            const d = new Date(selectedDate);
+            const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            document.getElementById('plan-fecha-label').textContent =
+                `${d.toLocaleDateString('es-AR', {weekday:'long'})} ${d.getDate()} de ${meses[d.getMonth()]}`;
+
+            const weekDiv = document.getElementById('week-nav');
+            weekDiv.innerHTML = '';
+            const monday = new Date(d);
+            monday.setDate(d.getDate() - d.getDay() + 1);
+            ['L','M','M','J','V','S','D'].forEach((dia, i) => {
+                const dd = new Date(monday);
+                dd.setDate(monday.getDate() + i);
+                const iso = dd.toISOString().split('T')[0];
+                const btn = document.createElement('button');
+                btn.textContent = `${dia} ${dd.getDate()}`;
+                btn.onclick = () => { selectedDate = iso; loadPlanificacion(); };
+                const isSelected = iso === selectedDate;
+                btn.style.cssText = `padding:5px 8px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer;
+                    border:1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'};
+                    background:${isSelected ? 'var(--primary)' : 'white'};
+                    color:${isSelected ? 'white' : 'var(--text-muted)'};`;
+                weekDiv.appendChild(btn);
+            });
+
+            fetch(`/api/crm/planificacion?tipo=DIARIA&fecha=${selectedDate}`)
+                .then(r => r.json())
+                .then(items => {
+                    document.getElementById('kpi-plan-hoy').textContent = items.filter(i => !i.completado).length;
+                    const container = document.getElementById('plan-diaria-items');
+                    if (!items.length) {
+                        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:50px;font-size:0.85rem;">Agenda libre. Agrega una visita.</div>';
+                        return;
+                    }
+                    container.innerHTML = items.map(item => `
+                        <div class="plan-item ${item.completado ? 'done' : ''}">
+                            <input type="checkbox" class="plan-check" ${item.completado ? 'checked' : ''}
+                                onchange="markPlan(${item.id}, this.checked)">
+                            <div>
+                                <div class="plan-title" style="font-weight:700; font-size:0.88rem;">${item.nom_cliente || '&mdash;'}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${item.objetivo || ''}</div>
+                            </div>
+                        </div>`).join('');
+                });
+
+            const periodo = selectedDate.slice(0,7);
+            fetch('/api/crm/planificacion?tipo=MENSUAL')
+                .then(r => r.json())
+                .then(items => {
+                    const monthly = items.filter(i => i.fecha && i.fecha.startsWith(periodo));
+                    document.getElementById('plan-mensual-items').innerHTML = monthly.length
+                        ? monthly.map(i => `<div style="padding:6px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
+                            ${i.nom_cliente ? `<strong>${i.nom_cliente}</strong><br>` : ''}
+                            <span style="color:var(--text-muted);">${i.objetivo}</span>
+                          </div>`).join('')
+                        : '<div style="color:var(--text-muted);font-size:0.78rem;">Sin objetivos mensuales.</div>';
+                });
+        }
+
+        function openPlanModal(tipo) {
+            document.getElementById('plan-tipo').value = tipo;
+            document.getElementById('plan-modal-title').textContent = tipo === 'MENSUAL' ? 'Objetivo Mensual' : 'Nueva Visita';
+            document.getElementById('plan-fecha').value = selectedDate;
+            document.getElementById('plan-objetivo').value = '';
+            document.getElementById('plan-cuenta').value = '';
+            openModal('modal-plan');
+        }
+
+        async function savePlan() {
+            const data = {
+                tipo: document.getElementById('plan-tipo').value,
+                fecha: document.getElementById('plan-fecha').value,
+                cod_cliente: document.getElementById('plan-cuenta').value,
+                objetivo: document.getElementById('plan-objetivo').value
+            };
+            const res = await fetch('/api/crm/planificacion', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if (res.ok) { closeModal('modal-plan'); loadPlanificacion(); }
+        }
+
+        async function markPlan(id, done) {
+            await fetch('/api/crm/planificacion', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, completado: done ? 1 : 0 })
+            });
+            loadPlanificacion();
+        }
+
+        // ─── INIT ─────────────────────────────────────────────────
+        window.onload = () => {
+            loadPortfolio();
+            updateAlertBadge();
+            document.getElementById('g-fecha').value = today();
+            // Auto-switch to Hoy tab if arriving from dashboard button
+            if (window.location.hash === '#hoy') {
+                showTab('hoy');
+            }
+        };
+
+    </script>
+    <!-- ─── MODAL: HISTORIAL DE GESTIONES ─── -->
+    <div class="modal-overlay" id="modal-historial">
+        <div class="modal-box" style="width:580px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+                <h3 id="hist-nombre">Gestiones</h3>
+                <button id="hist-nueva-btn" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.8rem;">+ Nueva Gestión</button>
+            </div>
+            <div id="hist-list" style="max-height:420px; overflow-y:auto; padding-right:4px;"></div>
+            <div class="btn-row" style="margin-top:1rem;">
+                <button class="btn-cancel" onclick="closeModal('modal-historial')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── MODAL: FICHA DE CLIENTE ─── -->
+    <div class="modal-overlay" id="modal-ficha">
+        <div class="modal-box" style="width:640px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <div>
+                    <h3 style="margin-bottom:2px;" id="ficha-nombre">Ficha de Cliente</h3>
+                    <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted);" id="ficha-cod"></div>
+                </div>
+                <div id="ficha-badges" style="display:flex; gap:6px;"></div>
+            </div>
+
+            <input type="hidden" id="ficha-cod-cliente">
+
+            <!-- MASTER DATA: viene de cliente master / dim_clients -->
+            <div style="font-size:0.65rem; font-weight:900; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; border-bottom:1.5px solid var(--border); padding-bottom:4px;">
+                Datos Maestros (Cliente Master)
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Canal</label>
+                    <select id="ficha-canal">
+                        <option value="Distribuidores">Distribuidores (DH)</option>
+                        <option value="Mayoristas">Mayoristas (MAY)</option>
+                        <option value="Supermercados">Supermercados (SUP)</option>
+                        <option value="Retail">Retail</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Plazo de pago</label>
+                    <input type="text" id="ficha-plazo" placeholder="Ej: 30 días">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" id="ficha-ciudad">
+                </div>
+                <div class="form-group">
+                    <label>Provincia</label>
+                    <input type="text" id="ficha-provincia">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" id="ficha-direccion" placeholder="Dirección completa...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Contacto principal</label>
+                    <input type="text" id="ficha-contacto" placeholder="Nombre del responsable">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="ficha-telefono" placeholder="Ej: 351-...">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="ficha-correo" placeholder="correo@empresa.com">
+                </div>
+                <div class="form-group">
+                    <label>Estado cuenta</label>
+                    <select id="ficha-activo">
+                        <option value="SI">Activo</option>
+                        <option value="NO">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CRM ENRICHMENT: campos propios del CRM que no vienen del Excel -->
+            <div style="font-size:0.65rem; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:1.25rem 0 10px; border-bottom:1.5px solid var(--primary); padding-bottom:4px;">
+                Clasificación CRM
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nivel Estratégico</label>
+                    <select id="ficha-nivel">
+                        <option value="ESTRATEGICO">★ Estratégico</option>
+                        <option value="DESARROLLO">◎ En Desarrollo</option>
+                        <option value="ESTANDAR">Estándar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado CRM</label>
+                    <select id="ficha-estado">
+                        <option value="ACTIVO">● Activo</option>
+                        <option value="EN_RIESGO">⚠ En Riesgo</option>
+                        <option value="INACTIVO">○ Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Frecuencia de visita</label>
+                    <select id="ficha-frecuencia">
+                        <option value="">Sin definir</option>
+                        <option value="SEMANAL">Semanal</option>
+                        <option value="QUINCENAL">Quincenal</option>
+                        <option value="MENSUAL">Mensual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Contacto del distribuidor</label>
+                    <input type="text" id="ficha-crm-contacto" placeholder="Nombre clave en la cuenta">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notas internas (visible solo a vos)</label>
+                <textarea id="ficha-notas" rows="3" placeholder="Información relevante, contexto, etc..."></textarea>
+            </div>
+
+            <!-- PERFIL ESTRATÉGICO: datos que vienen del sell-out del distribuidor -->
+            <div style="font-size:0.65rem; font-weight:900; color:#0F766E; text-transform:uppercase; letter-spacing:1px; margin:1.25rem 0 10px; border-bottom:1.5px solid #99F6E4; padding-bottom:4px;">
+                Perfil Estratégico
+                <span style="font-weight:400; font-size:0.6rem; margin-left:8px; color:var(--text-muted);">(se completa con sell-out)</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:1rem;">
+                <div style="background:#F0FDF4; border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:1.4rem; font-weight:900; color:#059669;" id="perfil-vendedores">—</div>
+                    <div style="font-size:0.68rem; color:#6B7280; font-weight:600;">Vendedores</div>
+                </div>
+                <div style="background:#F0FDF4; border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:1.4rem; font-weight:900; color:#059669;" id="perfil-pdvs">—</div>
+                    <div style="font-size:0.68rem; color:#6B7280; font-weight:600;">PDVs en Cartera</div>
+                </div>
+                <div style="background:#F0FDF4; border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:1.4rem; font-weight:900; color:#059669;" id="perfil-ciudades">—</div>
+                    <div style="font-size:0.68rem; color:#6B7280; font-weight:600;">Ciudades</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Jefe de Ventas del distribuidor</label>
+                <input type="text" id="ficha-jefe-ventas" placeholder="Nombre del jefe comercial del distribuidor">
+            </div>
+            <div class="form-group">
+                <label>Observaciones estratégicas</label>
+                <textarea id="ficha-obs-estrategicas" rows="2" placeholder="Ej: foco en interior, débil en rebozados, excelente cobertura de salsas..."></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-ficha')">Cancelar</button>
+                <button class="btn-save" style="background:white;color:var(--primary);border:1.5px solid var(--primary);" id="ficha-gestion-btn">+ Gestión</button>
+                <button class="btn-save" onclick="saveFicha()">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── FICHA DE CLIENTE ─────────────────────────────────────
+        async function openFichaModal(cod, nombre) {
+            // Reset strategic profile
+            ['perfil-vendedores','perfil-pdvs','perfil-ciudades'].forEach(id => {
+                document.getElementById(id).textContent = '—';
+            });
+            document.getElementById('ficha-nombre').textContent = nombre;
+            document.getElementById('ficha-cod').textContent = 'ID: ' + cod;
+            document.getElementById('ficha-cod-cliente').value = cod;
+
+            // Load combined dim_clients + crm_accounts data
+            try {
+                const d = await fetch(`/api/crm/account/${cod}`).then(r => r.json());
+
+                // Master data defaults from dim_clients
+                if (document.getElementById('ficha-canal').querySelector(`option[value="${d.canal}"]`))
+                    document.getElementById('ficha-canal').value = d.canal || '';
+                document.getElementById('ficha-plazo').value      = d.plazo || '';
+                document.getElementById('ficha-ciudad').value     = d.ciudad || '';
+                document.getElementById('ficha-provincia').value  = d.provincia || '';
+                document.getElementById('ficha-direccion').value  = d.direccion || '';
+                document.getElementById('ficha-contacto').value   = d.contacto || '';
+                document.getElementById('ficha-telefono').value   = typeof d.telefono === 'number' ? String(d.telefono) : (d.telefono || '');
+                document.getElementById('ficha-correo').value     = d.correo || '';
+                document.getElementById('ficha-activo').value     = d.activo || 'SI';
+                // CRM enrichment (defaults if not yet set)
+                document.getElementById('ficha-nivel').value      = d.nivel || 'ESTANDAR';
+                document.getElementById('ficha-estado').value     = d.estado || 'ACTIVO';
+                document.getElementById('ficha-frecuencia').value = d.frecuencia_visita || (d.frecuencia || '');
+                document.getElementById('ficha-crm-contacto').value = d.contacto_nombre || d.contacto || '';
+                document.getElementById('ficha-notas').value      = d.notas_cuenta || '';
+                document.getElementById('ficha-jefe-ventas').value = '';
+                document.getElementById('ficha-obs-estrategicas').value = '';
+
+                const badgeDiv = document.getElementById('ficha-badges');
+                badgeDiv.innerHTML = nivelBadge(d.nivel) + ' ' + estadoBadge(d.estado);
+
+                // PDVs count from crm_pdv
+                fetch(`/api/crm/pdv/${cod}`).then(r => r.json()).then(pdvs => {
+                    document.getElementById('perfil-pdvs').textContent = pdvs.length || '—';
+                    if (pdvs.length) {
+                        const ciudades = new Set(pdvs.map(p => p.ciudad).filter(Boolean));
+                        document.getElementById('perfil-ciudades').textContent = ciudades.size || '—';
+                    }
+                });
+            } catch(e) { console.error('ficha load error', e); }
+
+            // Gestión button wiring
+            document.getElementById('ficha-gestion-btn').onclick = (ev) => {
+                ev.stopPropagation();
+                closeModal('modal-ficha');
+                openGestionModal(cod, nombre);
+            };
+
+            openModal('modal-ficha');
+        }
+
+        async function saveFicha() {
+            const cod = document.getElementById('ficha-cod-cliente').value;
+            const payload = {
+                canal:                 document.getElementById('ficha-canal').value,
+                plazo:                 document.getElementById('ficha-plazo').value,
+                ciudad:                document.getElementById('ficha-ciudad').value,
+                provincia:             document.getElementById('ficha-provincia').value,
+                direccion:             document.getElementById('ficha-direccion').value,
+                contacto:              document.getElementById('ficha-contacto').value,
+                telefono:              document.getElementById('ficha-telefono').value,
+                correo:                document.getElementById('ficha-correo').value,
+                activo:                document.getElementById('ficha-activo').value,
+                nivel:                 document.getElementById('ficha-nivel').value,
+                estado:                document.getElementById('ficha-estado').value,
+                crm_frecuencia_visita: document.getElementById('ficha-frecuencia').value,
+                crm_contacto_nombre:   document.getElementById('ficha-crm-contacto').value,
+                crm_notas:             document.getElementById('ficha-notas').value
+            };
+            const res = await fetch(`/api/cliente/${cod}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                closeModal('modal-ficha');
+                loadPortfolio(); // refresh portfolio to reflect changes
+            } else {
+                alert('Error al guardar. Verificá la consola.');
+            }
+        }
+    </script>
+    <script>
+        async function showAlertsModal() {
+            const container = document.getElementById('alerts-list');
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.85rem;">Cargando análisis de gestión...</div>';
+            openModal('modal-alertas');
+            
+            try {
+                const tasks = await fetch('/api/crm/tasks').then(r => r.json());
+                if (!tasks || tasks.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">✅ No se detectaron alertas críticas de gestión.</div>';
+                    return;
+                }
+                
+                container.innerHTML = tasks.map(t => {
+                    const color = t.prioridad === 'ALTA' ? 'var(--accent)' : t.prioridad === 'MEDIA' ? 'var(--orange)' : 'var(--primary)';
+                    const client = t.nom_cliente ? `<div style="font-weight:800; color:var(--text-primary); margin-bottom:2px;">${t.nom_cliente}</div>` : '';
+                    const dateInfo = t.fecha_vencimiento ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">📅 ${t.fecha_vencimiento}</div>` : '';
+                    const tipoLabel = (t.tipo || 'ALERTA').replace(/_/g, ' ');
+                    
+                    return `<div style="border-left:4px solid ${color}; background:#F8FAFC; padding:12px 16px; border-radius:0 12px 12px 0; margin-bottom:10px; cursor:pointer; transition:background 0.2s;" 
+                                 onclick="closeModal('modal-alertas'); openFichaModal('${t.cod_cliente}', '${t.nom_cliente || ''}')"
+                                 onmouseover="this.style.background='#F1F5F9'" 
+                                 onmouseout="this.style.background='#F8FAFC'">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div style="flex:1;">
+                                ${client}
+                                <div style="font-size:0.85rem; line-height:1.2;">${t.descripcion}</div>
+                                ${dateInfo}
+                            </div>
+                            <span style="font-size:0.6rem; background:${color}20; color:${color}; padding:2px 6px; border-radius:6px; font-weight:800; text-transform:uppercase;">${tipoLabel}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);">Error al conectar con el motor de alertas.</div>';
+            }
+        }
+
+        async function updateAlertBadge() {
+            try {
+                const tasks = await fetch('/api/crm/tasks').then(r => r.json());
+                const count = tasks.length;
+                const badge = document.getElementById('alert-badge-count');
+                const btnBadge = document.getElementById('btn-alert-count');
+                if (count > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = count;
+                    btnBadge.textContent = count;
+                } else {
+                    badge.style.display = 'none';
+                    btnBadge.textContent = '0';
+                }
+            } catch (e) {}
+        }
+    </script>
+    <!-- ─── MODAL: ALERTAS DE GESTIÓN ─── -->
+    <div class="modal-overlay" id="modal-alertas">
+        <div class="modal-box" style="width:520px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+                <div style="background:var(--accent); width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.3rem; box-shadow: 0 4px 12px rgba(232,71,82,0.2);">⚡</div>
+                <div>
+                    <h3 style="margin-bottom:0;">Alertas de Gestión Críticas</h3>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Detección automática de riesgos y oportunidades</div>
+                </div>
+            </div>
+            <div id="alerts-list" style="max-height:480px; overflow-y:auto; padding-right:6px; margin-bottom:1rem;"></div>
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-alertas')" style="width:100%; padding:12px; font-weight:800;">Cerrar Panel de Alertas</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

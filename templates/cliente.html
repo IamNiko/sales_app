@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swift | Cliente</title>
     <script src="/static/vendor/echarts.min.js"></script>
+    <script>
+        function goTo(path) {
+            window.location.href = path + '?' + new URLSearchParams(window.location.search).toString();
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -309,20 +314,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <a class="navbar-brand" href="javascript:history.back()">
-            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
-            <span class="brand-sub">Detalle Cliente</span>
-        </a>
-        <div class="navbar-links" id="nav-links-cliente">
-            <a href="#" id="nav-dashboard-link">📈 Dashboard</a>
-            <a href="#" id="nav-coberturas-link">📦 Coberturas</a>
-            <a href="#" id="nav-mapa-link">🗺️ Mapa</a>
-        </div>
-        <div class="navbar-extra">
-            <a href="javascript:history.back()">← Volver</a>
-        </div>
-    </nav>
+    {% set active_page = 'cliente' %}{% include 'navbar.html' %}
     <script>
         (function() {
             const qs = new URLSearchParams(window.location.search);

@@ -462,6 +462,14 @@
             this.textContent = 'Cargando...';
             this.classList.add('loading');
 
+            // Persist context so all pages can recover it
+            if (vendedor) sessionStorage.setItem('ctx_vendedor', vendedor);
+            else sessionStorage.removeItem('ctx_vendedor');
+            if (jefe) sessionStorage.setItem('ctx_jefe', jefe);
+            else sessionStorage.removeItem('ctx_jefe');
+            if (zona) sessionStorage.setItem('ctx_zona', zona);
+            else sessionStorage.removeItem('ctx_zona');
+
             if (vendedor) {
                 window.location.href = `/dashboard?vendedor=${vendedor}`;
             } else if (jefe) {

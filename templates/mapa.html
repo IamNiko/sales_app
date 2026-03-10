@@ -170,20 +170,21 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <a class="navbar-brand" href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">
-            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
-            <span class="brand-sub">Mapa Logístico</span>
-        </a>
-        <div class="navbar-links">
-            <a href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">📈 Dashboard</a>
-            <a href="#" onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📦 Coberturas</a>
-            <a class="active" href="#">🗺️ Mapa</a>
-        </div>
-        <div class="navbar-extra">
-            <a href="/filters">⚙️ Cambiar Vista</a>
-        </div>
-    </nav>
+    {% set active_page = 'mapa' %}{% include 'navbar.html' %}
+    <script>
+        function getCtx() {
+            const sp = new URLSearchParams(window.location.search);
+            const v = sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '';
+            const j = sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '';
+            const z = sp.get('zona') || sessionStorage.getItem('ctx_zona') || '';
+            const p = [];
+            if (v) p.push('vendedor=' + encodeURIComponent(v));
+            else if (j) p.push('jefe=' + encodeURIComponent(j));
+            else if (z) p.push('zona=' + encodeURIComponent(z));
+            return p.join('&');
+        }
+        function goTo(page) { window.location.href = page + (getCtx() ? '?' + getCtx() : ''); }
+    </script>
 
     <div class="container">
         <div class="header-row">

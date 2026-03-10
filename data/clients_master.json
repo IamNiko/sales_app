@@ -74,7 +74,7 @@
     },
     {
       "code": "100001431",
-      "name": "CORMORAN S A SERVICIO MAYORISTA ",
+      "name": "CORMORAN S A SERVICIO MAYORISTA",
       "centralizador_code": "100001431",
       "frequency": null
     },
@@ -92,7 +92,7 @@
     },
     {
       "code": "100001787",
-      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (13) |1ø DE MAYO Y ",
+      "name": "DAVID ROSENTAL E HIJOS S.A.C.I (13) |1ø DE MAYO Y",
       "centralizador_code": "100001787",
       "frequency": "MARTES"
     },
@@ -326,7 +326,7 @@
     },
     {
       "code": "100002218",
-      "name": "POLAR DISTRIBUCIONES S.A. ",
+      "name": "POLAR DISTRIBUCIONES S.A.",
       "centralizador_code": "100002218",
       "frequency": "JUEVES"
     },
@@ -434,7 +434,7 @@
     }
   ],
   "metadata": {
-    "generated_at": "2026-02-09T09:24:16.008164",
+    "generated_at": "2026-03-03T18:07:51.463242",
     "total_clients": 72
   }
 }

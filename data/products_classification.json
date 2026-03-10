@@ -2031,6 +2031,41 @@
       "is_premium": 0
     },
     {
+      "code": "100023001",
+      "name": "Cuero Bovino De Novillo Fresco",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100023005",
+      "name": "Cuero Bovino De Toro Fresco",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100023013",
+      "name": "Cuero Bovino De Vaca Bueno Fresco",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100023004",
+      "name": "Cuero Bovino De Vaca Fresco",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100023002",
+      "name": "Cuero Novillito/Vaquillona Fresco",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
       "code": "100522182",
       "name": "ENTRANA DEL CENTRO ENF SWIFT ",
       "category": "BOVINOS",
@@ -2283,6 +2318,27 @@
       "is_premium": 0
     },
     {
+      "code": "100521671",
+      "name": "Garron Con Hueso Cong Pul Filipinas Halal",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100012961",
+      "name": "Grasa De Despostada Enf",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100516082",
+      "name": "Grasa De Playa De Faena",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
       "code": "100016144",
       "name": "HIGADO C/VESICULA (S/CALCULOS) CONG P/OTROS",
       "category": "BOVINOS",
@@ -2348,6 +2404,27 @@
     {
       "code": "100016162",
       "name": "HUESO DE GARRON P/OTROS",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100022573",
+      "name": "Harina De Carne/Hueso 45/50 Proteina Big Bag Exportación",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010452",
+      "name": "Hueso De Despostada A Granel",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100010453",
+      "name": "Hueso De Patas Y Cabeza",
       "category": "BOVINOS",
       "subcategory": "COMMODITY",
       "is_premium": 0
@@ -2831,6 +2908,34 @@
     {
       "code": "100518050",
       "name": "LOMO UNIDAD E-COMMERCE",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518971",
+      "name": "Lomo S/Cor 3/4 Lb Cong Pul Rusia",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518944",
+      "name": "Lomo S/Cor 4/5 Lb Cong Pul Rusia",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518938",
+      "name": "Lomo S/Cor 5 Lb Up Cong Pul Rusia",
+      "category": "BOVINOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100518010",
+      "name": "Lomo S/Cordon Mad/Cong Cll Chile \"V\"",
       "category": "BOVINOS",
       "subcategory": "COMMODITY",
       "is_premium": 0
@@ -4887,6 +4992,13 @@
       "is_premium": 0
     },
     {
+      "code": "100022073",
+      "name": "Salchichas  Swift 6X24 X 900 G",
+      "category": "EMBUTIDOS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
       "code": "100021657",
       "name": "AL. CONG. PATTY 2.0 SWIFT X 276 UD.",
       "category": "HAMBURGUESAS",
@@ -5433,6 +5545,13 @@
       "is_premium": 0
     },
     {
+      "code": "100523136",
+      "name": "MEDALLONES DE CARNE VACUNA MTZ 152 x 114g",
+      "category": "HAMBURGUESAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
       "code": "100520337",
       "name": "MEDALLÓN DE CARNE VACUNA 30X160G MEGA BURGER SWIFT",
       "category": "HAMBURGUESAS",
@@ -5603,6 +5722,13 @@
     {
       "code": "100516220",
       "name": "PAPAS PREFRITAS SUPERCONGELADAS 6X2000GR",
+      "category": "PAPAS",
+      "subcategory": "COMMODITY",
+      "is_premium": 0
+    },
+    {
+      "code": "100522698",
+      "name": "PAPAS PREFRITAS SUPERCONGELADAS LIBRES DE GLUTEN 7x2000gr",
       "category": "PAPAS",
       "subcategory": "COMMODITY",
       "is_premium": 0
@@ -6344,7 +6470,7 @@
     }
   ],
   "metadata": {
-    "generated_at": "2026-02-09T09:24:16.008164",
-    "total_products": 906
+    "generated_at": "2026-03-03T18:07:51.463242",
+    "total_products": 924
   }
 }

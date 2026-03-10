@@ -88,6 +88,20 @@ def cliente_detail(cod_cliente):
     return render_template('cliente.html', cod_cliente=cod_cliente)
 
 
+@app.route('/crm')
+@login_required
+def crm():
+    """CRM Dashboard page."""
+    return render_template('crm.html')
+
+
+@app.route('/pricing')
+@login_required
+def pricing():
+    """Pricing and BI page."""
+    return render_template('pricing.html')
+
+
 # ==================== API ENDPOINTS ====================
 
 
@@ -840,9 +854,52 @@ def api_planning():
     })
 
 
-@app.route('/api/cliente/<cod_cliente>')
+@app.route('/api/cliente/<cod_cliente>', methods=['GET', 'PUT'])
+@login_required
 def api_cliente(cod_cliente):
-    """Return client detail with historical data and product breakdown."""
+    """Return or update client detail."""
+    conn = get_db()
+
+    if request.method == 'PUT':
+        data = request.json
+        # Update dim_clients editable fields (master data enrichment)
+        conn.execute("""
+            UPDATE dim_clients SET
+                contacto   = ?,
+                telefono   = ?,
+                correo     = ?,
+                direccion  = ?,
+                ciudad     = ?,
+                provincia  = ?,
+                plazo      = ?,
+                canal      = ?,
+                activo     = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE cliente_id = ?
+        """, (data.get('contacto'), data.get('telefono'), data.get('correo'),
+              data.get('direccion'), data.get('ciudad'), data.get('provincia'),
+              data.get('plazo'), data.get('canal'), data.get('activo'), cod_cliente))
+        # Upsert CRM enrichment (nivel, estado, frecuencia, notas)
+        conn.execute("""
+            INSERT INTO crm_accounts (cod_cliente, nivel, estado, contacto_nombre,
+                contacto_telefono, contacto_email, frecuencia_visita, notas_cuenta, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(cod_cliente) DO UPDATE SET
+                nivel             = excluded.nivel,
+                estado            = excluded.estado,
+                contacto_nombre   = excluded.contacto_nombre,
+                contacto_telefono = excluded.contacto_telefono,
+                contacto_email    = excluded.contacto_email,
+                frecuencia_visita = excluded.frecuencia_visita,
+                notas_cuenta      = excluded.notas_cuenta,
+                updated_at        = CURRENT_TIMESTAMP
+        """, (cod_cliente, data.get('nivel'), data.get('estado'),
+              data.get('crm_contacto_nombre'), data.get('crm_contacto_telefono'),
+              data.get('correo'), data.get('crm_frecuencia_visita'), data.get('crm_notas')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
     meses = int(request.args.get('meses', 6))
     
     conn = get_db()
@@ -1152,6 +1209,358 @@ def api_vendedor_facturacion(cod_vendedor=None):
         'objetivos': dict(objetivos) if objetivos else None,
         'categorias': [dict(c) for c in categorias]
     })
+
+
+# ==================== CRM ADM API ENDPOINTS ====================
+
+@app.route('/api/crm/portfolio')
+@login_required
+def api_crm_portfolio():
+    """Return the executive's account portfolio with CRM enrichment and last activity."""
+    cod_vendedor = request.args.get('vendedor', '')
+    jefe = request.args.get('jefe', '')
+    zona = request.args.get('zona', '')
+    conn = get_db()
+
+    where_parts = ["av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)"]
+    params = []
+    if cod_vendedor:
+        where_parts.append("av.cod_vendedor = ?"); params.append(cod_vendedor)
+    elif jefe:
+        where_parts.append("av.jefe = ?"); params.append(jefe)
+    elif zona:
+        where_parts.append("av.zona = ?"); params.append(zona)
+
+    where = " AND ".join(where_parts)
+
+    rows = conn.execute(f"""
+        SELECT
+            av.cod_cliente,
+            av.nom_cliente,
+            av.canal,
+            av.venta_actual,
+            av.objetivo,
+            dc.ciudad,
+            dc.direccion,
+            dc.lat,
+            dc.lon,
+            COALESCE(ca.nivel, 'ESTANDAR') as nivel,
+            COALESCE(ca.estado, 'ACTIVO') as estado,
+            ca.contacto_nombre,
+            ca.contacto_telefono,
+            ca.frecuencia_visita,
+            ca.notas_cuenta,
+            (SELECT fecha FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente ORDER BY fecha DESC LIMIT 1) as ultima_gestion,
+            (SELECT tipo FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente ORDER BY fecha DESC LIMIT 1) as ultima_gestion_tipo,
+            (SELECT COUNT(*) FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente) as total_gestiones,
+            (SELECT COUNT(*) FROM crm_compromisos c WHERE c.cod_cliente = av.cod_cliente AND c.estado = 'PENDIENTE') as compromisos_pendientes,
+            (SELECT COUNT(*) FROM crm_pdv p WHERE p.cod_cliente = av.cod_cliente AND p.activo = 1) as pdvs_activos
+        FROM fact_avance_cliente_vendedor_month av
+        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
+        LEFT JOIN crm_accounts ca ON av.cod_cliente = ca.cod_cliente
+        WHERE {where}
+        ORDER BY COALESCE(ca.nivel, 'ESTANDAR') DESC, av.nom_cliente ASC
+    """, params).fetchall()
+
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/account/<cod_cliente>', methods=['GET', 'PUT'])
+@login_required
+def api_crm_account(cod_cliente):
+    """Get or update CRM enrichment for a specific account."""
+    conn = get_db()
+    if request.method == 'PUT':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_accounts (cod_cliente, nivel, estado, contacto_nombre, contacto_telefono,
+                contacto_email, frecuencia_visita, notas_cuenta, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(cod_cliente) DO UPDATE SET
+                nivel = excluded.nivel,
+                estado = excluded.estado,
+                contacto_nombre = excluded.contacto_nombre,
+                contacto_telefono = excluded.contacto_telefono,
+                contacto_email = excluded.contacto_email,
+                frecuencia_visita = excluded.frecuencia_visita,
+                notas_cuenta = excluded.notas_cuenta,
+                updated_at = CURRENT_TIMESTAMP
+        """, (cod_cliente, data.get('nivel'), data.get('estado'), data.get('contacto_nombre'),
+              data.get('contacto_telefono'), data.get('contacto_email'),
+              data.get('frecuencia_visita'), data.get('notas_cuenta')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
+    # GET — full account detail
+    row = conn.execute("""
+        SELECT dc.*, COALESCE(ca.nivel,'ESTANDAR') as nivel, COALESCE(ca.estado,'ACTIVO') as estado,
+               ca.contacto_nombre, ca.contacto_telefono, ca.contacto_email,
+               ca.frecuencia_visita, ca.notas_cuenta
+        FROM dim_clients dc
+        LEFT JOIN crm_accounts ca ON dc.cliente_id = ca.cod_cliente
+        WHERE dc.cliente_id = ?
+    """, (cod_cliente,)).fetchone()
+    conn.close()
+    return jsonify(dict(row) if row else {})
+
+
+@app.route('/api/crm/gestiones/<cod_cliente>', methods=['GET', 'POST'])
+@login_required
+def api_crm_gestiones(cod_cliente):
+    """Get or log gestiones (interactions) for a specific account."""
+    conn = get_db()
+    if request.method == 'POST':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_gestiones (cod_cliente, contacto, tipo, fecha, resultado, compromisos, proximo_paso, proximo_paso_fecha)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (cod_cliente, data.get('contacto'), data.get('tipo'), data.get('fecha'),
+              data.get('resultado'), data.get('compromisos'),
+              data.get('proximo_paso'), data.get('proximo_paso_fecha')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'}), 201
+
+    rows = conn.execute("""
+        SELECT * FROM crm_gestiones WHERE cod_cliente = ? ORDER BY fecha DESC
+    """, (cod_cliente,)).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/compromisos/<cod_cliente>', methods=['GET', 'POST', 'PUT'])
+@login_required
+def api_crm_compromisos(cod_cliente):
+    """Manage formal commitments for an account."""
+    conn = get_db()
+    if request.method == 'POST':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_compromisos (cod_cliente, periodo, tipo, descripcion, valor_acordado, estado)
+            VALUES (?, ?, ?, ?, ?, 'PENDIENTE')
+        """, (cod_cliente, data.get('periodo'), data.get('tipo'),
+              data.get('descripcion'), data.get('valor_acordado')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'}), 201
+
+    if request.method == 'PUT':
+        data = request.json
+        conn.execute("""
+            UPDATE crm_compromisos SET estado = ?, valor_real = ? WHERE id = ?
+        """, (data.get('estado'), data.get('valor_real'), data.get('id')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
+    rows = conn.execute("""
+        SELECT * FROM crm_compromisos WHERE cod_cliente = ? ORDER BY periodo DESC
+    """, (cod_cliente,)).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/planificacion', methods=['GET', 'POST', 'PUT'])
+@login_required
+def api_crm_planificacion():
+    """Executive planning: monthly, weekly, daily."""
+    conn = get_db()
+    tipo = request.args.get('tipo', 'DIARIA')
+    fecha = request.args.get('fecha', '')
+
+    if request.method == 'POST':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_planificacion (tipo, fecha, cod_cliente, objetivo)
+            VALUES (?, ?, ?, ?)
+        """, (data.get('tipo'), data.get('fecha'), data.get('cod_cliente'), data.get('objetivo')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'}), 201
+
+    if request.method == 'PUT':
+        data = request.json
+        conn.execute("""
+            UPDATE crm_planificacion SET completado = ?, resultado = ? WHERE id = ?
+        """, (data.get('completado', 0), data.get('resultado'), data.get('id')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
+    query = "SELECT p.*, dc.cliente_name as nom_cliente FROM crm_planificacion p LEFT JOIN dim_clients dc ON p.cod_cliente = dc.cliente_id WHERE p.tipo = ?"
+    params = [tipo]
+    if fecha:
+        query += " AND p.fecha = ?"; params.append(fecha)
+    query += " ORDER BY p.completado ASC, p.fecha ASC"
+
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/pdv/<cod_cliente>', methods=['GET', 'POST'])
+@login_required
+def api_crm_pdv(cod_cliente):
+    """Get or create PDVs for a distributor account."""
+    conn = get_db()
+    if request.method == 'POST':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_pdv (cod_cliente, nombre, direccion, ciudad, lat, lon)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (cod_cliente, data.get('nombre'), data.get('direccion'),
+              data.get('ciudad'), data.get('lat'), data.get('lon')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'}), 201
+
+    rows = conn.execute("""
+        SELECT * FROM crm_pdv WHERE cod_cliente = ? AND activo = 1 ORDER BY nombre
+    """, (cod_cliente,)).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/tasks')
+def api_crm_tasks():
+    """Generate real proximity and performance alerts for the dashboard."""
+    vendedor = request.args.get('vendedor', '')
+    conn = get_db()
+    
+    # 1. Overdue/Next Steps from Gestiones
+    gestiones_tasks = conn.execute("""
+        SELECT 
+            'GESTION' as tipo,
+            'Próximo Paso: ' || proximo_paso as descripcion,
+            proximo_paso_fecha as fecha_vencimiento,
+            'ALTA' as prioridad,
+            cod_cliente,
+            (SELECT cliente_name FROM dim_clients WHERE cliente_id = g.cod_cliente) as nom_cliente
+        FROM crm_gestiones g
+        WHERE proximo_paso_fecha <= date('now', '+2 days') 
+        AND proximo_paso_fecha IS NOT NULL
+        ORDER BY proximo_paso_fecha ASC
+        LIMIT 5
+    """).fetchall()
+
+    # 2. Clients "Cold" (No contact > 20 days)
+    cold_clients = conn.execute("""
+        SELECT 
+            'FALTA_GESTION' as tipo,
+            'Sin gestión hace > 20 días' as descripcion,
+            MAX(fecha) as fecha_vencimiento,
+            'MEDIA' as prioridad,
+            cod_cliente,
+            (SELECT cliente_name FROM dim_clients WHERE cliente_id = g.cod_cliente) as nom_cliente
+        FROM crm_gestiones g
+        GROUP BY cod_cliente
+        HAVING fecha_vencimiento < date('now', '-20 days')
+        LIMIT 3
+    """).fetchall()
+
+    # 3. Critical Sales Gap
+    # We find clients where (current sales / monthly objective) is low despite being late in month
+    # For now, simplistic: < 40% fulfillment
+    gap_alerts = conn.execute("""
+        SELECT 
+            'DESAVANCE' as tipo,
+            'Bajo cumplimiento: ' || CAST(ROUND((venta_actual/objetivo)*100) AS INTEGER) || '%' as descripcion,
+            date('now') as fecha_vencimiento,
+            'BAJA' as prioridad,
+            cod_cliente,
+            nom_cliente
+        FROM fact_avance_cliente_vendedor_month
+        WHERE objetivo > 0 AND (venta_actual/objetivo) < 0.4
+        AND year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+        LIMIT 3
+    """).fetchall()
+
+    all_alerts = [dict(r) for r in gestiones_tasks] + [dict(r) for r in cold_clients] + [dict(r) for r in gap_alerts]
+    
+    # If no real data alerts yet, fall back to crm_tasks to avoid empty dashboard
+    if not all_alerts:
+        fallback = conn.execute("SELECT * FROM crm_tasks WHERE status = 'PENDIENTE' LIMIT 5").fetchall()
+        all_alerts = [dict(r) for r in fallback]
+
+    conn.close()
+    return jsonify(all_alerts)
+
+
+
+# ==================== BI & PRICING API ENDPOINTS ====================
+
+@app.route('/api/bi/pricing/comparative')
+def api_bi_pricing_comparative():
+
+    """Comparative analysis of our PPA vs Competition."""
+    canal = request.args.get('canal', 'DH')
+    conn = get_db()
+    
+    # This logic assumes there's competition data loaded or derived.
+    # For now, let's provide a skeleton that queries verbas and prices_list.
+    rows = conn.execute("""
+        SELECT v.sku, p.descripcion, v.ppa, v.precio_g, v.dcto_f, v.periodo_desde
+        FROM verbas v
+        JOIN dim_product_classification p ON v.sku = p.cod_producto
+        WHERE v.canal = ?
+        ORDER BY v.periodo_desde DESC
+    """, (canal,)).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/bi/ppl/analisis')
+@login_required
+def api_bi_ppl_analisis():
+    """P&L Analysis: Verba vs Real Billing."""
+    canal = request.args.get('canal')
+    conn = get_db()
+    
+    # Complex join between facturacion and verbas (per period)
+    # This is a high-level summary.
+    query = """
+        SELECT 
+            f.year_month,
+            f.cod_vendedor,
+            SUM(f.importe) as facturacion_real,
+            SUM(f.cantidad) as kg_reales,
+            AVG(v.precio_g) as precio_acordado_avg
+        FROM fact_facturacion f
+        LEFT JOIN verbas v ON f.cod_producto = v.sku AND f.year_month >= v.periodo_desde AND f.year_month <= v.periodo_hasta
+    """
+    if canal:
+        query += " WHERE v.canal = ?"
+        rows = conn.execute(query + " GROUP BY f.year_month, f.cod_vendedor", (canal,)).fetchall()
+    else:
+        rows = conn.execute(query + " GROUP BY f.year_month, f.cod_vendedor").fetchall()
+        
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/bi/rotation')
+def api_bi_rotation():
+    """Analyze categories with lowest coverage (market penetration) as alerts."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT 
+            p.categoria,
+            SUM(f.cantidad) as total_kg,
+            COUNT(DISTINCT f.cod_cliente) as compradores,
+            (SELECT COUNT(*) FROM dim_clients) as total_universo,
+            (CAST(COUNT(DISTINCT f.cod_cliente) AS REAL) / (SELECT COUNT(*) FROM dim_clients)) as coverage
+        FROM fact_facturacion f
+        LEFT JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
+        WHERE f.year_month = (SELECT MAX(year_month) FROM fact_facturacion)
+        GROUP BY p.categoria
+        HAVING total_kg > 100 -- Avoid tiny categories
+        ORDER BY coverage ASC
+        LIMIT 5
+    """).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
     
 
 

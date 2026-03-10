@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Sales | Pricing Intelligence</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <script src="/static/vendor/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .filter-header {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-card {
+            border-left: 4px solid var(--accent);
+            background: #FFF5F5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-card h4 {
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .alert-card p {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .price-table th {
+            background: #F1F5F9;
+            padding: 14px;
+            text-align: left;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .price-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .price-table tr:hover td { background: var(--card-hover); }
+
+        .gap-indicator {
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .gap-bad { background: #FEE2E2; color: #991B1B; }
+        .gap-good { background: #DCFCE7; color: #166534; }
+
+        .chart-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 300px;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    {% set active_page = 'pricing' %}{% include 'navbar.html' %}
+    <script>
+        function getCtx() {
+            const sp = new URLSearchParams(window.location.search);
+            const v = sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '';
+            const j = sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '';
+            const z = sp.get('zona') || sessionStorage.getItem('ctx_zona') || '';
+            const p = [];
+            if (v) p.push('vendedor=' + encodeURIComponent(v));
+            else if (j) p.push('jefe=' + encodeURIComponent(j));
+            else if (z) p.push('zona=' + encodeURIComponent(z));
+            return p.join('&');
+        }
+        function goTo(page) { window.location.href = page + (getCtx() ? '?' + getCtx() : ''); }
+    </script>
+
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h2>Inteligencia de Precios y P&L</h2>
+                <div class="meta">Formación de precios por canal y análisis de rentabilidad (Verba)</div>
+            </div>
+            <div class="month-badge" id="current-month">MARZO 2026</div>
+        </div>
+
+        <div class="filter-header">
+            <div class="form-group" style="margin-bottom:0; min-width: 200px;">
+                <label>Canal de Venta</label>
+                <select id="canal-selector" onchange="loadPricingData()">
+                    <option value="DH">Distribuidores Horeca (DH)</option>
+                    <option value="MAY">Mayoristas (MAY)</option>
+                    <option value="SUP">Supermercados (SUP)</option>
+                    <option value="RV">Retail Vanguardia (RV)</option>
+                </select>
+            </div>
+            <div style="margin-left:auto;">
+                <button class="btn-primary" style="padding: 8px 20px; font-size: 0.8rem;" onclick="exportVerba()">📥 EXPORTAR VERBA</button>
+            </div>
+        </div>
+
+        <div class="pricing-grid">
+            <div>
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>Producto (SKU)</th>
+                            <th>Lista (E)</th>
+                            <th>Dcto (F)</th>
+                            <th>Factura (G)</th>
+                            <th>PPA (Público)</th>
+                            <th>GAP Competencia</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pricing-body">
+                        <!-- JS Populated -->
+                    </tbody>
+                </table>
+            </div>
+
+            <aside>
+                <div class="section-card" style="margin-bottom:1.5rem;">
+                    <h3>🚨 Alertas de Precio</h3>
+                    <div id="pricing-alerts">
+                        <div class="alert-card">
+                            <h4>Gap Crítico</h4>
+                            <p>Paty 160g está 12% por encima del mercado en canal MAY.</p>
+                        </div>
+                        <div class="alert-card" style="border-left-color: var(--green);">
+                            <h4>Oportunidad</h4>
+                            <p>Rebozados con gap positivo (+5%) en canal DH.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-box" id="chart-ppa-comp" style="height: 300px;">
+                    <!-- ECharts -->
+                </div>
+            </aside>
+        </div>
+
+        <div class="charts-grid" style="margin-top:2rem;">
+            <div class="chart-card">
+                <h3>Evolución de Precio vs Inflación</h3>
+                <div id="chart-price-evol" style="height: 300px;"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Composición del P&L (PPA vs G)</h3>
+                <div id="chart-pl-comp" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fmt(n) { return n != null ? '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 2 }) : '$0.00'; }
+
+        async function loadPricingData() {
+            const canal = document.getElementById('canal-selector').value;
+            const res = await fetch(`/api/bi/pricing/comparative?canal=${canal}`);
+            const data = await res.json();
+            
+            const body = document.getElementById('pricing-body');
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px;">No hay datos de verba cargados para este canal</td></tr>';
+                return;
+            }
+
+            body.innerHTML = data.map(item => {
+                const gap = (Math.random() * 10 - 5).toFixed(1); // Simulating gap intel
+                const gapClass = gap < 0 ? 'gap-bad' : 'gap-good';
+                
+                return `
+                <tr>
+                    <td>
+                        <div style="font-weight:700;">${item.descripcion}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted)">SKU: ${item.sku}</div>
+                    </td>
+                    <td>${fmt(item.precio_g / (1 - item.dcto_f/100))}</td>
+                    <td style="color:var(--accent); font-weight:700;">${item.dcto_f}%</td>
+                    <td style="font-weight:700;">${fmt(item.precio_g)}</td>
+                    <td>${fmt(item.ppa)}</td>
+                    <td><span class="gap-indicator ${gapClass}">${gap}% vs Comp.</span></td>
+                    <td><button onclick="editVerba(${item.sku})" style="border:none; background:none; cursor:pointer;">✏️</button></td>
+                </tr>`;
+            }).join('');
+
+            renderCharts();
+        }
+
+        function renderCharts() {
+            // Simulated data for demo purposes
+            const ppaChart = echarts.init(document.getElementById('chart-ppa-comp'));
+            ppaChart.setOption({
+                title: { text: 'PPA vs COMPETENCIA (AVG)', textStyle: { fontSize: 12, color: '#1D3557' } },
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: ['Hamb.', 'Salch.', 'Reboz.', 'Fiamb.'] },
+                yAxis: { type: 'value', axisLabel: { formatter: '$\${value}' } },
+                series: [
+                    { name: 'Swift', type: 'bar', data: [1200, 800, 1500, 2200], itemStyle: { color: '#E84752' } },
+                    { name: 'Competidor A', type: 'bar', data: [1250, 780, 1480, 2300], itemStyle: { color: '#94A3B8' } }
+                ]
+            });
+
+            const evolChart = echarts.init(document.getElementById('chart-price-evol'));
+            evolChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar'] },
+                yAxis: { type: 'value' },
+                series: [
+                    { name: 'Precio Swift', type: 'line', data: [100, 108, 115, 122, 130, 138], smooth: true, lineStyle: { color: '#E84752', width: 3 } },
+                    { name: 'Inflación (IPC)', type: 'line', data: [100, 107, 118, 128, 142, 155], lineStyle: { type: 'dashed', color: '#94A3B8' } }
+                ]
+            });
+        }
+
+        function exportVerba() {
+            alert('Generando reporte Excel consolidated...');
+            // In a real app, this would trigger a download from the backend
+        }
+
+        function editVerba(sku) {
+            alert('Abriendo editor de márgenes para SKU ' + sku);
+        }
+
+        window.onload = loadPricingData;
+        window.onresize = function() {
+            echarts.getInstanceByDom(document.getElementById('chart-ppa-comp'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('chart-price-evol'))?.resize();
+        };
+    </script>
+</body>
+</html>

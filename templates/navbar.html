@@ -1,0 +1,16 @@
+<nav class="navbar">
+    <a class="navbar-brand" href="#" onclick="goTo('/dashboard');return false;">
+        <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
+        <span class="brand-sub">Sales Intelligence</span>
+    </a>
+    <div class="navbar-links">
+        <a {% if active_page == 'dashboard' %}class="active"{% endif %} href="#" onclick="goTo('/dashboard');return false;">📈 Dashboard</a>
+        <a {% if active_page == 'crm' %}class="active"{% endif %} href="#" onclick="goTo('/crm');return false;">🤝 CRM</a>
+        <a {% if active_page == 'pricing' %}class="active"{% endif %} href="#" onclick="goTo('/pricing');return false;">💰 Pricing</a>
+        <a {% if active_page == 'coberturas' %}class="active"{% endif %} href="#" onclick="goTo('/coberturas');return false;">📦 Coberturas</a>
+        <a {% if active_page == 'mapa' %}class="active"{% endif %} href="#" onclick="goTo('/mapa');return false;">🗺️ Mapa</a>
+    </div>
+    <div class="navbar-extra">
+        <a href="/filters">⚙️ Cambiar Vista</a>
+    </div>
+</nav>

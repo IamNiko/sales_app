@@ -8,6 +8,11 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="/static/vendor/echarts.min.js"></script>
+    <script>
+        function goTo(path) {
+            window.location.href = path + '?' + new URLSearchParams(window.location.search).toString();
+        }
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -162,20 +167,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <a class="navbar-brand" href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">
-            <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
-            <span class="brand-sub">Sales Intelligence</span>
-        </a>
-        <div class="navbar-links">
-            <a class="active" href="#" onclick="window.location='/dashboard?'+new URLSearchParams(window.location.search);return false;">📈 Dashboard</a>
-            <a href="#" onclick="window.location='/coberturas?'+new URLSearchParams(window.location.search);return false;">📦 Coberturas</a>
-            <a href="#" onclick="window.location='/mapa?'+new URLSearchParams(window.location.search);return false;">🗺️ Mapa</a>
-        </div>
-        <div class="navbar-extra">
-            <a href="/filters">⚙️ Cambiar Vista</a>
-        </div>
-    </nav>
+    {% set active_page = 'dashboard' %}{% include 'navbar.html' %}
 
     <div class="container">
         <div class="header-row">
@@ -215,6 +207,7 @@
                 <div class="unit" id="kpi-cumplimiento-unit">vs Objetivo</div>
             </div>
         </div>
+
 
         <!-- Monthly evolution mini-chart -->
         <div id="evol-row" style="margin-bottom:16px;display:none;">
@@ -354,7 +347,7 @@
                     </div>
                 </div>
 
-                <button class="day-plan-action">Ver Plan Detallado →</button>
+                <button class="day-plan-action" onclick="goToPlanning()">Ver Plan Detallado &rarr;</button>
             </div>
         </div>
 
@@ -429,7 +422,7 @@
             if (vendedor) params.push(`vendedor=${vendedor}`);
             if (zona) params.push(`zona=${encodeURIComponent(zona)}`);
             if (jefe) params.push(`jefe=${encodeURIComponent(jefe)}`);
-            window.location.href = `/planning?${params.join('&')}`;
+            window.location.href = `/crm?${params.join('&')}#hoy`;
         }
 
         async function loadMeta() {
@@ -1061,6 +1054,8 @@
                 document.getElementById('risk-list').innerHTML = d.risk.length
                     ? d.risk.map(r => renderInsightItem(r, 'risk')).join('')
                     : '<div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">✅ Sin clientes en riesgo</div>';
+
+
 
                 // Opportunities
                 document.getElementById('opp-count').textContent = d.opportunities.length;
