@@ -184,10 +184,11 @@ def api_welcome():
           AND av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
     """
     kpi_row = conn.execute(kpi_q, params_kpi).fetchone() if where_parts else conn.execute(kpi_q).fetchone()
+    kpi_row = dict(kpi_row) if kpi_row else {}
 
-    venta_kg = kpi_row['venta_kg'] or 0
-    obj_kg = kpi_row['objetivo_kg'] or 0
-    obj_pesos = kpi_row['objetivo_pesos'] or 0
+    venta_kg = kpi_row.get('venta_kg') or 0
+    obj_kg = kpi_row.get('objetivo_kg') or 0
+    obj_pesos = kpi_row.get('objetivo_pesos') or 0
     cumplimiento = round((venta_kg / obj_kg * 100), 1) if obj_kg else 0
 
     # Alertas
@@ -1019,9 +1020,9 @@ def api_planning():
     kpi_query = "SELECT SUM(a.objetivo) as obj, SUM(a.venta_actual) as fact " + base_query[from_index:]
     
     kpi_row = conn.execute(kpi_query, params).fetchone()
-    
-    total_obj = kpi_row['obj'] or 0
-    total_fact = kpi_row['fact'] or 0
+    kpi_row = dict(kpi_row) if kpi_row else {}
+    total_obj = kpi_row.get('obj') or 0
+    total_fact = kpi_row.get('fact') or 0
     gap = total_obj - total_fact
     
     # KPIs for the day
@@ -1684,8 +1685,18 @@ def api_crm_portfolio():
         d['total_objetivo_premium'] = total_objetivo_premium
         result.append(d)
 
+    # Compradores = clientes con venta este mes (venta_actual > 0)
+    compradores = sum(1 for d in result if (d.get('venta_actual') or 0) > 0)
+    # Clientes activos = según estado en crm_accounts (ACTIVO, EN_RIESGO, INACTIVO)
+    clientes_activos = sum(1 for d in result if (d.get('estado') or 'ACTIVO') == 'ACTIVO')
+
     conn.close()
-    return jsonify(result)
+    return jsonify({
+        'items': result,
+        'total_cartera': len(result),
+        'compradores': compradores,
+        'clientes_activos': clientes_activos,
+    })
 
 
 @app.route('/api/crm/ponderacion/<cod_cliente>', methods=['PUT'])
@@ -2816,12 +2827,14 @@ def api_coberturas():
     }
     RB_LANZAMIENTOS = ['RB (Kids+Crunchies)', 'RB (Milanesitas)']
 
-    lanz_ym = conn.execute(
+    lanz_row = conn.execute(
         "SELECT MAX(year_month) FROM fact_lanzamiento_cobertura"
-    ).fetchone()[0]
-    fact_ym = conn.execute(
+    ).fetchone()
+    fact_row = conn.execute(
         "SELECT MAX(year_month) FROM fact_facturacion"
-    ).fetchone()[0]
+    ).fetchone()
+    lanz_ym = lanz_row[0] if lanz_row else None
+    fact_ym = fact_row[0] if fact_row else None
 
     if lanz_ym and fact_ym and lanz_ym == fact_ym:
         active_lanz = {r[0] for r in conn.execute(
@@ -3507,9 +3520,13 @@ def api_forecast():
         where_av = "av.zona = ?"
         av_params = [zona]
 
-    cur_ym = conn.execute(
+    cur_ym_row = conn.execute(
         "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
-    ).fetchone()[0]
+    ).fetchone()
+    cur_ym = cur_ym_row[0] if cur_ym_row else None
+    if not cur_ym:
+        conn.close()
+        return jsonify({'clientes': [], 'meses': [], 'forecast': {}})
     y_cur, m_cur = map(int, cur_ym.split('-'))
     next_m = m_cur + 1 if m_cur < 12 else 1
     next_y = y_cur if m_cur < 12 else y_cur + 1

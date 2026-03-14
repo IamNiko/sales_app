@@ -959,3 +959,12 @@ tr:hover td {
 @media (max-width: 768px) {
     button, .btn { min-height: 44px; padding: 10px 16px; }
 }
+
+/* ── Columnas ordenables (Dashboard, CRM, Coberturas, Planning) ── */
+th.sortable {
+    cursor: pointer !important;
+    user-select: none;
+}
+th.sortable:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+}

@@ -289,9 +289,9 @@
         <!-- KPIs -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="label">Cartera Total</div>
+                <div class="label">Cartera Activa</div>
                 <div class="value" id="kpi-total">—</div>
-                <div class="unit">Cuentas activas</div>
+                <div class="unit" id="kpi-total-unit">Compradores este mes</div>
             </div>
             <div class="kpi-card" style="border-left: 3px solid #1D3557;">
                 <div class="label">Estratégicas</div>
@@ -695,10 +695,14 @@
         // ─── PORTFOLIO ───────────────────────────────────────────
         async function loadPortfolio() {
             const res = await fetch('/api/crm/portfolio' + (ctxQ ? `?${ctxQ}` : ''));
-            portfolio = await res.json();
+            const data = await res.json();
+            portfolio = Array.isArray(data) ? data : (data.items || []);
+            const compradores = (data.compradores != null) ? data.compradores : portfolio.filter(p => (p.venta_actual || 0) > 0).length;
+            const clientesActivos = (data.clientes_activos != null) ? data.clientes_activos : portfolio.filter(p => (p.estado || 'ACTIVO') === 'ACTIVO').length;
 
-            // KPIs
-            document.getElementById('kpi-total').textContent = portfolio.length;
+            // KPI: NN compradores de NN clientes activos (activos = estado ACTIVO en crm_accounts)
+            document.getElementById('kpi-total').textContent = compradores;
+            document.getElementById('kpi-total-unit').textContent = `${compradores} compradores de ${clientesActivos} clientes activos`;
             document.getElementById('kpi-estrategico').textContent = portfolio.filter(p=>p.nivel==='ESTRATEGICO').length;
 
             const sinGestion = portfolio.filter(p => p.nivel === 'ESTRATEGICO' && (daysSince(p.ultima_gestion) > 14 || !p.ultima_gestion)).length;
@@ -913,7 +917,7 @@
                     let desc = '', tags = '', borderColor = '#DC2626';
                     const clickAction = (a.seccion === 'recurrentes' || a.seccion === 'planificacion_hoy')
                         ? `showTab('planificacion'); selectedDate='${a.fecha_vencimiento||''}'; loadPlanificacion();`
-                        : `openFichaModal('${a.cod_cliente||''}','${(a.nom_cliente||'').replace(/'/g,"\\'")}')`;
+                        : (a.cod_cliente ? `goTo('/cliente/${a.cod_cliente}')` : `openFichaModal('${a.cod_cliente||''}','${(a.nom_cliente||'').replace(/'/g,"\\'")}')`);
                     if (a.seccion === 'deuda_hoy' || a.seccion === 'deuda_manana') {
                         if (a.es_anticipado) {
                             tags = '<span style="background:#FEF3C7;color:#D97706;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.65rem;">CONTADO ANTICIPADO</span>';
