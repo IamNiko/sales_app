@@ -4166,6 +4166,33 @@ def api_objetivos_mensual():
 
 
 if __name__ == '__main__':
+    import socket
+    import subprocess
+    ips = []
+    try:
+        r = subprocess.run(['hostname', '-I'], capture_output=True, text=True, timeout=2)
+        if r.returncode == 0 and r.stdout.strip():
+            ips = r.stdout.strip().split()
+    except Exception:
+        pass
+    if not ips:
+        try:
+            ips = [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith('127.')]
+        except Exception:
+            ips = []
+    if not ips:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ips = [s.getsockname()[0]]
+            s.close()
+        except Exception:
+            ips = ["?"]
+    # Priorizar LAN (192.168.x, 10.x) para móvil; 100.64.x es Tailscale/VPN
+    lan = [ip for ip in ips if ip.startswith(('192.168.', '10.'))]
+    red_ips = lan if lan else ips
     print(f"Database: {DB_PATH}")
-    print(f"Starting server at http://localhost:5000")
+    print(f"Local:    http://localhost:5000")
+    for ip in red_ips[:3]:
+        print(f"Red:      http://{ip}:5000  (móvil en misma WiFi)")
     app.run(debug=True, host='0.0.0.0', port=5000)
