@@ -4195,4 +4195,9 @@ if __name__ == '__main__':
     print(f"Local:    http://localhost:5000")
     for ip in red_ips[:3]:
         print(f"Red:      http://{ip}:5000  (móvil en misma WiFi)")
+    if not red_ips or red_ips == ['?']:
+        print("(No se detectó IP LAN. Usa la IP que muestra 'ip addr' o 'hostname -I')")
+    print("")
+    print("Si el móvil no abre: ejecutá ./run.sh (abre el puerto en el firewall)")
+    print("")
     app.run(debug=True, host='0.0.0.0', port=5000)

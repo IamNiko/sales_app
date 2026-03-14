@@ -10,6 +10,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    <script>
+        function getCtx() {
+            const sp = new URLSearchParams(window.location.search);
+            const v = sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '';
+            const j = sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '';
+            const z = sp.get('zona') || sessionStorage.getItem('ctx_zona') || '';
+            const p = [];
+            if (v) p.push('vendedor=' + encodeURIComponent(v));
+            else if (j) p.push('jefe=' + encodeURIComponent(j));
+            else if (z) p.push('zona=' + encodeURIComponent(z));
+            return p.join('&');
+        }
+        function goTo(page) { window.location.href = page + (getCtx() ? '?' + getCtx() : ''); }
+    </script>
     <style>
         .pricing-grid {
             display: grid;
@@ -104,20 +118,6 @@
 </head>
 <body>
     {% set active_page = 'pricing' %}{% include 'navbar.html' %}
-    <script>
-        function getCtx() {
-            const sp = new URLSearchParams(window.location.search);
-            const v = sp.get('vendedor') || sessionStorage.getItem('ctx_vendedor') || '';
-            const j = sp.get('jefe') || sessionStorage.getItem('ctx_jefe') || '';
-            const z = sp.get('zona') || sessionStorage.getItem('ctx_zona') || '';
-            const p = [];
-            if (v) p.push('vendedor=' + encodeURIComponent(v));
-            else if (j) p.push('jefe=' + encodeURIComponent(j));
-            else if (z) p.push('zona=' + encodeURIComponent(z));
-            return p.join('&');
-        }
-        function goTo(page) { window.location.href = page + (getCtx() ? '?' + getCtx() : ''); }
-    </script>
 
     <div class="container">
         <div class="header-row">

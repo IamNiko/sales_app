@@ -1,21 +1,76 @@
 <nav class="navbar">
-    <a class="navbar-brand" href="#" onclick="goTo('/dashboard');return false;">
+    <a class="navbar-brand" href="#" onclick="(typeof goTo==='function'?goTo:window.navGoTo)('/dashboard');return false;">
         <span class="brand-name">Minerva <span class="brand-accent">Foods</span></span>
         <span class="brand-sub">Sales Intelligence</span>
     </a>
-    <button class="navbar-toggle" type="button" aria-label="Menú" onclick="document.querySelector('.navbar-menu').classList.toggle('open')">
-        <span></span><span></span><span></span>
-    </button>
+    <a href="javascript:void(0)" class="navbar-toggle" role="button" aria-label="Menú" aria-expanded="false" id="navbar-toggle-btn">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </a>
+    <div class="navbar-overlay" id="navbar-overlay"></div>
     <div class="navbar-menu">
-        <div class="navbar-links">
-            <a {% if active_page == 'dashboard' %}class="active"{% endif %} href="#" onclick="goTo('/dashboard');document.querySelector('.navbar-menu').classList.remove('open');return false;">📈 Dashboard</a>
-            <a {% if active_page == 'crm' %}class="active"{% endif %} href="#" onclick="goTo('/crm');document.querySelector('.navbar-menu').classList.remove('open');return false;">🤝 CRM</a>
-            <a {% if active_page == 'pricing' %}class="active"{% endif %} href="#" onclick="goTo('/pricing');document.querySelector('.navbar-menu').classList.remove('open');return false;">💰 Pricing</a>
-            <a {% if active_page == 'coberturas' %}class="active"{% endif %} href="#" onclick="goTo('/coberturas');document.querySelector('.navbar-menu').classList.remove('open');return false;">📦 Coberturas</a>
-            <a {% if active_page == 'mapa' %}class="active"{% endif %} href="#" onclick="goTo('/mapa');document.querySelector('.navbar-menu').classList.remove('open');return false;">🗺️ Mapa</a>
-        </div>
-        <div class="navbar-extra">
-            <a href="/filters" onclick="document.querySelector('.navbar-menu').classList.remove('open')">⚙️ Cambiar Vista</a>
+        <div class="navbar-menu-inner">
+            <a id="nav-dashboard-link" {% if active_page == 'dashboard' %}class="active"{% endif %} href="/dashboard" data-nav="/dashboard">📈 Dashboard</a>
+            <a {% if active_page == 'crm' %}class="active"{% endif %} href="/crm" data-nav="/crm">🤝 CRM</a>
+            <a {% if active_page == 'pricing' %}class="active"{% endif %} href="/pricing" data-nav="/pricing">💰 Pricing</a>
+            <a id="nav-coberturas-link" {% if active_page == 'coberturas' %}class="active"{% endif %} href="/coberturas" data-nav="/coberturas">📦 Coberturas</a>
+            <a id="nav-mapa-link" {% if active_page == 'mapa' %}class="active"{% endif %} href="/mapa" data-nav="/mapa">🗺️ Mapa</a>
+            <a href="/filters" class="nav-extra">⚙️ Cambiar Vista</a>
         </div>
     </div>
 </nav>
+<script>
+(function(){
+    window.navGoTo = function(path){ var q=location.search; window.location.href = path + (q ? q : ''); };
+    function toggleNav(){
+        var m=document.querySelector('.navbar-menu'), o=document.querySelector('.navbar-overlay'), t=document.querySelector('.navbar-toggle');
+        if(!m||!o||!t) return;
+        var isOpen = m.classList.toggle('open');
+        o.classList.toggle('open', isOpen);
+        t.classList.toggle('open', isOpen);
+        document.body.classList.toggle('nav-open', isOpen);
+        document.documentElement.classList.toggle('nav-open', isOpen);
+        t.setAttribute('aria-expanded', isOpen);
+    }
+    function closeNav(){
+        var m=document.querySelector('.navbar-menu'), o=document.querySelector('.navbar-overlay'), t=document.querySelector('.navbar-toggle');
+        m&&m.classList.remove('open'); o&&o.classList.remove('open'); t&&t.classList.remove('open');
+        document.body.classList.remove('nav-open');
+        document.documentElement.classList.remove('nav-open');
+        t&&t.setAttribute('aria-expanded','false');
+    }
+    function doNav(path){
+        closeNav();
+        if(path&&path!=='#'){
+            var fn = typeof goTo==='function' ? goTo : window.navGoTo;
+            if(fn) fn(path); else window.location.href = path + (location.search||'');
+        }
+    }
+    function initNav(){
+        var btn = document.getElementById('navbar-toggle-btn');
+        var overlay = document.getElementById('navbar-overlay');
+        function setupTap(el, fn){
+            if(!el) return;
+            var last = 0;
+            el.addEventListener('touchstart', function(){ last = Date.now(); requestAnimationFrame(fn); }, {passive: true});
+            el.addEventListener('click', function(e){ e.preventDefault(); if(Date.now()-last>300) fn(); });
+        }
+        setupTap(btn, toggleNav);
+        setupTap(overlay, closeNav);
+        document.querySelectorAll('.navbar-menu a').forEach(function(a){
+            a.addEventListener('click', function(e){ e.preventDefault(); doNav(a.getAttribute('data-nav') || a.getAttribute('href')); });
+        });
+    }
+    function runInit(n){
+        n = n || 0;
+        if(document.getElementById('navbar-toggle-btn')) initNav();
+        else if(n < 20) setTimeout(function(){ runInit(n+1); }, 50);
+    }
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', runInit);
+    } else {
+        runInit();
+    }
+})();
+</script>
