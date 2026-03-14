@@ -62,10 +62,15 @@
             <div>
                 <h2>Objetivos del Día</h2>
                 <div class="meta" id="day-meta">Cargando...</div>
+                <div style="font-size:0.8rem; color:var(--primary); font-weight:700; margin-top:6px;" id="planning-dias-restantes">—</div>
             </div>
             <div>
                 <input type="date" id="planning-date" class="date-selector">
             </div>
+        </div>
+
+        <div id="planning-no-habil" style="display:none; padding:16px; background:#FEF3C7; border:1px solid #F59E0B; border-radius:12px; margin-bottom:16px; text-align:center;">
+            <strong>Día no hábil</strong> — No hay planificación de visitas para sábado/domingo.
         </div>
 
         <div class="kpi-grid">
@@ -73,7 +78,7 @@
                 <div class="label">Objetivo Promedio</div>
                 <div class="value value-small" id="kpi-daily-avg">-</div>
                 <div class="unit">Base</div>
-                <div class="meta">Mensual / 20 días</div>
+                <div class="meta" id="kpi-daily-avg-meta">Mensual / días hábiles</div>
             </div>
 
             <div class="kpi-card" style="border-color: var(--accent);">
@@ -81,8 +86,7 @@
                 <div class="value value-small" style="color: var(--accent);" id="kpi-daily-needed">-</div>
                 <div class="unit">Para Cumplir</div>
                 <div class="meta"
-                    title="Calculado como: (Objetivo Mensual - Ventas Acumuladas) / Días Hábiles Restantes">Brecha /
-                    Días Restantes</div>
+                    title="(Objetivo - Ventas) / Días Hábiles Restantes">Brecha / Días Restantes</div>
             </div>
 
             <div class="kpi-card">
@@ -92,10 +96,10 @@
             </div>
 
             <div class="kpi-card">
-                <div class="label">Suma Objetivos Clientes</div>
-                <div class="value value-small"><span id="kpi-clients-sum">-</span></div>
-                <div class="unit">Planificado (Excel)</div>
-                <div class="meta">Histórico: <span id="kpi-clients-hist">-</span></div>
+                <div class="label">Proyección del Día</div>
+                <div class="value value-small"><span id="kpi-proyeccion-dia">-</span></div>
+                <div class="unit">Histórico + Clientes</div>
+                <div class="meta">Hist. día: <span id="kpi-hist-dia">-</span> · Obj. clientes: <span id="kpi-clients-sum">-</span></div>
             </div>
         </div>
 
@@ -203,15 +207,41 @@
                 const response = await fetch(`/api/planning?${query}`);
                 const data = await response.json();
 
-                document.getElementById('day-meta').textContent = `${data.weekday_name} • ${data.target_frequencies.join(' / ')}`;
+                document.getElementById('day-meta').textContent = `${data.weekday_name || ''} • ${(data.target_frequencies || []).join(' / ')}`;
+                const dr = data.stats?.days_remaining;
+                const elDr = document.getElementById('planning-dias-restantes');
+                if (elDr) elDr.textContent = dr != null ? `${dr} días hábiles restantes en el mes` : '';
                 document.getElementById('target-freq').textContent = data.target_frequencies.join(', ');
 
-                document.getElementById('kpi-daily-avg').textContent = formatKg(data.stats.daily_average);
-                document.getElementById('kpi-daily-needed').textContent = formatKg(data.stats.daily_needed);
-                document.getElementById('kpi-clients-count').textContent = data.stats.count;
-                document.getElementById('kpi-clients-sum').textContent = formatKg(data.stats.clients_objective_sum);
-                document.getElementById('kpi-clients-hist').textContent = formatKg(data.stats.clients_historical_sum);
-                document.getElementById('table-count').textContent = data.stats.count;
+                const stats = data.stats || {};
+                const isHabil = data.is_business_day !== false;
+
+                document.getElementById('planning-no-habil').style.display = isHabil ? 'none' : 'block';
+
+                document.getElementById('kpi-daily-avg').textContent = formatKg(stats.daily_average);
+                document.getElementById('kpi-daily-avg-meta').textContent = `Mensual / ${stats.total_bd || 20} días hábiles`;
+
+                const neededEl = document.getElementById('kpi-daily-needed');
+                if (isHabil && stats.daily_needed != null) {
+                    neededEl.textContent = formatKg(stats.daily_needed);
+                    neededEl.style.color = '';
+                } else {
+                    neededEl.textContent = isHabil ? '—' : 'Día no hábil';
+                    neededEl.style.color = isHabil ? '' : '#94A3B8';
+                }
+
+                document.getElementById('kpi-clients-count').textContent = stats.count ?? '-';
+
+                const histDia = stats.proyeccion_historico_dia_kg;
+                const objClientes = stats.clients_objective_sum;
+                const histClientes = stats.clients_historical_sum;
+                document.getElementById('kpi-hist-dia').textContent = histDia != null ? formatKg(histDia) : '—';
+                document.getElementById('kpi-clients-sum').textContent = formatKg(objClientes);
+                const proyVal = (histDia != null && (objClientes || histClientes))
+                    ? formatKg(Math.round((histDia + (objClientes || histClientes)) / 2))
+                    : (histDia != null ? formatKg(histDia) : formatKg(objClientes || histClientes));
+                document.getElementById('kpi-proyeccion-dia').textContent = proyVal !== '0 kg' ? proyVal : '—';
+                document.getElementById('table-count').textContent = stats.count ?? '0';
 
                 allClients = data.clients || [];
                 renderTable(allClients);

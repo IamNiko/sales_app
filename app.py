@@ -24,6 +24,54 @@ def get_db():
     """Get database connection with row factory."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    # Ensure the manual-payment tracking table exists (lightweight, idempotent)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS fact_factura_pagada (
+            cod_cliente   TEXT NOT NULL,
+            fecha_emision TEXT NOT NULL,
+            marked_at     TEXT NOT NULL DEFAULT (datetime('now')),
+            marked_by     TEXT,
+            PRIMARY KEY (cod_cliente, fecha_emision)
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS crm_alertas_dismissed (
+            alert_id TEXT PRIMARY KEY,
+            dismissed_at TEXT DEFAULT (datetime('now')),
+            user_id TEXT
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS crm_planificacion_recurrente (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cod_cliente TEXT,
+            descripcion TEXT,
+            dia_semana INTEGER,
+            activo INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS crm_cliente_ponderacion (
+            cod_cliente TEXT,
+            year_month TEXT,
+            ponderacion_pct REAL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (cod_cliente, year_month)
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS crm_planificacion_recurrente_completado (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recurrente_id INTEGER,
+            fecha DATE,
+            completado INTEGER DEFAULT 1,
+            resultado TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(recurrente_id, fecha)
+        )
+    """)
+    conn.commit()
     return conn
 
 
@@ -103,6 +151,163 @@ def pricing():
 
 
 # ==================== API ENDPOINTS ====================
+
+
+@app.route('/api/welcome')
+def api_welcome():
+    """
+    Returns welcome data for the dashboard modal: KPIs, alertas, consejos contextuales.
+    Uses same filters as dashboard (vendedor, jefe, zona).
+    """
+    vendedor = request.args.get('vendedor', '')
+    jefe = request.args.get('jefe', '')
+    zona = request.args.get('zona', '')
+
+    conn = get_db()
+    where_parts, params = [], []
+    if vendedor:
+        where_parts.append("av.cod_vendedor = ?")
+        params.append(vendedor)
+    elif jefe:
+        where_parts.append("av.jefe = ?")
+        params.append(jefe)
+    elif zona:
+        where_parts.append("av.zona = ?")
+        params.append(zona)
+    where_clause = " AND ".join(where_parts) if where_parts else "1=1"
+    params_kpi = params.copy()
+
+    kpi_q = f"""
+        SELECT SUM(av.venta_actual) as venta_kg, SUM(av.objetivo) as objetivo_kg, SUM(av.objetivo_pesos) as objetivo_pesos
+        FROM fact_avance_cliente_vendedor_month av
+        WHERE {where_clause}
+          AND av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+    """
+    kpi_row = conn.execute(kpi_q, params_kpi).fetchone() if where_parts else conn.execute(kpi_q).fetchone()
+
+    venta_kg = kpi_row['venta_kg'] or 0
+    obj_kg = kpi_row['objetivo_kg'] or 0
+    obj_pesos = kpi_row['objetivo_pesos'] or 0
+    cumplimiento = round((venta_kg / obj_kg * 100), 1) if obj_kg else 0
+
+    # Alertas
+    from datetime import datetime
+    hoy = datetime.now()
+    mapping = {0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES', 4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'}
+    freq_map = {0: ['MARTES', 'MIERCOLES'], 1: ['MIERCOLES', 'JUEVES'], 2: ['JUEVES', 'VIERNES'],
+                3: ['VIERNES', 'LUNES'], 4: ['LUNES', 'MARTES'], 5: [], 6: []}
+    target_freqs = freq_map.get(hoy.weekday(), [])
+    mañana = hoy + timedelta(days=1)
+    dia_manana = mapping.get(mañana.weekday())
+
+    alertas_deuda_hoy = 0
+    if target_freqs:
+        freq_cond = " OR ".join(["UPPER(av.frecuencia) LIKE ?" for _ in target_freqs])
+        params_ah = (params + [f"%{f}%" for f in target_freqs]) if where_parts else [f"%{f}%" for f in target_freqs]
+        clientes_hoy = conn.execute(f"""
+            SELECT av.cod_cliente, c.plazo, av.frecuencia
+            FROM fact_avance_cliente_vendedor_month av
+            JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+            WHERE {where_clause} AND ({freq_cond})
+        """, params_ah).fetchall()
+        for cl in clientes_hoy:
+            plazo = str(cl['plazo'] or '').strip().lower()
+            if plazo == 'anticipado':
+                alertas_deuda_hoy += 1
+            elif plazo and plazo.isdigit():
+                deuda = conn.execute("""
+                    SELECT 1 FROM fact_facturacion
+                    WHERE cod_cliente = ? AND cantidad > 0 AND fecha_emision >= date('now', '-90 day')
+                      AND julianday('now') - julianday(fecha_emision) > ?
+                    LIMIT 1
+                """, (cl['cod_cliente'], int(plazo))).fetchone()
+                if deuda:
+                    alertas_deuda_hoy += 1
+
+    alertas_deuda_manana = 0
+    if dia_manana:
+        if where_parts:
+            params_manana = params + [f"%{dia_manana}%"]
+            clientes_manana = conn.execute(f"""
+                SELECT av.cod_cliente, c.plazo
+                FROM fact_avance_cliente_vendedor_month av
+                JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+                WHERE {where_clause} AND UPPER(av.frecuencia) LIKE ?
+            """, params_manana).fetchall()
+        else:
+            clientes_manana = conn.execute("""
+                SELECT av.cod_cliente, c.plazo
+                FROM fact_avance_cliente_vendedor_month av
+                JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+                WHERE av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+                  AND UPPER(av.frecuencia) LIKE ?
+            """, [f"%{dia_manana}%"]).fetchall()
+        for cl in clientes_manana:
+            plazo = str(cl['plazo'] or '').strip().lower()
+            if plazo == 'anticipado':
+                alertas_deuda_manana += 1
+            elif plazo and plazo.isdigit():
+                deuda = conn.execute("""
+                    SELECT 1 FROM fact_facturacion
+                    WHERE cod_cliente = ? AND cantidad > 0 AND fecha_emision >= date('now', '-90 day')
+                      AND julianday('now') - julianday(fecha_emision) > ?
+                    LIMIT 1
+                """, (cl['cod_cliente'], int(plazo))).fetchone()
+                if deuda:
+                    alertas_deuda_manana += 1
+
+    gestiones_pend = conn.execute("""
+        SELECT COUNT(*) as n FROM crm_gestiones g
+        WHERE proximo_paso_fecha <= date('now', '+2 days') AND proximo_paso_fecha IS NOT NULL
+    """).fetchone()['n'] or 0
+
+    # Gestiones recurrentes pendientes para hoy
+    hoy_sql = hoy.strftime('%Y-%m-%d')
+    recurr_pend = conn.execute("""
+        SELECT COUNT(*) as n FROM crm_planificacion_recurrente r
+        LEFT JOIN crm_planificacion_recurrente_completado c ON c.recurrente_id = r.id AND c.fecha = ?
+        WHERE r.activo = 1 AND r.dia_semana = ? AND (c.completado IS NULL OR c.completado = 0)
+    """, (hoy_sql, hoy.weekday())).fetchone()['n'] or 0
+
+    # Consejos contextuales (rule-based)
+    consejos = []
+    if alertas_deuda_hoy: consejos.append(f"Tenés {alertas_deuda_hoy} cliente(s) con deuda o contado anticipado para gestionar hoy. Priorizá cobranzas.")
+    if alertas_deuda_manana: consejos.append(f"Mañana {alertas_deuda_manana} cliente(s) con deuda o contado anticipado. Revisá el plan de visitas.")
+    if gestiones_pend: consejos.append(f"{gestiones_pend} gestión(es) con próximo paso vencido. Revisá el CRM.")
+    if recurr_pend: consejos.append(f"Tenés {recurr_pend} tarea(s) programada(s) para hoy (ej. cargar pedidos). Revisá Planificación.")
+    if cumplimiento < 60 and obj_kg: consejos.append(f"El objetivo del mes está al {cumplimiento}%. Enfocate en clientes con bajo avance.")
+    elif cumplimiento >= 80 and obj_kg: consejos.append(f"¡Buen avance! El mes va al {cumplimiento}% del objetivo.")
+    if not consejos: consejos.append("No hay alertas críticas. Revisá el plan del día en el CRM.")
+
+    mes_row = conn.execute("SELECT MAX(year_month) as ym FROM fact_avance_cliente_vendedor_month").fetchone()
+    mes_activo = mes_row['ym'] if mes_row else None
+    if mes_activo:
+        y, m = mes_activo.split('-')
+        meses_es = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        mes_label = f"{meses_es[int(m) - 1]} {y}"
+    else:
+        mes_label = "Mes actual"
+
+    conn.close()
+
+    return jsonify({
+        'mes_activo': mes_activo,
+        'mes_label': mes_label,
+        'kpis': {
+            'venta_kg': round(venta_kg, 0),
+            'objetivo_kg': round(obj_kg, 0),
+            'objetivo_pesos': round(obj_pesos, 0),
+            'cumplimiento_pct': cumplimiento,
+        },
+        'alertas': {
+            'deuda_hoy': alertas_deuda_hoy,
+            'deuda_manana': alertas_deuda_manana,
+            'gestiones_pendientes': gestiones_pend,
+            'gestiones_recurrentes_hoy': recurr_pend,
+            'total': alertas_deuda_hoy + alertas_deuda_manana + gestiones_pend + recurr_pend,
+        },
+        'consejos': consejos,
+    })
 
 
 @app.route('/api/meta')
@@ -577,34 +782,37 @@ def api_dashboard():
         composition = [dict(r) for r in comp_rows]
 
         # 3. Process Chart Data
-        # Get context year/month from DB
+        # Aligned with Cierre de Mes: use business days (lun-vie) for ideal and projection
         ym_res = conn.execute("SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month").fetchone()
         ym = ym_res[0] if ym_res else datetime.now().strftime('%Y-%m')
         year, month = map(int, ym.split('-'))
         days_in_month = calendar.monthrange(year, month)[1]
-        
+
+        # Total business days in month
+        total_bd = sum(1 for d in range(1, days_in_month + 1)
+                       if datetime(year, month, d).weekday() < 5)
+
         dates = list(range(1, days_in_month + 1))
         dates_s = [str(d) for d in dates]
-        
-        # Ideal Line (Linear)
+
+        # Ideal Line: cumulative objetivo by business days (same logic as Cierre de Mes)
         total_objetivo = summary['objetivo'] or 0
-        daily_goal = total_objetivo / days_in_month if days_in_month else 0
-        ideal = [round(daily_goal * d, 0) for d in dates]
-        
+        ideal = []
+        bd_so_far = 0
+        for d in dates:
+            if datetime(year, month, d).weekday() < 5:
+                bd_so_far += 1
+            ideal.append(round(total_objetivo * bd_so_far / total_bd, 0) if total_bd else 0)
+
         # Actual Line (Cumulative)
-        # Map existing daily sales (sparse) to full month (dense)
         daily_map = {x['dia']: x['acumulado'] for x in daily_sales}
         actual = []
         last_val = 0
-        
-        # Determine cutoff day (today if current month, else end of month)
         today = datetime.now().day
         is_current_month = (ym == datetime.now().strftime('%Y-%m'))
         max_day = today if is_current_month else days_in_month
-        
-        # If max_day > days_in_month (Month boundary edge), clamp it
         max_day = min(max_day, days_in_month)
-        
+
         for d in dates:
             if d <= max_day:
                 val = daily_map.get(d)
@@ -612,18 +820,42 @@ def api_dashboard():
                     last_val = val
                 actual.append(round(last_val, 0))
             else:
-                break # Future
-                
-        # Projection Line (Start AFTER actual points)
+                break
+
+        # Projection: blend linear + ratio-based (same as Cierre de Mes)
         projection = [None] * len(actual)
         if actual and total_objetivo > 0 and max_day > 0 and max_day < days_in_month:
             current_total = actual[-1]
-            avg_daily = current_total / max_day
-            remaining_days = days_in_month - max_day
-            
-            # Linear projection from last actual point
-            for i in range(1, remaining_days + 1):
-                projection.append(round(current_total + (avg_daily * i), 0))
+            bd_elapsed = sum(1 for d in range(1, max_day + 1)
+                             if datetime(year, month, d).weekday() < 5)
+            remaining_bd = sum(1 for d in range(max_day + 1, days_in_month + 1)
+                               if datetime(year, month, d).weekday() < 5)
+            avg_daily = current_total / bd_elapsed if bd_elapsed > 0 else 0
+            proj_linear = current_total + avg_daily * remaining_bd
+            # Ratio-based: historical cumulative-at-day-N / final (align with Cierre de Mes)
+            proj_ratio = None
+            hist_ratios = conn.execute(f"""
+                SELECT year_month, SUM(kg) as total_mes,
+                       SUM(CASE WHEN dia <= ? THEN kg ELSE 0 END) as acum_n
+                FROM (
+                    SELECT year_month, CAST(strftime('%d', fecha_emision) AS INTEGER) as dia, SUM(cantidad) as kg
+                    FROM fact_facturacion
+                    WHERE cod_vendedor IN ({placeholders}) AND year_month != ?
+                    GROUP BY year_month, dia
+                ) x
+                GROUP BY year_month
+                HAVING total_mes > 0
+            """, [max_day] + vendor_codes + [ym]).fetchall()
+            if hist_ratios:
+                import statistics as _st
+                ratios = [r['acum_n'] / r['total_mes'] for r in hist_ratios if r['acum_n'] and r['total_mes']]
+                if ratios and _st.mean(ratios) > 0.02:
+                    proj_ratio = current_total / _st.mean(ratios)
+            final_proj = (0.5 * proj_linear + 0.5 * proj_ratio) if proj_ratio else proj_linear
+            remaining_kg = final_proj - current_total
+            remaining_cal = days_in_month - max_day
+            for i in range(1, remaining_cal + 1):
+                projection.append(round(current_total + remaining_kg * i / remaining_cal, 0))
 
         # Consolidate Chart Data
         total_pendiente = summary['pendiente'] or 0
@@ -820,36 +1052,65 @@ def api_planning():
     # Calculate Total Potential based on History
     total_potential_hist = sum([c['historico'] for c in planning_clients])
 
-    # Days logic
+    # Días hábiles: Lun–Vie
+    is_business_day = weekday < 5
     import calendar
     last_day = calendar.monthrange(target_date.year, target_date.month)[1]
     month_end = target_date.replace(day=last_day)
+    total_bd = sum(1 for d in range(1, last_day + 1)
+                   if datetime(target_date.year, target_date.month, d).weekday() < 5)
     days_remaining = 0
     current = target_date
     while current <= month_end:
-        if current.weekday() < 5:  # Mon-Fri
+        if current.weekday() < 5:
             days_remaining += 1
         current += timedelta(days=1)
-    
+
+    # Proyección histórica por día de semana: kg vendidos este día (Lun, Mar, etc.) en meses anteriores
+    proyeccion_historico_dia_kg = None
+    vc_rows = conn.execute(f"""
+        SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month
+        WHERE {"cod_vendedor = ?" if vendedor else "jefe = ?" if jefe else "zona = ?"}
+    """, ([vendedor] if vendedor else [jefe] if jefe else [zona])).fetchall()
+    vendor_codes = [r['cod_vendedor'] for r in vc_rows]
+    if vendor_codes:
+        ph = ','.join(['?'] * len(vendor_codes))
+        # SQLite strftime('%w') = 0 Sun, 1 Mon, ... 6 Sat. weekday() = 0 Mon, 6 Sun
+        sqlite_dow = (weekday + 1) % 7  # Mon=1, Tue=2, ..., Sun=0
+        hist_dia = conn.execute(f"""
+            SELECT SUM(cantidad) as kg, COUNT(DISTINCT year_month) as meses
+            FROM fact_facturacion
+            WHERE cod_vendedor IN ({ph}) AND year_month < ?
+              AND CAST(strftime('%w', fecha_emision) AS INTEGER) = ?
+        """, vendor_codes + [target_date.strftime('%Y-%m'), sqlite_dow]).fetchone()
+        if hist_dia and hist_dia['meses'] and hist_dia['meses'] > 0:
+            proyeccion_historico_dia_kg = round((hist_dia['kg'] or 0) / hist_dia['meses'], 0)
+
     conn.close()
-        
-    daily_needed = gap / days_remaining if days_remaining > 0 else gap
-    daily_avg = total_obj / 20 # Simple average target
-    
+
+    daily_needed = (gap / days_remaining) if (days_remaining > 0 and is_business_day) else None
+    daily_avg = total_obj / total_bd if total_bd else total_obj / 20
+
+    dia_nombres = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+    weekday_name_es = dia_nombres[weekday] if weekday < 7 else target_date.strftime('%A')
+
     return jsonify({
         'date': date_str,
-        'weekday_name': target_date.strftime('%A'),
+        'weekday_name': weekday_name_es,
         'target_frequencies': target_frecuencias,
+        'is_business_day': is_business_day,
         'clients': planning_clients,
         'stats': {
             'count': total_clients,
-            'clients_objective_sum': total_objective, 
+            'clients_objective_sum': total_objective,
             'clients_historical_sum': total_potential_hist,
             'global_objective': total_obj,
             'gap': gap,
             'days_remaining': days_remaining,
+            'total_bd': total_bd,
             'daily_needed': daily_needed,
-            'daily_average': daily_avg
+            'daily_average': daily_avg,
+            'proyeccion_historico_dia_kg': proyeccion_historico_dia_kg,
         }
     })
 
@@ -1061,36 +1322,139 @@ def api_cliente(cod_cliente):
         sales_params.append(vendedor_arg)
         
     current_sales = conn.execute(current_sales_query, sales_params).fetchone()
-    
+
+    # When fact_facturacion has no data for the current month (e.g. TXT export is
+    # partial and this client hasn't been invoiced yet), estimate pesos using the
+    # client's historical average price per KG from recent months.
+    fact_pesos = current_sales['venta_actual_pesos'] if current_sales else None
+    if not fact_pesos and avance:
+        venta_kg = avance['facturacion'] or 0   # venta_actual KG from avance table
+        if venta_kg > 0:
+            price_row = conn.execute("""
+                SELECT ROUND(SUM(importe) / NULLIF(SUM(cantidad), 0), 2) as avg_price
+                FROM fact_facturacion
+                WHERE cod_cliente = ? AND cantidad > 0 AND importe > 0
+                  AND year_month >= (
+                      SELECT date(MAX(year_month) || '-01', '-3 months')
+                      FROM fact_facturacion
+                      WHERE cod_cliente = ?
+                  )
+            """, (cod_cliente, cod_cliente)).fetchone()
+            avg_price = price_row['avg_price'] if price_row and price_row['avg_price'] else 0
+            if avg_price > 0:
+                fact_pesos = round(venta_kg * avg_price, 0)
+
+    # ── Facturas recientes ────────────────────────────────────────────────────
+    # Business rule: a purchase date D proves that ALL invoices whose due date
+    # (fecha_emision + plazo) fell BEFORE D have been paid — the system would
+    # not allow a new order with outstanding overdue debt.
+    # Therefore we only surface invoices where NO subsequent purchase has
+    # occurred AFTER that invoice's due date, and that are not manually marked.
+    plazo_row = conn.execute(
+        "SELECT CAST(plazo AS INTEGER) as plazo_dias FROM dim_clients WHERE cliente_id = ?",
+        (cod_cliente,)
+    ).fetchone()
+    plazo_dias = plazo_row['plazo_dias'] if plazo_row and plazo_row['plazo_dias'] else 0
+
+    facturas_rows = conn.execute("""
+        WITH inv AS (
+            SELECT
+                fecha_emision,
+                ROUND(SUM(importe), 0)                                    AS importe_total,
+                ROUND(SUM(CASE WHEN cantidad > 0 THEN cantidad ELSE 0 END), 1) AS kg_total,
+                CAST(julianday('now') - julianday(MIN(fecha_emision)) AS INTEGER) AS dias_desde_emision,
+                date(MIN(fecha_emision), '+' || ? || ' days')             AS fecha_vencimiento
+            FROM fact_facturacion
+            WHERE cod_cliente = ?
+              AND fecha_emision >= date('now', '-120 days')
+              AND importe != 0
+            GROUP BY fecha_emision
+        )
+        SELECT inv.*,
+               -- implicitly paid: a later purchase happened AFTER the due date
+               CASE WHEN EXISTS (
+                   SELECT 1 FROM fact_facturacion f2
+                   WHERE f2.cod_cliente = ?
+                     AND f2.fecha_emision > inv.fecha_vencimiento
+               ) THEN 1 ELSE 0 END AS auto_pagada,
+               -- manually marked paid
+               CASE WHEN EXISTS (
+                   SELECT 1 FROM fact_factura_pagada fp
+                   WHERE fp.cod_cliente = ?
+                     AND fp.fecha_emision = inv.fecha_emision
+               ) THEN 1 ELSE 0 END AS manual_pagada
+        FROM inv
+        WHERE auto_pagada = 0 AND manual_pagada = 0
+        ORDER BY inv.fecha_emision DESC
+        LIMIT 20
+    """, (plazo_dias, cod_cliente, cod_cliente, cod_cliente)).fetchall()
+
+    facturas_recientes = []
+    for fr in facturas_rows:
+        dias = fr['dias_desde_emision'] or 0
+        fv   = fr['fecha_vencimiento']
+        vencida = plazo_dias > 0 and dias > plazo_dias
+        dias_vencida = max(0, dias - plazo_dias) if vencida else 0
+        facturas_recientes.append({
+            'fecha_emision':      fr['fecha_emision'],
+            'fecha_vencimiento':  fv,
+            'importe_total':      fr['importe_total'] or 0,
+            'kg_total':           fr['kg_total'] or 0,
+            'dias_desde_emision': dias,
+            'vencida':            vencida,
+            'dias_vencida':       dias_vencida,
+            'plazo_dias':         plazo_dias,
+        })
+
     # Calculate weighted objetivo for rebozados if we have vendor info
+    # When client has custom ponderacion, use that %; else use proportion from objetivo
     objetivo_rebozados_kg = 0
+    ym = conn.execute("SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month").fetchone()[0]
+    ponderacion_row = conn.execute(
+        "SELECT ponderacion_pct FROM crm_cliente_ponderacion WHERE cod_cliente = ? AND year_month = ?",
+        (cod_cliente, ym)
+    ).fetchone() if ym else None
+    custom_proportion = (ponderacion_row['ponderacion_pct'] / 100.0) if ponderacion_row and ponderacion_row['ponderacion_pct'] is not None else None
+
     if avance and vendedor_arg and vendedor_arg != 'undefined':
-        # Get vendor's total rebozados objective
         vendor_obj = conn.execute("""
-            SELECT objetivo_rebozados_kg, objetivo_kg 
-            FROM vendedor_objetivos 
-            WHERE cod_vendedor = ? 
+            SELECT objetivo_rebozados_kg, objetivo_kg, obj_hg, obj_sch
+            FROM vendedor_objetivos
+            WHERE cod_vendedor = ?
             ORDER BY year_month DESC LIMIT 1
         """, (vendedor_arg,)).fetchone()
-        
-        if vendor_obj and vendor_obj['objetivo_kg'] > 0:
-            # Weight client rebozados objetivo by their % of total KG
-            client_kg_objetivo = avance['objetivo'] or 0
-            vendor_kg_objetivo = vendor_obj['objetivo_kg']
+
+        if vendor_obj and (vendor_obj['objetivo_rebozados_kg'] or 0) > 0:
             vendor_rebozados_objetivo = vendor_obj['objetivo_rebozados_kg'] or 0
-            
-            # Proportional allocation
-            if vendor_kg_objetivo > 0:
-                objetivo_rebozados_kg = (client_kg_objetivo / vendor_kg_objetivo) * vendor_rebozados_objetivo
+            if custom_proportion is not None:
+                proportion = min(custom_proportion, 1.0)
+            else:
+                client_kg_objetivo = avance['objetivo'] or 0
+                sum_row = conn.execute("""
+                    SELECT SUM(objetivo) as total_kg
+                    FROM fact_avance_cliente_vendedor_month
+                    WHERE cod_vendedor = ?
+                      AND year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+                      AND objetivo > 0
+                """, (vendedor_arg,)).fetchone()
+                base_kg = (sum_row['total_kg'] or 0) if sum_row else 0
+                if base_kg == 0:
+                    base_kg = vendor_obj['objetivo_kg'] or 0
+                proportion = min(client_kg_objetivo / base_kg, 1.0) if base_kg > 0 else 0
+            objetivo_rebozados_kg = vendor_rebozados_objetivo * proportion
     
     # Merge into avance dict
     avance_dict = dict(avance) if avance else {}
     if current_sales:
-        avance_dict['facturacion_pesos'] = current_sales['venta_actual_pesos'] or 0
+        # Use estimated pesos when fact_facturacion has no current-month data yet
+        avance_dict['facturacion_pesos'] = fact_pesos or 0
         avance_dict['premium_pesos'] = current_sales['venta_premium_pesos'] or 0
         avance_dict['rebozados_kg'] = current_sales['rebozados_kg'] or 0
-    
+        avance_dict['facturacion_pesos_estimated'] = (fact_pesos or 0) > 0 and not (current_sales['venta_actual_pesos'] or 0)
+
     avance_dict['objetivo_rebozados_kg'] = round(objetivo_rebozados_kg, 2)
+    if ponderacion_row and ponderacion_row['ponderacion_pct'] is not None:
+        avance_dict['ponderacion_pct'] = ponderacion_row['ponderacion_pct']
     
     conn.close()
     
@@ -1099,8 +1463,28 @@ def api_cliente(cod_cliente):
         'avance': avance_dict if avance_dict else None,
         'historia': [dict(h) for h in historia],
         'categorias': [dict(c) for c in categorias],
-        'productos': [dict(p) for p in productos]
+        'productos': [dict(p) for p in productos],
+        'facturas_recientes': facturas_recientes,
+        'plazo_dias': plazo_dias,
     })
+
+
+@app.route('/api/cliente/<cod_cliente>/facturas/<fecha_emision>/pagar', methods=['POST'])
+@login_required
+def api_factura_marcar_pagada(cod_cliente, fecha_emision):
+    """Manually mark an invoice date as paid so it disappears from the pending list."""
+    conn = get_db()
+    try:
+        conn.execute("""
+            INSERT OR REPLACE INTO fact_factura_pagada (cod_cliente, fecha_emision, marked_by)
+            VALUES (?, ?, ?)
+        """, (cod_cliente, fecha_emision, session.get('user', 'unknown')))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
 
 
 @app.route('/api/vendedor/<cod_vendedor>/facturacion')
@@ -1216,11 +1600,14 @@ def api_vendedor_facturacion(cod_vendedor=None):
 @app.route('/api/crm/portfolio')
 @login_required
 def api_crm_portfolio():
-    """Return the executive's account portfolio with CRM enrichment and last activity."""
+    """Return the executive's account portfolio with CRM enrichment, ponderación, and last activity."""
     cod_vendedor = request.args.get('vendedor', '')
     jefe = request.args.get('jefe', '')
     zona = request.args.get('zona', '')
     conn = get_db()
+
+    ym_row = conn.execute("SELECT MAX(year_month) as ym FROM fact_avance_cliente_vendedor_month").fetchone()
+    year_month = ym_row['ym'] if ym_row else None
 
     where_parts = ["av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)"]
     params = []
@@ -1233,13 +1620,29 @@ def api_crm_portfolio():
 
     where = " AND ".join(where_parts)
 
+    # Totals for ponderación (active clients with objetivo > 0)
+    total_row = conn.execute(f"""
+        SELECT
+            COALESCE(SUM(av.objetivo), 0) as total_objetivo,
+            COALESCE(SUM(av.objetivo_pesos), 0) as total_objetivo_pesos,
+            COALESCE(SUM(av.objetivo_premium_pesos), 0) as total_objetivo_premium
+        FROM fact_avance_cliente_vendedor_month av
+        WHERE {where} AND av.objetivo > 0
+    """, params).fetchone()
+    total_objetivo = total_row['total_objetivo'] or 0
+    total_objetivo_pesos = total_row['total_objetivo_pesos'] or 0
+    total_objetivo_premium = total_row['total_objetivo_premium'] or 0
+
     rows = conn.execute(f"""
         SELECT
             av.cod_cliente,
             av.nom_cliente,
             av.canal,
+            av.cod_vendedor,
             av.venta_actual,
             av.objetivo,
+            av.objetivo_pesos,
+            av.objetivo_premium_pesos,
             dc.ciudad,
             dc.direccion,
             dc.lat,
@@ -1250,6 +1653,7 @@ def api_crm_portfolio():
             ca.contacto_telefono,
             ca.frecuencia_visita,
             ca.notas_cuenta,
+            cp.ponderacion_pct as ponderacion_custom,
             (SELECT fecha FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente ORDER BY fecha DESC LIMIT 1) as ultima_gestion,
             (SELECT tipo FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente ORDER BY fecha DESC LIMIT 1) as ultima_gestion_tipo,
             (SELECT COUNT(*) FROM crm_gestiones g WHERE g.cod_cliente = av.cod_cliente) as total_gestiones,
@@ -1258,12 +1662,95 @@ def api_crm_portfolio():
         FROM fact_avance_cliente_vendedor_month av
         LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
         LEFT JOIN crm_accounts ca ON av.cod_cliente = ca.cod_cliente
+        LEFT JOIN crm_cliente_ponderacion cp ON cp.cod_cliente = av.cod_cliente AND cp.year_month = ?
         WHERE {where}
         ORDER BY COALESCE(ca.nivel, 'ESTANDAR') DESC, av.nom_cliente ASC
-    """, params).fetchall()
+    """, [year_month] + params).fetchall()
+
+    result = []
+    for r in rows:
+        d = dict(r)
+        # Ponderación: custom if set, else estratégica (objetivo/total*100)
+        if d.get('ponderacion_custom') is not None:
+            pond = float(d['ponderacion_custom'])
+        elif total_objetivo > 0 and (d.get('objetivo') or 0) > 0:
+            pond = round((d['objetivo'] / total_objetivo) * 100, 1)
+        else:
+            pond = 0
+        d['ponderacion'] = pond
+        d['ponderacion_editable'] = d.get('ponderacion_custom') is not None
+        d['total_objetivo'] = total_objetivo
+        d['total_objetivo_pesos'] = total_objetivo_pesos
+        d['total_objetivo_premium'] = total_objetivo_premium
+        result.append(d)
 
     conn.close()
-    return jsonify([dict(r) for r in rows])
+    return jsonify(result)
+
+
+@app.route('/api/crm/ponderacion/<cod_cliente>', methods=['PUT'])
+@login_required
+def api_crm_ponderacion(cod_cliente):
+    """Set custom ponderación (weight %) for a client. Affects all objectives. Send null to revert to default."""
+    data = request.json or {}
+    ponderacion = data.get('ponderacion_pct')
+    conn = get_db()
+    ym_row = conn.execute("SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month").fetchone()
+    year_month = ym_row[0] if ym_row and ym_row[0] else datetime.now().strftime('%Y-%m')
+
+    if ponderacion is None:
+        conn.close()
+        return jsonify({'error': 'ponderacion_pct requerido (o revert: true para restaurar)'}), 400
+    try:
+        pond = float(ponderacion)
+        if pond < 0 or pond > 100:
+            return jsonify({'error': 'ponderacion debe estar entre 0 y 100'}), 400
+    except (TypeError, ValueError):
+        conn.close()
+        return jsonify({'error': 'ponderacion debe ser un número'}), 400
+
+    conn.execute("""
+        INSERT INTO crm_cliente_ponderacion (cod_cliente, year_month, ponderacion_pct, updated_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(cod_cliente, year_month) DO UPDATE SET
+            ponderacion_pct = excluded.ponderacion_pct,
+            updated_at = CURRENT_TIMESTAMP
+    """, (cod_cliente, year_month, pond))
+    conn.commit()
+
+    # Recalculate and update fact_avance objectives for this client
+    avance_row = conn.execute("""
+        SELECT cod_vendedor FROM fact_avance_cliente_vendedor_month
+        WHERE cod_cliente = ? AND year_month = ?
+        LIMIT 1
+    """, (cod_cliente, year_month)).fetchone()
+
+    if avance_row:
+        cod_ven = avance_row['cod_vendedor']
+        # Use fact_avance sum as source of truth (matches portfolio total)
+        sum_row = conn.execute("""
+            SELECT SUM(objetivo) as t_kg, SUM(objetivo_pesos) as t_pesos, SUM(objetivo_premium_pesos) as t_premium
+            FROM fact_avance_cliente_vendedor_month
+            WHERE cod_vendedor = ? AND year_month = ?
+        """, (cod_ven, year_month)).fetchone()
+        if sum_row and (sum_row['t_kg'] or 0) > 0:
+            v = dict(sum_row)
+            pct = pond / 100.0
+            t_kg = v.get('t_kg') or 0
+            t_pesos = v.get('t_pesos') or 0
+            t_premium = v.get('t_premium') or 0
+            new_objetivo = t_kg * pct
+            new_pesos = t_pesos * pct if t_pesos else 0
+            new_premium = t_premium * pct if t_premium else 0
+            conn.execute("""
+                UPDATE fact_avance_cliente_vendedor_month
+                SET objetivo = ?, objetivo_pesos = ?, objetivo_premium_pesos = ?
+                WHERE cod_cliente = ? AND year_month = ?
+            """, (new_objetivo, new_pesos, new_premium, cod_cliente, year_month))
+            conn.commit()
+
+    conn.close()
+    return jsonify({'status': 'success', 'ponderacion_pct': pond})
 
 
 @app.route('/api/crm/account/<cod_cliente>', methods=['GET', 'PUT'])
@@ -1400,6 +1887,100 @@ def api_crm_planificacion():
     return jsonify([dict(r) for r in rows])
 
 
+@app.route('/api/crm/planificacion-recurrente', methods=['GET', 'POST'])
+@app.route('/api/crm/planificacion-recurrente/<int:rid>', methods=['PUT', 'DELETE'])
+@login_required
+def api_crm_planificacion_recurrente(rid=None):
+    """Recurring planning rules (e.g. every Friday load orders for MUY BARATO)."""
+    conn = get_db()
+
+    if request.method == 'POST':
+        data = request.json
+        conn.execute("""
+            INSERT INTO crm_planificacion_recurrente (cod_cliente, descripcion, dia_semana, activo)
+            VALUES (?, ?, ?, ?)
+        """, (data.get('cod_cliente'), data.get('descripcion'), data.get('dia_semana', 4), data.get('activo', 1)))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'}), 201
+
+    if request.method == 'PUT' and rid:
+        data = request.json
+        conn.execute("""
+            UPDATE crm_planificacion_recurrente
+            SET cod_cliente=?, descripcion=?, dia_semana=?, activo=?
+            WHERE id=?
+        """, (data.get('cod_cliente'), data.get('descripcion'), data.get('dia_semana'), data.get('activo', 1), rid))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
+    if request.method == 'DELETE' and rid:
+        conn.execute("DELETE FROM crm_planificacion_recurrente WHERE id=?", (rid,))
+        conn.execute("DELETE FROM crm_planificacion_recurrente_completado WHERE recurrente_id=?", (rid,))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+
+    # GET: list all recurring rules
+    rows = conn.execute("""
+        SELECT r.*, dc.cliente_name as nom_cliente
+        FROM crm_planificacion_recurrente r
+        LEFT JOIN dim_clients dc ON r.cod_cliente = dc.cliente_id
+        WHERE r.activo = 1
+        ORDER BY r.dia_semana, r.cod_cliente
+    """).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/crm/planificacion-recurrente/<int:rid>/completado', methods=['POST'])
+@login_required
+def api_crm_planificacion_recurrente_completado(rid):
+    """Mark a recurring task as done for a specific date."""
+    data = request.json or {}
+    fecha = data.get('fecha')
+    completado = data.get('completado', 1)
+    resultado = data.get('resultado')
+    if not fecha:
+        return jsonify({'error': 'fecha required'}), 400
+    conn = get_db()
+    conn.execute("""
+        INSERT OR REPLACE INTO crm_planificacion_recurrente_completado (recurrente_id, fecha, completado, resultado)
+        VALUES (?, ?, ?, ?)
+    """, (rid, fecha, completado, resultado))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success'})
+
+
+@app.route('/api/crm/planificacion-recurrente-para-fecha')
+@login_required
+def api_crm_planificacion_recurrente_para_fecha():
+    """Get recurring tasks that apply to a given date (for merging into daily agenda)."""
+    fecha = request.args.get('fecha')
+    if not fecha:
+        return jsonify([])
+    try:
+        d = datetime.strptime(fecha, '%Y-%m-%d')
+        dia_semana = d.weekday()  # 0=Monday, 6=Sunday
+    except ValueError:
+        return jsonify([])
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT r.*, dc.cliente_name as nom_cliente,
+               c.completado as completado_fecha, c.resultado as resultado_fecha
+        FROM crm_planificacion_recurrente r
+        LEFT JOIN dim_clients dc ON r.cod_cliente = dc.cliente_id
+        LEFT JOIN crm_planificacion_recurrente_completado c
+          ON c.recurrente_id = r.id AND c.fecha = ?
+        WHERE r.activo = 1 AND r.dia_semana = ?
+        ORDER BY r.cod_cliente
+    """, (fecha, dia_semana)).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
 @app.route('/api/crm/pdv/<cod_cliente>', methods=['GET', 'POST'])
 @login_required
 def api_crm_pdv(cod_cliente):
@@ -1425,13 +2006,14 @@ def api_crm_pdv(cod_cliente):
 
 @app.route('/api/crm/tasks')
 def api_crm_tasks():
-    """Generate real proximity and performance alerts for the dashboard."""
+    """Generate real proximity and performance alerts (gestiones, cold, desavance). Each has alert_id for dismiss."""
     vendedor = request.args.get('vendedor', '')
     conn = get_db()
-    
+
     # 1. Overdue/Next Steps from Gestiones
     gestiones_tasks = conn.execute("""
         SELECT 
+            g.id,
             'GESTION' as tipo,
             'Próximo Paso: ' || proximo_paso as descripcion,
             proximo_paso_fecha as fecha_vencimiento,
@@ -1439,10 +2021,10 @@ def api_crm_tasks():
             cod_cliente,
             (SELECT cliente_name FROM dim_clients WHERE cliente_id = g.cod_cliente) as nom_cliente
         FROM crm_gestiones g
-        WHERE proximo_paso_fecha <= date('now', '+2 days') 
-        AND proximo_paso_fecha IS NOT NULL
+        WHERE proximo_paso_fecha <= date('now', '+2 days')
+          AND proximo_paso_fecha IS NOT NULL
         ORDER BY proximo_paso_fecha ASC
-        LIMIT 5
+        LIMIT 10
     """).fetchall()
 
     # 2. Clients "Cold" (No contact > 20 days)
@@ -1457,12 +2039,10 @@ def api_crm_tasks():
         FROM crm_gestiones g
         GROUP BY cod_cliente
         HAVING fecha_vencimiento < date('now', '-20 days')
-        LIMIT 3
+        LIMIT 5
     """).fetchall()
 
     # 3. Critical Sales Gap
-    # We find clients where (current sales / monthly objective) is low despite being late in month
-    # For now, simplistic: < 40% fulfillment
     gap_alerts = conn.execute("""
         SELECT 
             'DESAVANCE' as tipo,
@@ -1473,17 +2053,25 @@ def api_crm_tasks():
             nom_cliente
         FROM fact_avance_cliente_vendedor_month
         WHERE objetivo > 0 AND (venta_actual/objetivo) < 0.4
-        AND year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
-        LIMIT 3
+          AND year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+        LIMIT 5
     """).fetchall()
 
-    all_alerts = [dict(r) for r in gestiones_tasks] + [dict(r) for r in cold_clients] + [dict(r) for r in gap_alerts]
-    
-    # If no real data alerts yet, fall back to crm_tasks to avoid empty dashboard
-    if not all_alerts:
-        fallback = conn.execute("SELECT * FROM crm_tasks WHERE status = 'PENDIENTE' LIMIT 5").fetchall()
-        all_alerts = [dict(r) for r in fallback]
+    all_alerts = []
+    for r in gestiones_tasks:
+        d = dict(r)
+        d['alert_id'] = f"GESTION_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}_{d.get('id','')}"
+        all_alerts.append(d)
+    for r in cold_clients:
+        d = dict(r)
+        d['alert_id'] = f"FALTA_GESTION_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}"
+        all_alerts.append(d)
+    for r in gap_alerts:
+        d = dict(r)
+        d['alert_id'] = f"DESAVANCE_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}"
+        all_alerts.append(d)
 
+    all_alerts = _filter_dismissed(conn, all_alerts)
     conn.close()
     return jsonify(all_alerts)
 
@@ -1716,9 +2304,19 @@ def api_insights():
     today = datetime.now()
     is_cur_month = (cur_ym == today.strftime('%Y-%m'))
     elapsed_days = today.day if is_cur_month else days_in_month
-    remaining_days = max(0, days_in_month - elapsed_days)
+    # Días restantes = días hábiles (lunes a viernes) hasta fin de mes
+    remaining_days = 0
+    if is_cur_month:
+        current = today.date()
+        month_end = datetime(year, month, days_in_month).date()
+        while current <= month_end:
+            if current.weekday() < 5:  # 0=Mon, 4=Fri
+                remaining_days += 1
+            current += timedelta(days=1)
+    remaining_days = max(0, remaining_days)
 
     # ── Current-month in-progress projection (linear) ────────────
+    # Uses business days for consistency with chart and daily_needed
     daily_variance = 0
     projected_kg_linear = fact_kg
     if vendor_codes and elapsed_days > 0:
@@ -1731,7 +2329,13 @@ def api_insights():
         """, vendor_codes + [cur_ym]).fetchall()
         daily_vals = [r['kg'] for r in daily_rows if r['kg']]
         if daily_vals:
-            avg_daily = sum(daily_vals) / elapsed_days
+            # avg_daily = kg per business day (align with chart)
+            bd_elapsed = sum(1 for d in range(1, today.day + 1)
+                             if datetime(year, month, d).weekday() < 5) if is_cur_month else elapsed_days
+            bd_elapsed = max(bd_elapsed, 1)
+            # Use fact_kg (fact_avance) as base; rate from fact_facturacion when available
+            total_from_fact = sum(daily_vals)
+            avg_daily = total_from_fact / bd_elapsed
             if len(daily_vals) > 1:
                 daily_variance = _stats.stdev(daily_vals)
             projected_kg_linear = fact_kg + avg_daily * remaining_days
@@ -1795,12 +2399,113 @@ def api_insights():
         next_high_kg = round(next_forecast_kg + std_fc, 0)
         next_confidence = min(85, 30 + 5 * len(scope_vals))
 
-    # ── Current-month closing projection ─────────────────────────
-    # For a closed month: final result = facturado + pendiente (avance pending)
-    if not is_cur_month and pend_kg > 0:
+    # ── SITUACIÓN: Análisis semanal vs histórico ─────────────────
+    situacion = {'semanas': [], 'resumen': '', 'alerta': None}
+    proyeccion_ratio = None  # ratio-based projection
+    escenarios_similares = []
+
+    if vendor_codes and is_cur_month and today.day >= 7:
+        ph = ','.join(['?'] * len(vendor_codes))
+        # Current month weekly (from fact_facturacion)
+        daily_cur = conn.execute(f"""
+            SELECT CAST(strftime('%d', fecha_emision) AS INTEGER) as dia, SUM(cantidad) as kg
+            FROM fact_facturacion
+            WHERE cod_vendedor IN ({ph}) AND year_month = ?
+            GROUP BY dia
+        """, vendor_codes + [cur_ym]).fetchall()
+        cur_by_day = {r['dia']: r['kg'] or 0 for r in daily_cur}
+
+        # Historical: last 12 months daily for same vendors
+        hist_months = conn.execute("""
+            SELECT DISTINCT year_month FROM fact_facturacion
+            WHERE cod_vendedor IN ({ph}) AND year_month != ?
+            ORDER BY year_month DESC LIMIT 12
+        """.format(ph=ph), vendor_codes + [cur_ym]).fetchall()
+        hist_ym_list = [r['year_month'] for r in hist_months]
+
+        hist_weekly = {}
+        hist_ratio_by_day = {}
+        hist_month_totals = []  # [(ym, total, acum_at_day_n), ...]
+
+        for hym in hist_ym_list:
+            rows = conn.execute(f"""
+                SELECT CAST(strftime('%d', fecha_emision) AS INTEGER) as dia, SUM(cantidad) as kg
+                FROM fact_facturacion
+                WHERE cod_vendedor IN ({ph}) AND year_month = ?
+                GROUP BY dia
+            """, vendor_codes + [hym]).fetchall()
+            by_day = {r['dia']: r['kg'] or 0 for r in rows}
+            total_mes = sum(by_day.values())
+            if total_mes <= 0:
+                continue
+            acum = 0
+            for d in range(1, 32):
+                acum += by_day.get(d, 0)
+                if d not in hist_ratio_by_day:
+                    hist_ratio_by_day[d] = []
+                hist_ratio_by_day[d].append(acum / total_mes)
+            hist_month_totals.append((hym, total_mes, sum(by_day.get(d, 0) for d in range(1, today.day + 1))))
+            for sem in range(1, 6):
+                kg_sem = sum(by_day.get(d, 0) for d in range((sem-1)*7+1, min(sem*7+1, 32)))
+                hist_weekly.setdefault(sem, []).append(kg_sem)
+
+        # Current month weeks
+        for sem in range(1, 6):
+            kg_sem_cur = sum(cur_by_day.get(d, 0) for d in range((sem-1)*7+1, min(sem*7+1, 32)))
+            if (sem-1)*7+1 > today.day:
+                break
+            prom_hist = _stats.mean(hist_weekly.get(sem, [0])) if hist_weekly.get(sem) else 0
+            diff_pct = round((kg_sem_cur - prom_hist) / prom_hist * 100, 1) if prom_hist else 0
+            situacion['semanas'].append({
+                'semana': sem,
+                'kg': round(kg_sem_cur, 0),
+                'prom_historico': round(prom_hist, 0),
+                'diff_pct': diff_pct,
+            })
+
+        # Resumen situacional
+        if len(situacion['semanas']) >= 2:
+            s1, s2 = situacion['semanas'][0], situacion['semanas'][1]
+            if s2['kg'] > 0 and s1['kg'] > 0:
+                wow = round((s2['kg'] - s1['kg']) / s1['kg'] * 100, 1)
+                if wow < -15:
+                    situacion['alerta'] = 'baja'
+                    situacion['resumen'] = f"Semana 2 fue {abs(wow)}% más baja que semana 1. En meses con caídas similares, la recuperación requirió acelerar ventas en la última quincena."
+                elif wow > 20:
+                    situacion['resumen'] = f"Semana 2 subió {wow}% vs semana 1. Buen ritmo."
+                else:
+                    situacion['resumen'] = f"Ritmo estable entre semanas. Semana 2: {s2['diff_pct']}% vs promedio histórico."
+            elif s2['diff_pct'] < -20:
+                situacion['alerta'] = 'baja'
+                situacion['resumen'] = f"Semana 2 está {abs(s2['diff_pct'])}% por debajo del promedio histórico. Revisá causas y priorizá clientes con mayor pendiente."
+
+        # Proyección ratio-based: qué % del mes típicamente teníamos al día N
+        if today.day in hist_ratio_by_day and hist_ratio_by_day[today.day]:
+            ratio_prom = _stats.mean(hist_ratio_by_day[today.day])
+            if ratio_prom > 0.02:
+                proyeccion_ratio = round(fact_kg / ratio_prom, 0)
+                # Escenarios similares: meses donde al día N teníamos ratio similar (±15%)
+                for hym, total_mes, acum_n in hist_month_totals:
+                    if total_mes > 0:
+                        r_at_n = acum_n / total_mes
+                        if abs(r_at_n - ratio_prom) < 0.15:
+                            escenarios_similares.append({
+                                'mes': hym,
+                                'cierre_final': round(total_mes, 0),
+                                'ratio_dia_n': round(r_at_n * 100, 1),
+                            })
+                escenarios_similares = escenarios_similares[:5]
+
+    # ── Proyección final: blend linear + ratio cuando hay historial ─
+    if proyeccion_ratio is not None and obj_kg > 0:
+        # Usar el más conservador entre linear y ratio, o promedio ponderado
+        blend = 0.5 * projected_kg_linear + 0.5 * proyeccion_ratio
+        final_kg = round(blend, 0)
+    elif not is_cur_month and pend_kg > 0:
         final_kg = fact_kg + pend_kg
     else:
         final_kg = projected_kg_linear
+
     proj_pct = round(final_kg / obj_kg * 100, 1) if obj_kg else 0
     conf_range = daily_variance * (remaining_days ** 0.5)
     low_kg  = max(0, projected_kg_linear - conf_range)
@@ -1809,6 +2514,102 @@ def api_insights():
     high_pct = round(high_kg / obj_kg * 100, 1) if obj_kg else 0
 
     daily_needed = round((obj_kg - fact_kg) / remaining_days, 0) if remaining_days > 0 else 0
+
+    # Plan de recuperación
+    plan_recuperacion = []
+    if obj_kg > 0 and fact_kg < obj_kg and remaining_days > 0:
+        gap = obj_kg - fact_kg
+        plan_recuperacion.append({
+            'tipo': 'objetivo',
+            'titulo': 'KG/día necesarios para alcanzar objetivo',
+            'valor': round(daily_needed, 0),
+            'detalle': f"{int(gap):,} kg en {remaining_days} días hábiles",
+        })
+        # Clientes prioritarios: poder de compra + ponderación + no compraron/compraron menos
+        # Incluye: ponderación estratégica, kg históricos (poder compra), venta_actual vs histórico
+        hist_months = conn.execute("""
+            SELECT DISTINCT year_month FROM fact_cliente_historico
+            WHERE year_month < ? ORDER BY year_month DESC LIMIT 6
+        """, [cur_ym]).fetchall()
+        hist_ym_list = [r['year_month'] for r in hist_months] or [prev_ym]
+        hist_ph = ','.join(['?'] * len(hist_ym_list))
+        where_av2 = where.replace("av.", "av2.")
+
+        clientes_prioridad = conn.execute(f"""
+            WITH poder_compra AS (
+                SELECT cod_cliente, AVG(kg_vendidos) as avg_kg_hist
+                FROM fact_cliente_historico
+                WHERE year_month IN ({hist_ph})
+                GROUP BY cod_cliente
+            )
+            SELECT
+                av.cod_cliente,
+                av.nom_cliente,
+                av.pendiente,
+                av.objetivo,
+                av.venta_actual,
+                COALESCE(cp.ponderacion_pct, (av.objetivo * 100.0 / NULLIF((SELECT SUM(objetivo) FROM fact_avance_cliente_vendedor_month av2 WHERE {where_av2} AND av2.year_month = ?), 0))) as ponderacion,
+                COALESCE(pc.avg_kg_hist, 0) as poder_compra_kg
+            FROM fact_avance_cliente_vendedor_month av
+            LEFT JOIN crm_cliente_ponderacion cp ON av.cod_cliente = cp.cod_cliente AND cp.year_month = ?
+            LEFT JOIN poder_compra pc ON av.cod_cliente = pc.cod_cliente
+            WHERE {where} AND av.year_month = ? AND av.pendiente > 0
+        """, hist_ym_list + params + [cur_ym, cur_ym] + params + [cur_ym]).fetchall()
+
+        # Score: ponderación + poder compra + pendiente + bonus si no compró o compró menos
+        scored = []
+        if not clientes_prioridad:
+            top_clientes = []
+        else:
+            max_pend = max((r['pendiente'] for r in clientes_prioridad), default=1)
+            max_poder = max((r['poder_compra_kg'] or 0 for r in clientes_prioridad), default=1)
+            for r in clientes_prioridad:
+                pond = float(r['ponderacion'] or 0)
+                poder = float(r['poder_compra_kg'] or 0)
+                pend = float(r['pendiente'])
+                venta = float(r['venta_actual'] or 0)
+                no_compro = 1 if venta == 0 else 0
+                compro_menos = 1 if poder > 0 and venta < poder * 0.7 else 0
+                score = (
+                    (pond / 100.0) * 25 +
+                    min(poder / max_poder, 1.0) * 25 +
+                    (pend / max_pend) * 35 +
+                    no_compro * 15 +
+                    compro_menos * 10
+                )
+                scored.append((score, r))
+            scored.sort(key=lambda x: x[0], reverse=True)
+            top_clientes = [s[1] for s in scored[:5]]
+
+        if top_clientes:
+            def _motivo(r):
+                v = float(r['venta_actual'] or 0)
+                p = float(r['poder_compra_kg'] or 0)
+                if v == 0:
+                    return 'no compró este mes'
+                if p > 0 and v < p * 0.7:
+                    return 'compró menos de lo habitual'
+                return None
+            plan_recuperacion.append({
+                'tipo': 'prioridad',
+                'titulo': 'Priorizar estos clientes',
+                'clientes': [
+                    {
+                        'nombre': r['nom_cliente'],
+                        'pendiente': round(r['pendiente'], 0),
+                        'motivo': _motivo(r),
+                    }
+                    for r in top_clientes
+                ],
+                'detalle': 'Ponderación + poder de compra + pendiente · prioridad a quienes no compraron o compraron menos',
+            })
+        if situacion.get('alerta') == 'baja' and escenarios_similares:
+            cierres = [e['cierre_final'] for e in escenarios_similares]
+            plan_recuperacion.append({
+                'tipo': 'referencia',
+                'titulo': 'Escenarios similares en el pasado',
+                'detalle': f"En {len(escenarios_similares)} mes(es) con ritmo similar: cierre promedio {round(_stats.mean(cierres), 0):,} kg",
+            })
 
     # Trend vs last month
     prev_total_row = conn.execute(f"""
@@ -1837,6 +2638,12 @@ def api_insights():
         'trend_vs_prev_pct': trend_vs_prev,
         'is_month_closed': not is_cur_month,
         'cur_ym': cur_ym,
+        # Situación asistida (análisis semanal, escenarios)
+        'situacion': situacion,
+        'escenarios_similares': escenarios_similares,
+        'plan_recuperacion': plan_recuperacion,
+        'projected_kg_linear': round(projected_kg_linear, 0),
+        'projected_kg_ratio': proyeccion_ratio,
         # Next month multi-factor forecast
         'next_ym': next_ym_fc,
         'next_forecast_kg': next_forecast_kg,
@@ -1880,31 +2687,40 @@ def api_insights():
         d['telefono'] = str(d['telefono']).replace('.0','') if d['telefono'] else None
         risk.append(d)
 
-    # ── 3. OPPORTUNITIES — active clients ranked by priority score ──
-    opp_rows = conn.execute(f"""
-        SELECT
-            av.cod_cliente,
-            av.nom_cliente,
-            av.venta_actual,
-            av.pendiente,
-            av.objetivo,
-            av.frecuencia,
-            s.tier,
-            dc.telefono,
-            dc.contacto
-        FROM fact_avance_cliente_vendedor_month av
-        LEFT JOIN fact_client_segmentation s
-            ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
-        LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
-        WHERE {where}
-          AND av.year_month = ?
-          AND av.venta_actual > 0
-          AND av.pendiente > 0
-        ORDER BY
-            (CASE s.tier WHEN 'AAA' THEN 4 WHEN 'AA' THEN 3 WHEN 'CN' THEN 3 WHEN 'A' THEN 2 ELSE 1 END) DESC,
-            av.pendiente DESC
-        LIMIT 8
-    """, params + [cur_ym]).fetchall()
+    # ── 3. OPPORTUNITIES — solo clientes visitables HOY (por día + frecuencia) ──
+    # Mismo mapeo que planificación: Lun→Mar,Mié; Mar→Mié,Jue; Mié→Jue,Vie; Jue→Vie,Lun; Vie→Lun,Mar; Sáb/Dom→ninguno
+    freq_map = {0: ['MARTES', 'MIERCOLES'], 1: ['MIERCOLES', 'JUEVES'], 2: ['JUEVES', 'VIERNES'],
+                3: ['VIERNES', 'LUNES'], 4: ['LUNES', 'MARTES'], 5: [], 6: []}
+    target_frecuencias = freq_map.get(today.weekday(), [])
+    opp_rows = []
+    if target_frecuencias:
+        freq_cond = " OR ".join(["UPPER(av.frecuencia) LIKE ?" for _ in target_frecuencias])
+        freq_params = [f"%{f}%" for f in target_frecuencias]
+        opp_rows = conn.execute(f"""
+            SELECT
+                av.cod_cliente,
+                av.nom_cliente,
+                av.venta_actual,
+                av.pendiente,
+                av.objetivo,
+                av.frecuencia,
+                s.tier,
+                dc.telefono,
+                dc.contacto
+            FROM fact_avance_cliente_vendedor_month av
+            LEFT JOIN fact_client_segmentation s
+                ON av.cod_cliente = s.cod_cliente AND av.year_month = s.year_month
+            LEFT JOIN dim_clients dc ON av.cod_cliente = dc.cliente_id
+            WHERE {where}
+              AND av.year_month = ?
+              AND av.venta_actual > 0
+              AND av.pendiente > 0
+              AND ({freq_cond})
+            ORDER BY
+                (CASE s.tier WHEN 'AAA' THEN 4 WHEN 'AA' THEN 3 WHEN 'CN' THEN 3 WHEN 'A' THEN 2 ELSE 1 END) DESC,
+                av.pendiente DESC
+            LIMIT 8
+        """, params + [cur_ym] + freq_params).fetchall()
 
     opportunities = []
     for r in opp_rows:
@@ -1989,6 +2805,8 @@ def api_coberturas():
     # ── Reconciliation: cross-check lanzamiento estado with fact_facturacion ──
     # The launch Excel may track only selected SKUs. Any client who bought from
     # the launch product category in fact_facturacion is upgraded to COMPRADOR.
+    # NOTE: 'VEGGIES' requires dim_product_classification to have categoria='VEGGIES'.
+    # If not present, Veggies KG must come from the source Excel directly.
     CATEGORY_MAP = {
         'PAPAS':     'Papas',
         'EMBUTIDOS': 'Chorizos',
@@ -2025,7 +2843,7 @@ def api_coberturas():
                         fact_feb  = CASE WHEN fact_feb  = 0 OR fact_feb  IS NULL THEN ? ELSE fact_feb  END,
                         total_feb = CASE WHEN total_feb = 0 OR total_feb IS NULL THEN ? ELSE total_feb END
                     WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
-                      AND estado != 'COMPRADOR'
+                      AND (estado != 'COMPRADOR' OR fact_feb = 0 OR fact_feb IS NULL)
                 """, (row['kg_real'], row['kg_real'], row['cod_cliente'], lanz_name, lanz_ym))
 
         for cat, lanz_name in CATEGORY_MAP.items():
@@ -2064,7 +2882,9 @@ def api_coberturas():
         det_params.append(producto)
 
     detalle = conn.execute(f"""
-        SELECT lanzamiento, cod_cliente, nom_cliente, estado, fact_feb, pend_feb, total_feb, promedio_u3
+        SELECT lanzamiento, cod_cliente, nom_cliente, estado, 
+               fact_feb as fact_current, pend_feb as pend_current, total_feb as total_current, 
+               promedio_u3
         FROM fact_lanzamiento_cobertura
         WHERE {det_where}
         ORDER BY nom_cliente
@@ -2198,6 +3018,38 @@ def api_cliente_mes(cod_cliente, year_month):
     """, (cod_cliente, year_month)).fetchone()
     kg_historico = hist_row['kg_vendidos'] if hist_row else kg_total
 
+    # Check for overdue invoices (last 3 months) or 'Anticipado' condition
+    alerta_anticipado = False
+    facturas_vencidas = []
+    
+    # 1. Check if client is Anticipado
+    plazo_row = conn.execute("SELECT plazo FROM dim_clients WHERE cliente_id = ?", (cod_cliente,)).fetchone()
+    if plazo_row and plazo_row['plazo'] and str(plazo_row['plazo']).strip().lower() == 'anticipado':
+        alerta_anticipado = True
+        
+    # 2. Check for overdue invoices in the last 90 days
+    # (Assuming fact_facturacion imports positive rows for invoices)
+    # We find rows where fecha_emision + plazo < today
+    # We use julianday for date math
+    deuda = conn.execute("""
+        SELECT f.fecha_emision, f.importe, p.plazo
+        FROM fact_facturacion f
+        JOIN dim_clients p ON f.cod_cliente = p.cliente_id
+        WHERE f.cod_cliente = ?
+          AND f.cantidad > 0
+          AND f.fecha_emision >= date('now', '-90 day')
+          AND p.plazo IS NOT NULL AND LOWER(p.plazo) != 'anticipado'
+          AND julianday('now') - julianday(f.fecha_emision) > CAST(p.plazo AS INTEGER)
+        ORDER BY f.fecha_emision ASC
+    """, (cod_cliente,)).fetchall()
+    
+    for d in deuda:
+        facturas_vencidas.append({
+            'fecha_emision': d['fecha_emision'],
+            'importe': round(d['importe'], 2),
+            'dias_vencida': int(conn.execute("SELECT CAST(julianday('now') - (julianday(?) + ?) AS INTEGER)", (d['fecha_emision'], d['plazo'])).fetchone()[0])
+        })
+
     conn.close()
 
     mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
@@ -2220,6 +3072,8 @@ def api_cliente_mes(cod_cliente, year_month):
         'top_productos': [dict(r) for r in top_prods],
         'categorias': [dict(r) for r in categorias],
         'coberturas': [dict(r) for r in launches],
+        'alerta_anticipado': alerta_anticipado,
+        'facturas_vencidas': facturas_vencidas
     })
 
 
@@ -2476,9 +3330,9 @@ def api_cliente_evolucion():
 @app.route('/api/coberturas/historial-3m')
 def api_coberturas_historial_3m():
     """
-    Compares coverage (unique buyers) of each launch product across the last 3
-    billing months using fact_facturacion + dim_product_classification.
-    This shows whether launch adoption is growing, stable or declining.
+    Compares coverage (unique buyers) across 10 defined categories (Lanzamientos/Focos)
+    across the last 3 billing months using fact_facturacion + dim_product_classification.
+    Special rule for UNTABLES: only counts if product description contains JALAPEÑO, JAPALEÑO or CHILE.
     """
     cod_vendedor = request.args.get('vendedor', '')
     jefe         = request.args.get('jefe', '')
@@ -2501,12 +3355,15 @@ def api_coberturas_historial_3m():
         av_params = [zona]
 
     # Resolve vendor codes for fact_facturacion filter
-    cur_ym = conn.execute(
-        "SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month"
-    ).fetchone()[0]
+    cur_ym_row = conn.execute("SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month").fetchone()
+    if not cur_ym_row or not cur_ym_row[0]:
+        conn.close()
+        return jsonify({'meses': [], 'lanzamientos': [], 'series': {}})
+    cur_ym = cur_ym_row[0]
+    
     vendor_codes_rows = conn.execute(f"""
-        SELECT DISTINCT cod_vendedor FROM fact_avance_cliente_vendedor_month
-        WHERE {where_av} AND year_month = ?
+        SELECT DISTINCT av.cod_vendedor FROM fact_avance_cliente_vendedor_month av
+        WHERE {where_av} AND av.year_month = ?
     """, av_params + [cur_ym]).fetchall()
     vendor_codes = [r['cod_vendedor'] for r in vendor_codes_rows]
 
@@ -2516,8 +3373,8 @@ def api_coberturas_historial_3m():
 
     # Total clients in scope (denominator for coverage %)
     total_clients = conn.execute(f"""
-        SELECT COUNT(DISTINCT cod_cliente) FROM fact_avance_cliente_vendedor_month
-        WHERE {where_av} AND year_month = ?
+        SELECT COUNT(DISTINCT av.cod_cliente) FROM fact_avance_cliente_vendedor_month av
+        WHERE {where_av} AND av.year_month = ?
     """, av_params + [cur_ym]).fetchone()[0] or 1
 
     ph = ','.join(['?'] * len(vendor_codes))
@@ -2534,41 +3391,41 @@ def api_coberturas_historial_3m():
         conn.close()
         return jsonify({'meses': [], 'lanzamientos': [], 'series': {}})
 
-    # Buyers per launch product per month
-    # A "launch" is identified by categoria in dim_product_classification
-    # We reuse the same launch taxonomy from fact_lanzamiento_cobertura
-    launch_names_rows = conn.execute(
-        "SELECT DISTINCT lanzamiento FROM fact_lanzamiento_cobertura ORDER BY lanzamiento"
-    ).fetchall()
-    launch_names = [r['lanzamiento'] for r in launch_names_rows]
+    month_ph = ','.join(['?'] * len(months))
 
-    # Map launch name → product categories that belong to it
-    # (fact_lanzamiento_cobertura.lanzamiento is the product name directly)
-    # We join via dim_product_classification by matching categoria/descripcion
-    # Simpler: count unique buyers who purchased any product in the same category as the launch
-    # For now: use dim_product_classification.categoria as proxy for launch grouping
-    # and join against fact_lanzamiento_cobertura to get the correct launch names
+    # Dynamic rules for classifying 'lanzamiento' groups using CASE WHEN
+    # Re-maps categories or description patterns to the predefined 10 focus goals
+    sql_classification = """
+        CASE 
+            WHEN UPPER(p.categoria) LIKE '%HAMBURGUESA%' THEN 'HG'
+            WHEN UPPER(p.categoria) LIKE '%SALCHICHA%' THEN 'SCH'
+            WHEN UPPER(p.categoria) LIKE '%REBOZADO%' OR UPPER(p.descripcion) LIKE '%REBOZADO%' THEN 'RB'
+            WHEN UPPER(p.descripcion) LIKE '%SOJA%' OR UPPER(p.categoria) LIKE '%SOJA%' THEN 'SJ'
+            WHEN UPPER(p.descripcion) LIKE '%GRASA%' THEN 'GRASA'
+            WHEN UPPER(p.descripcion) LIKE '%PICADA%' THEN 'CARNE PICADA'
+            WHEN UPPER(p.categoria) LIKE '%PAPA%' THEN 'PAPAS'
+            WHEN UPPER(p.categoria) = 'PESCADOS' OR UPPER(p.descripcion) LIKE '%ATUN%' THEN 'ATUN'
+            WHEN UPPER(p.categoria) = 'EMBUTIDOS' OR UPPER(p.descripcion) LIKE '%CHORIZO%' THEN 'CHORIZOS'
+            WHEN UPPER(p.categoria) = 'UNTABLES' 
+                 AND (UPPER(p.descripcion) LIKE '%JALAPEÑO%' OR UPPER(p.descripcion) LIKE '%JAPALEÑO%' OR UPPER(p.descripcion) LIKE '%CHILE%') THEN 'UNT'
+            ELSE NULL
+        END
+    """
 
-    # Get clients per launch per month from fact_facturacion
-    # Match launch products by joining fact_lanzamiento_cobertura → dim_product_classification
+    # Get buyers per launch category per month directly from facts
     rows = conn.execute(f"""
-        SELECT
+        SELECT 
             f.year_month,
-            lz.lanzamiento,
+            {sql_classification} as lanzamiento,
             COUNT(DISTINCT f.cod_cliente) as compradores,
             SUM(f.cantidad) as kg_total
         FROM fact_facturacion f
         JOIN dim_product_classification p ON f.cod_producto = p.cod_producto
-        JOIN (
-            SELECT DISTINCT lanzamiento,
-                   SUBSTR(lanzamiento, 1, 8) as prefix
-            FROM fact_lanzamiento_cobertura
-        ) lz ON UPPER(p.descripcion) LIKE '%' || UPPER(SUBSTR(lz.lanzamiento, 1, 8)) || '%'
-                OR UPPER(p.categoria) LIKE '%' || UPPER(SUBSTR(lz.lanzamiento, 1, 8)) || '%'
         WHERE f.cod_vendedor IN ({ph})
-          AND f.year_month IN ({','.join(['?']*len(months))})
-        GROUP BY f.year_month, lz.lanzamiento
-        ORDER BY lz.lanzamiento, f.year_month
+          AND f.year_month IN ({month_ph})
+          AND {sql_classification} IS NOT NULL
+        GROUP BY f.year_month, lanzamiento
+        ORDER BY lanzamiento, f.year_month
     """, vendor_codes + months).fetchall()
 
     # Build series structure
@@ -2584,8 +3441,11 @@ def api_coberturas_historial_3m():
             'pct': round(r['compradores'] / total_clients * 100, 1)
         }
 
-    # Fill missing months with zeros
-    for lz in series:
+    # Ensure all 10 target categories exist in the series dictionary with zeros if no sales
+    target_categories = ['HG', 'SCH', 'UNT', 'RB', 'SJ', 'GRASA', 'CARNE PICADA', 'PAPAS', 'ATUN', 'CHORIZOS']
+    for lz in target_categories:
+        if lz not in series:
+            series[lz] = {}
         for m in months:
             if m not in series[lz]:
                 series[lz][m] = {'compradores': 0, 'kg': 0, 'pct': 0}
@@ -2605,11 +3465,12 @@ def api_coberturas_historial_3m():
     mes_names = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
     mes_labels = [mes_names[int(m.split('-')[1]) - 1] + ' ' + m.split('-')[0][2:] for m in months]
 
+    # Return predefined order
     return jsonify({
         'meses': months,
         'mes_labels': mes_labels,
         'total_clientes': total_clients,
-        'lanzamientos': [lz for lz in series.keys()],
+        'lanzamientos': target_categories,
         'series': series
     })
 
@@ -2847,6 +3708,461 @@ def api_forecast():
         'proj_pct_of_obj': round(total_forecast / total_obj * 100, 1) if total_obj else None,
         'clients': forecasts
     })
+
+def _build_deuda_alertas(conn, clientes, dia_string, fecha_visita, tipo_suffix):
+    """Build debt/contado anticipado alerts for a list of clients. Returns list with alert_id."""
+    alertas = []
+    for cl in clientes:
+        cid = cl['cod_cliente']
+        plazo = str(cl['plazo']).strip().lower() if cl['plazo'] else ''
+        es_anticipado = (plazo == 'anticipado')
+
+        deuda = []
+        if not es_anticipado and plazo and plazo.isdigit():
+            vencidas_rows = conn.execute("""
+                SELECT fecha_emision, importe
+                FROM fact_facturacion
+                WHERE cod_cliente = ?
+                  AND cantidad > 0
+                  AND fecha_emision >= date('now', '-90 day')
+                  AND julianday('now') - julianday(fecha_emision) > ?
+                ORDER BY fecha_emision ASC
+            """, (cid, int(plazo))).fetchall()
+            for d in vencidas_rows:
+                dias_v = int(conn.execute(
+                    "SELECT CAST(julianday('now') - (julianday(?) + ?) AS INTEGER)",
+                    (d['fecha_emision'], int(plazo))
+                ).fetchone()[0])
+                deuda.append({
+                    'fecha_emision': d['fecha_emision'],
+                    'importe': round(d['importe'], 2),
+                    'dias_vencida': dias_v
+                })
+
+        if es_anticipado or len(deuda) > 0:
+            sub = 'CONTADO' if es_anticipado else 'DEUDA'
+            alert_id = f"{sub}_{cid}_{fecha_visita}_{tipo_suffix}"
+            alertas.append({
+                'alert_id': alert_id,
+                'cod_cliente': cid,
+                'nom_cliente': cl['nom_cliente'],
+                'es_anticipado': es_anticipado,
+                'plazo_original': cl['plazo'],
+                'cantidad_facturas_vencidas': len(deuda),
+                'total_vencido': sum(d['importe'] for d in deuda),
+                'facturas_vencidas': deuda,
+                'tipo': 'CONTADO_ANTICIPADO' if es_anticipado else 'DEUDA',
+                'dia_visita': dia_string,
+                'fecha_visita': fecha_visita,
+            })
+    return alertas
+
+
+@app.route('/api/alertas/deuda-manana')
+def api_alertas_deuda_manana():
+    """
+    Returns a list of clients who are due for visit TOMORROW
+    and have either: 'Contado anticipado' or Overdue invoices.
+    Query param `date` (YYYY-MM-DD): use that as "today", so mañana = date + 1.
+    """
+    from datetime import datetime, timedelta
+    date_str = request.args.get('date')
+    if date_str:
+        try:
+            hoy_ref = datetime.strptime(date_str, '%Y-%m-%d')
+        except ValueError:
+            hoy_ref = datetime.now()
+    else:
+        hoy_ref = datetime.now()
+    mañana = hoy_ref + timedelta(days=1)
+    weekday_mañana = mañana.weekday()
+    mapping_dias = {0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES',
+                   4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'}
+    dia_string = mapping_dias.get(weekday_mañana)
+    fecha_visita = mañana.strftime('%Y-%m-%d')
+
+    conn = get_db()
+    where_parts, params = _alertas_where_clause(request)
+    clientes = conn.execute(f"""
+        SELECT av.cod_cliente, av.nom_cliente, c.plazo, av.frecuencia
+        FROM fact_avance_cliente_vendedor_month av
+        JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+        WHERE {where_parts} AND UPPER(av.frecuencia) LIKE ?
+    """, params + [f"%{dia_string}%"]).fetchall()
+
+    alertas = _build_deuda_alertas(conn, clientes, dia_string, fecha_visita, 'MANANA')
+    alertas = _filter_dismissed(conn, alertas)
+    conn.close()
+
+    alertas.sort(key=lambda x: x['total_vencido'], reverse=True)
+    return jsonify({
+        'dia_cobro': dia_string,
+        'fecha_cobro': fecha_visita,
+        'total_alertas': len(alertas),
+        'alertas': alertas
+    })
+
+
+def _alertas_where_clause(req):
+    where_parts = ["av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)"]
+    params = []
+    v, j, z = req.args.get('vendedor', ''), req.args.get('jefe', ''), req.args.get('zona', '')
+    if v:
+        where_parts.append("av.cod_vendedor = ?")
+        params.append(v)
+    elif j:
+        where_parts.append("av.jefe = ?")
+        params.append(j)
+    elif z:
+        where_parts.append("av.zona = ?")
+        params.append(z)
+    return " AND ".join(where_parts), params
+
+
+def _filter_dismissed(conn, alertas):
+    if not alertas:
+        return alertas
+    ids = [a['alert_id'] for a in alertas]
+    placeholders = ','.join(['?'] * len(ids))
+    dismissed = set(r[0] for r in conn.execute(
+        f"SELECT alert_id FROM crm_alertas_dismissed WHERE alert_id IN ({placeholders})", ids
+    ).fetchall())
+    return [a for a in alertas if a['alert_id'] not in dismissed]
+
+
+@app.route('/api/alertas/deuda-hoy')
+def api_alertas_deuda_hoy():
+    """
+    Returns clients due for visit TODAY with debt or contado anticipado.
+    For early-day management: see who needs attention before starting the route.
+    """
+    from datetime import datetime
+    hoy = datetime.now()
+    weekday = hoy.weekday()
+    mapping_dias = {0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES',
+                    4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'}
+    # Planning mapping: Mon->Tue,Wed; Tue->Wed,Thu; Wed->Thu,Fri; Thu->Fri,Mon; Fri->Mon,Tue
+    freq_map = {0: ['MARTES', 'MIERCOLES'], 1: ['MIERCOLES', 'JUEVES'], 2: ['JUEVES', 'VIERNES'],
+                3: ['VIERNES', 'LUNES'], 4: ['LUNES', 'MARTES'], 5: [], 6: []}
+    target_freqs = freq_map.get(weekday, [])
+    fecha_visita = hoy.strftime('%Y-%m-%d')
+    dia_string = mapping_dias.get(weekday, '')
+
+    conn = get_db()
+    where_parts, params = _alertas_where_clause(request)
+    if not target_freqs:
+        conn.close()
+        return jsonify({'dia_visita': dia_string, 'fecha_visita': fecha_visita, 'total_alertas': 0, 'alertas': []})
+
+    freq_cond = " OR ".join(["UPPER(av.frecuencia) LIKE ?" for _ in target_freqs])
+    params_freq = params + [f"%{f}%" for f in target_freqs]
+    clientes = conn.execute(f"""
+        SELECT av.cod_cliente, av.nom_cliente, c.plazo, av.frecuencia
+        FROM fact_avance_cliente_vendedor_month av
+        JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+        WHERE {where_parts} AND ({freq_cond})
+    """, params_freq).fetchall()
+
+    alertas = _build_deuda_alertas(conn, clientes, dia_string or 'HOY', fecha_visita, 'HOY')
+    alertas = _filter_dismissed(conn, alertas)
+    conn.close()
+
+    alertas.sort(key=lambda x: x['total_vencido'], reverse=True)
+    return jsonify({
+        'dia_visita': dia_string,
+        'fecha_visita': fecha_visita,
+        'total_alertas': len(alertas),
+        'alertas': alertas
+    })
+
+
+@app.route('/api/alertas/gestion-completo')
+def api_alertas_gestion_completo():
+    """
+    Unified alerts for CRM Hoy tab: deuda hoy, contado anticipado hoy, deuda mañana, gestiones.
+    All with alert_id for dismiss. Filtered by vendedor/jefe/zona.
+    Query param `date` (YYYY-MM-DD): simulate that date for planning (hoy/mañana relative to it).
+    """
+    conn = get_db()
+    from datetime import datetime, timedelta
+
+    date_str = request.args.get('date')
+    if date_str:
+        try:
+            hoy = datetime.strptime(date_str, '%Y-%m-%d')
+        except ValueError:
+            hoy = datetime.now()
+    else:
+        hoy = datetime.now()
+    mañana = hoy + timedelta(days=1)
+    mapping_dias = {0: 'LUNES', 1: 'MARTES', 2: 'MIERCOLES', 3: 'JUEVES',
+                    4: 'VIERNES', 5: 'SABADO', 6: 'DOMINGO'}
+    freq_map = {0: ['MARTES', 'MIERCOLES'], 1: ['MIERCOLES', 'JUEVES'], 2: ['JUEVES', 'VIERNES'],
+                3: ['VIERNES', 'LUNES'], 4: ['LUNES', 'MARTES'], 5: [], 6: []}
+
+    where_parts, params = _alertas_where_clause(request)
+    all_alertas = []
+
+    # 1. Deuda / Contado HOY (clientes que visitamos hoy)
+    target_freqs = freq_map.get(hoy.weekday(), [])
+    if target_freqs:
+        freq_cond = " OR ".join(["UPPER(av.frecuencia) LIKE ?" for _ in target_freqs])
+        params_hoy = params + [f"%{f}%" for f in target_freqs]
+        clientes_hoy = conn.execute(f"""
+            SELECT av.cod_cliente, av.nom_cliente, c.plazo, av.frecuencia
+            FROM fact_avance_cliente_vendedor_month av
+            JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+            WHERE {where_parts} AND ({freq_cond})
+        """, params_hoy).fetchall()
+        ah = _build_deuda_alertas(conn, clientes_hoy, mapping_dias.get(hoy.weekday(), 'HOY'),
+                                  hoy.strftime('%Y-%m-%d'), 'HOY')
+        for a in ah:
+            a['seccion'] = 'deuda_hoy'
+        all_alertas.extend(ah)
+
+    # 2. Deuda / Contado MAÑANA
+    dia_manana = mapping_dias.get(mañana.weekday())
+    clientes_manana = conn.execute(f"""
+        SELECT av.cod_cliente, av.nom_cliente, c.plazo, av.frecuencia
+        FROM fact_avance_cliente_vendedor_month av
+        JOIN dim_clients c ON av.cod_cliente = c.cliente_id
+        WHERE {where_parts} AND UPPER(av.frecuencia) LIKE ?
+    """, params + [f"%{dia_manana}%"]).fetchall()
+    am = _build_deuda_alertas(conn, clientes_manana, dia_manana or 'MAÑANA',
+                             mañana.strftime('%Y-%m-%d'), 'MANANA')
+    for a in am:
+        a['seccion'] = 'deuda_manana'
+    all_alertas.extend(am)
+
+    # 3. Gestiones (próximo paso, cold, desavance) — use simulate date when provided
+    hoy_sql = hoy.strftime('%Y-%m-%d')
+
+    gt = conn.execute("""
+        SELECT g.id, 'GESTION' as tipo, 'Próximo Paso: ' || proximo_paso as descripcion,
+               proximo_paso_fecha as fecha_vencimiento, 'ALTA' as prioridad, g.cod_cliente,
+               (SELECT cliente_name FROM dim_clients WHERE cliente_id = g.cod_cliente) as nom_cliente
+        FROM crm_gestiones g
+        WHERE proximo_paso_fecha <= date(?, '+2 days') AND proximo_paso_fecha IS NOT NULL
+        ORDER BY proximo_paso_fecha ASC LIMIT 10
+    """, (hoy_sql,)).fetchall()
+    for r in gt:
+        d = dict(r)
+        d['alert_id'] = f"GESTION_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}_{d.get('id','')}"
+        d['seccion'] = 'gestiones'
+        all_alertas.append(d)
+
+    cold = conn.execute("""
+        SELECT 'FALTA_GESTION' as tipo, 'Sin gestión hace > 20 días' as descripcion,
+               MAX(fecha) as fecha_vencimiento, 'MEDIA' as prioridad, cod_cliente,
+               (SELECT cliente_name FROM dim_clients WHERE cliente_id = g.cod_cliente) as nom_cliente
+        FROM crm_gestiones g
+        GROUP BY cod_cliente
+        HAVING fecha_vencimiento < date(?, '-20 days') LIMIT 5
+    """, (hoy_sql,)).fetchall()
+    for r in cold:
+        d = dict(r)
+        d['alert_id'] = f"FALTA_GESTION_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}"
+        d['seccion'] = 'gestiones'
+        all_alertas.append(d)
+
+    gap = conn.execute("""
+        SELECT 'DESAVANCE' as tipo,
+               'Bajo cumplimiento: ' || CAST(ROUND((venta_actual/objetivo)*100) AS INTEGER) || '%' as descripcion,
+               date('now') as fecha_vencimiento, 'BAJA' as prioridad, cod_cliente, nom_cliente
+        FROM fact_avance_cliente_vendedor_month
+        WHERE objetivo > 0 AND (venta_actual/objetivo) < 0.4
+          AND year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+        LIMIT 5
+    """).fetchall()
+    for r in gap:
+        d = dict(r)
+        d['alert_id'] = f"DESAVANCE_{d['cod_cliente']}_{d.get('fecha_vencimiento','')}"
+        d['seccion'] = 'gestiones'
+        all_alertas.append(d)
+
+    # 4. Gestiones recurrentes para la fecha (pendientes, no completadas)
+    recurr_rows = conn.execute("""
+        SELECT r.id, r.cod_cliente, r.descripcion, dc.cliente_name as nom_cliente
+        FROM crm_planificacion_recurrente r
+        LEFT JOIN dim_clients dc ON r.cod_cliente = dc.cliente_id
+        LEFT JOIN crm_planificacion_recurrente_completado c ON c.recurrente_id = r.id AND c.fecha = ?
+        WHERE r.activo = 1 AND r.dia_semana = ? AND (c.completado IS NULL OR c.completado = 0)
+    """, (hoy_sql, hoy.weekday())).fetchall()
+    for r in recurr_rows:
+        d = dict(r)
+        d['tipo'] = 'RECURRENTE'
+        d['descripcion'] = d.get('descripcion') or 'Tarea programada'
+        d['fecha_vencimiento'] = hoy_sql
+        d['prioridad'] = 'ALTA'
+        d['alert_id'] = f"RECURRENTE_{d['id']}_{hoy_sql}"
+        d['seccion'] = 'recurrentes'
+        all_alertas.append(d)
+
+    # 5. Visitas planificadas para hoy (crm_planificacion DIARIA, pendientes)
+    plan_filter = ""
+    plan_params = [hoy_sql]
+    if where_parts:
+        plan_filter = f"""
+            AND EXISTS (
+                SELECT 1 FROM fact_avance_cliente_vendedor_month av
+                WHERE av.cod_cliente = p.cod_cliente
+                  AND av.year_month = (SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month)
+                  AND {where_parts}
+            )
+        """
+        plan_params = [hoy_sql] + params
+    plan_rows = conn.execute(f"""
+        SELECT p.id, p.cod_cliente, p.objetivo as descripcion, dc.cliente_name as nom_cliente
+        FROM crm_planificacion p
+        LEFT JOIN dim_clients dc ON p.cod_cliente = dc.cliente_id
+        WHERE p.tipo = 'DIARIA' AND p.fecha = ? AND (p.completado IS NULL OR p.completado = 0)
+        {plan_filter}
+    """, plan_params).fetchall()
+    for r in plan_rows:
+        d = dict(r)
+        d['tipo'] = 'TAREA_PLANIFICADA'
+        d['descripcion'] = d.get('descripcion') or 'Tarea programada'
+        d['fecha_vencimiento'] = hoy_sql
+        d['prioridad'] = 'ALTA'
+        d['alert_id'] = f"PLAN_{d['id']}_{hoy_sql}"
+        d['seccion'] = 'planificacion_hoy'
+        all_alertas.append(d)
+
+    all_alertas = _filter_dismissed(conn, all_alertas)
+    conn.close()
+
+    deuda_hoy = [a for a in all_alertas if a.get('seccion') == 'deuda_hoy']
+    deuda_manana = [a for a in all_alertas if a.get('seccion') == 'deuda_manana']
+    gestiones = [a for a in all_alertas if a.get('seccion') == 'gestiones']
+    recurrentes = [a for a in all_alertas if a.get('seccion') == 'recurrentes']
+    planificacion_hoy = [a for a in all_alertas if a.get('seccion') == 'planificacion_hoy']
+
+    return jsonify({
+        'deuda_hoy': deuda_hoy,
+        'deuda_manana': deuda_manana,
+        'gestiones': gestiones,
+        'recurrentes': recurrentes,
+        'planificacion_hoy': planificacion_hoy,
+        'total': len(all_alertas),
+    })
+
+
+@app.route('/api/alertas/dismiss', methods=['POST'])
+@login_required
+def api_alertas_dismiss():
+    """Mark an alert as dismissed so it no longer appears."""
+    data = request.get_json() or {}
+    alert_id = data.get('alert_id')
+    if not alert_id:
+        return jsonify({'ok': False, 'error': 'alert_id requerido'}), 400
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT OR IGNORE INTO crm_alertas_dismissed (alert_id, user_id) VALUES (?, ?)",
+            (alert_id, session.get('user', 'unknown'))
+        )
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/api/objetivos/mensual', methods=['GET', 'POST'])
+def api_objetivos_mensual():
+    """
+    GET: Devuelve los 13 objetivos globales del vendedor para el mes activo.
+    POST: Actualiza los objetivos globales del vendedor y recalcula el prorrateo por cliente (sólo P/Premium).
+    """
+    cod_vendedor = request.args.get('vendedor', '')
+    if not cod_vendedor:
+        return jsonify({'error': 'vendedor requerido'}), 400
+
+    conn = get_db()
+    cur_ym_row = conn.execute("SELECT MAX(year_month) FROM fact_avance_cliente_vendedor_month").fetchone()
+    if not cur_ym_row:
+        conn.close()
+        return jsonify({'error': 'No hay mes activo'}), 404
+    cur_ym = cur_ym_row[0]
+
+    if request.method == 'GET':
+        row = conn.execute("""
+            SELECT 
+                objetivo_pesos, objetivo_premium_pesos, objetivo_kg, objetivo_rebozados_kg,
+                obj_hg, obj_sch, obj_unt, obj_rb, obj_sj, obj_grasa, obj_picada, obj_papas, obj_atun, obj_chorizos
+            FROM vendedor_objetivos
+            WHERE cod_vendedor = ? AND year_month = ?
+        """, (cod_vendedor, cur_ym)).fetchone()
+        
+        conn.close()
+        if not row:
+            return jsonify({
+                'objetivo_pesos': 0, 'objetivo_premium_pesos': 0, 'objetivo_kg': 0, 'objetivo_rebozados_kg': 0,
+                'obj_hg': 0, 'obj_sch': 0, 'obj_unt': 0, 'obj_rb': 0, 'obj_sj': 0, 
+                'obj_grasa': 0, 'obj_picada': 0, 'obj_papas': 0, 'obj_atun': 0, 'obj_chorizos': 0
+            })
+            
+        return jsonify(dict(row))
+
+    elif request.method == 'POST':
+        data = request.json
+        obj_pesos = float(data.get('objetivo_pesos', 0))
+        obj_premium = float(data.get('objetivo_premium_pesos', 0))
+        obj_kg = float(data.get('objetivo_kg', 0))
+        obj_reb_kg = float(data.get('objetivo_rebozados_kg', 0))
+
+        # 10 volume categories
+        obj_hg = float(data.get('obj_hg', 0))
+        obj_sch = float(data.get('obj_sch', 0))
+        obj_unt = float(data.get('obj_unt', 0))
+        obj_rb = float(data.get('obj_rb', 0))
+        obj_sj = float(data.get('obj_sj', 0))
+        obj_grasa = float(data.get('obj_grasa', 0))
+        obj_picada = float(data.get('obj_picada', 0))
+        obj_papas = float(data.get('obj_papas', 0))
+        obj_atun = float(data.get('obj_atun', 0))
+        obj_chori = float(data.get('obj_chorizos', 0))
+
+        # 1. Update global vendor objectives
+        conn.execute("""
+            INSERT OR REPLACE INTO vendedor_objetivos 
+            (cod_vendedor, nom_vendedor, year_month, objetivo_pesos, objetivo_premium_pesos, objetivo_kg, objetivo_rebozados_kg,
+             obj_hg, obj_sch, obj_unt, obj_rb, obj_sj, obj_grasa, obj_picada, obj_papas, obj_atun, obj_chorizos)
+            VALUES (
+                ?, (SELECT nom_vendedor FROM fact_avance_cliente_vendedor_month WHERE cod_vendedor = ? LIMIT 1), ?, 
+                ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        """, (cod_vendedor, cod_vendedor, cur_ym, 
+              obj_pesos, obj_premium, obj_kg, obj_reb_kg,
+              obj_hg, obj_sch, obj_unt, obj_rb, obj_sj, obj_grasa, obj_picada, obj_papas, obj_atun, obj_chori))
+
+        # 2. Recalculate proportional distribution (pesos/premium) for clients of this vendor
+        if obj_kg > 0:
+            clients = conn.execute("""
+                SELECT cod_cliente, objetivo 
+                FROM fact_avance_cliente_vendedor_month
+                WHERE cod_vendedor = ? AND year_month = ?
+            """, (cod_vendedor, cur_ym)).fetchall()
+            
+            for cod_cli, cliente_kg in clients:
+                if not cliente_kg or cliente_kg == 0:
+                    continue
+                # Proportional allocation based on kg
+                proportion = cliente_kg / obj_kg
+                cliente_obj_pesos = obj_pesos * proportion
+                cliente_obj_premium = obj_premium * proportion
+                
+                conn.execute("""
+                    UPDATE fact_avance_cliente_vendedor_month
+                    SET objetivo_pesos = ?, objetivo_premium_pesos = ?
+                    WHERE cod_cliente = ? AND cod_vendedor = ? AND year_month = ?
+                """, (cliente_obj_pesos, cliente_obj_premium, cod_cli, cod_vendedor, cur_ym))
+                
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success', 'message': 'Objetivos guardados correctamente'})
 
 
 if __name__ == '__main__':

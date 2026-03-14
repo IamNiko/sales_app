@@ -237,7 +237,17 @@ class SalesETL:
                 objetivo_pesos REAL,
                 objetivo_premium_pesos REAL,
                 objetivo_kg REAL,
-                objetivo_rebozados_kg REAL DEFAULT 0
+                objetivo_rebozados_kg REAL DEFAULT 0,
+                obj_hg REAL DEFAULT 0,
+                obj_sch REAL DEFAULT 0,
+                obj_unt REAL DEFAULT 0,
+                obj_rb REAL DEFAULT 0,
+                obj_sj REAL DEFAULT 0,
+                obj_grasa REAL DEFAULT 0,
+                obj_picada REAL DEFAULT 0,
+                obj_papas REAL DEFAULT 0,
+                obj_atun REAL DEFAULT 0,
+                obj_chorizos REAL DEFAULT 0
             );
             CREATE TABLE IF NOT EXISTS fact_lanzamiento_cobertura (
                 year_month TEXT,
@@ -315,6 +325,33 @@ class SalesETL:
                 completado INTEGER DEFAULT 0,
                 resultado TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Recurring planning rules (e.g. every Friday load orders for MUY BARATO)
+            CREATE TABLE IF NOT EXISTS crm_planificacion_recurrente (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cod_cliente TEXT,
+                descripcion TEXT,
+                dia_semana INTEGER,   -- 0=Lunes, 6=Domingo
+                activo INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            -- Completion tracking for recurring tasks per date
+            CREATE TABLE IF NOT EXISTS crm_planificacion_recurrente_completado (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                recurrente_id INTEGER REFERENCES crm_planificacion_recurrente(id),
+                fecha DATE,
+                completado INTEGER DEFAULT 1,
+                resultado TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(recurrente_id, fecha)
+            );
+            -- Client strategic weight (%). Active clients should sum to 100%. User-editable.
+            CREATE TABLE IF NOT EXISTS crm_cliente_ponderacion (
+                cod_cliente TEXT,
+                year_month TEXT,
+                ponderacion_pct REAL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (cod_cliente, year_month)
             );
             -- PDVs managed by each distributor client
             CREATE TABLE IF NOT EXISTS crm_pdv (
@@ -914,22 +951,24 @@ class SalesETL:
         # Historical columns were already loaded in Phase 1 (top of this method)
         
     def sync_facturacion_to_avance(self):
-
         """Update venta_actual in fact_avance_cliente_vendedor_month using the real 
         sum of KG from fact_facturacion for the current target month.
         This fixes discrepancies where the Avance Excel is late compared to the TXT.
+
+        Two-pass strategy:
+        1. Primary: match by (cod_cliente, cod_vendedor) — handles normal account assignments.
+        2. Fallback: match by cod_cliente alone for rows where avance.cod_vendedor is NULL/empty
+           (e.g. national chains like INC SA, DIA, CENCOSUD that have no assigned account vendor).
         """
         ym = self.target_month
         logging.info(f"Syncing Facturacion KG to Avance table for {ym}")
-        
-        # Calculate real KG sum per (cod_vendedor, cod_cliente) from fact_facturacion
-        # Note: we group by cod_cliente only because in theory it's assigned to one vendor 
-        # but to be safe we match the specific vendor-client pair.
-        self.conn.execute("""
+
+        # Pass 1: exact (client + vendor) match
+        cur1 = self.conn.execute("""
             WITH real_sales AS (
-                SELECT cod_cliente, cod_vendedor, SUM(cantidad) as total_kg
+                SELECT cod_cliente, cod_vendedor, ROUND(SUM(cantidad), 2) as total_kg
                 FROM fact_facturacion
-                WHERE year_month = ?
+                WHERE year_month = ? AND cantidad > 0
                 GROUP BY cod_cliente, cod_vendedor
             )
             UPDATE fact_avance_cliente_vendedor_month
@@ -939,13 +978,37 @@ class SalesETL:
                   AND real_sales.cod_vendedor = fact_avance_cliente_vendedor_month.cod_vendedor
             )
             WHERE year_month = ?
+              AND cod_vendedor IS NOT NULL AND cod_vendedor != ''
               AND EXISTS (
                 SELECT 1 FROM real_sales 
                 WHERE real_sales.cod_cliente = fact_avance_cliente_vendedor_month.cod_cliente
                   AND real_sales.cod_vendedor = fact_avance_cliente_vendedor_month.cod_vendedor
               )
         """, (ym, ym))
-        
+        logging.info(f"  Pass 1 (client+vendor match): {cur1.rowcount} rows updated")
+
+        # Pass 2: client-only match for national chains / rows with no vendor code
+        cur2 = self.conn.execute("""
+            WITH real_sales_by_client AS (
+                SELECT cod_cliente, ROUND(SUM(cantidad), 2) as total_kg
+                FROM fact_facturacion
+                WHERE year_month = ? AND cantidad > 0
+                GROUP BY cod_cliente
+            )
+            UPDATE fact_avance_cliente_vendedor_month
+            SET venta_actual = (
+                SELECT total_kg FROM real_sales_by_client
+                WHERE real_sales_by_client.cod_cliente = fact_avance_cliente_vendedor_month.cod_cliente
+            )
+            WHERE year_month = ?
+              AND (cod_vendedor IS NULL OR cod_vendedor = '')
+              AND EXISTS (
+                SELECT 1 FROM real_sales_by_client
+                WHERE real_sales_by_client.cod_cliente = fact_avance_cliente_vendedor_month.cod_cliente
+              )
+        """, (ym, ym))
+        logging.info(f"  Pass 2 (client-only fallback for null vendor): {cur2.rowcount} rows updated")
+
         self.conn.commit()
         logging.info("Facturacion KG synced to Avance table.")
 
@@ -1081,67 +1144,79 @@ class SalesETL:
         self.calculate_monetary_objectives()
 
     def calculate_monetary_objectives(self):
-        """Calculate objetivo_pesos and objetivo_premium_pesos based on vendedor_objetivos."""
+        """Calculate objetivo_pesos and objetivo_premium_pesos based on vendedor_objetivos.
+
+        Proportional allocation uses SUM(objetivo) from fact_avance (actual client-level
+        KG targets) as the denominator, NOT objetivo_kg from vendedor_objetivos.
+        This is safer because objetivo_kg in vendedor_objetivos may be entered incorrectly
+        (e.g. accidentally set to rebozados_kg instead of total KG).
+        """
         cursor = self.conn.cursor()
-        
-        # Get all vendors with objectives
+
         vendors = cursor.execute("""
             SELECT cod_vendedor, objetivo_pesos, objetivo_premium_pesos, objetivo_kg
             FROM vendedor_objetivos
         """).fetchall()
-        
+
         updates = 0
         for vendor in vendors:
             cod_ven, obj_pesos, obj_premium, obj_kg = vendor
-            
-            if not obj_kg or obj_kg == 0:
+
+            if not obj_pesos or obj_pesos == 0:
                 continue
-            
-            # Get all clients for this vendor
+
+            # Use SUM of actual client KG objectives as the base — always consistent
+            # with the avance table, regardless of what was entered in vendedor_objetivos.
+            sum_row = cursor.execute("""
+                SELECT SUM(objetivo) as total_kg
+                FROM fact_avance_cliente_vendedor_month
+                WHERE cod_vendedor = ? AND year_month = ? AND objetivo > 0
+            """, (cod_ven, self.target_month)).fetchone()
+            base_kg = sum_row['total_kg'] if sum_row and sum_row['total_kg'] else 0
+
+            # Fall back to objetivo_kg only if no client objectives found
+            if base_kg == 0:
+                base_kg = obj_kg or 0
+            if base_kg == 0:
+                continue
+
             clients = cursor.execute("""
                 SELECT cod_cliente, objetivo
                 FROM fact_avance_cliente_vendedor_month
                 WHERE cod_vendedor = ? AND year_month = ?
             """, (cod_ven, self.target_month)).fetchall()
-            
+
             for cod_cli, cliente_kg in clients:
                 if not cliente_kg or cliente_kg == 0:
                     continue
-                
-                # Proportional allocation
-                proportion = cliente_kg / obj_kg
-                cliente_obj_pesos = (obj_pesos or 0) * proportion
+
+                proportion = min(cliente_kg / base_kg, 1.0)  # cap at 100% to prevent overflow
+                cliente_obj_pesos   = (obj_pesos or 0)   * proportion
                 cliente_obj_premium = (obj_premium or 0) * proportion
-                
+
                 cursor.execute("""
                     UPDATE fact_avance_cliente_vendedor_month
                     SET objetivo_pesos = ?, objetivo_premium_pesos = ?
                     WHERE cod_cliente = ? AND cod_vendedor = ? AND year_month = ?
                 """, (cliente_obj_pesos, cliente_obj_premium, cod_cli, cod_ven, self.target_month))
                 updates += cursor.rowcount
-        
+
         self.conn.commit()
         logging.info(f"Calculated monetary objectives for {updates} client records")
 
     def seed_objetivos(self):
-        """Seed vendedor objectives from objetivos data."""
+        """Seed vendedor objectives with 0 to prevent overwriting manual inputs."""
         cursor = self.conn.cursor()
 
-        # Read existing rebozados goal if already set (check both id formats)
-        existing = cursor.execute(
-            "SELECT objetivo_rebozados_kg FROM vendedor_objetivos WHERE cod_vendedor IN ('100067806','100067806.0')"
-        ).fetchone()
-        reb_kg = existing[0] if existing and existing[0] else 8000
-
-        # Upsert with normalized ID (no .0)
+        # Insert 0s only if the row does not exist
         cursor.execute("""
-            INSERT OR REPLACE INTO vendedor_objetivos
+            INSERT OR IGNORE INTO vendedor_objetivos
             (cod_vendedor, nom_vendedor, year_month, objetivo_pesos, objetivo_premium_pesos, objetivo_kg, objetivo_rebozados_kg)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, ('100067806', 'GENTILE NICOLAS', '2026-02', 499163842, 55050592, 76942, reb_kg))
+        """, ('100067806', 'GENTILE NICOLAS', self.target_month, 0, 0, 0, 0))
 
         self.conn.commit()
-        logging.info(f"Seeded objectives for GENTILE NICOLAS (Feb 2026) rebozados_kg={reb_kg}")
+        logging.info(f"Seeded empty objectives for GENTILE NICOLAS ({self.target_month}) if not exists")
 
     def apply_vendor_aliases(self):
         """Unify vendor codes: remap Perotti codes to Gentile. Also normalize .0 suffix."""
@@ -1241,6 +1316,20 @@ class SalesETL:
                     pend_col  = next((c for c in df.columns if 'PEND'    in c.upper() and month_abbr in c.upper()), None)
                     total_col = next((c for c in df.columns if 'TOTAL'   in c.upper() and month_abbr in c.upper()), None)
                     prom_col  = next((c for c in df.columns if 'PROMEDIO' in c.upper()), None)
+
+                    # Fallback: month-specific column not found → use any FACT/PEND/TOTAL column
+                    # This happens when the Excel has prior-month columns (e.g. "FEB '26 FACT")
+                    # but target_month is a newer month (e.g. 2026-03).
+                    if fact_col is None:
+                        fact_col = next((c for c in df.columns if 'FACT' in c.upper()
+                                         and 'PEND' not in c.upper() and 'TOTAL' not in c.upper()), None)
+                        if fact_col:
+                            logging.warning(f"  {sheet}: month column for {month_abbr} not found, falling back to '{fact_col}'")
+                    if pend_col is None:
+                        pend_col = next((c for c in df.columns if 'PEND' in c.upper()), None)
+                    if total_col is None:
+                        total_col = next((c for c in df.columns if 'TOTAL' in c.upper()
+                                          and 'FACT' not in c.upper() and 'PEND' not in c.upper()), None)
 
 
                     rows_cur = []
@@ -1350,6 +1439,12 @@ class SalesETL:
     def _reconcile_lanzamiento_estados(self, ym: str):
         """Upgrade estado to COMPRADOR and fill actual kg for clients who bought the
         launch category in fact_facturacion but were missed by the Excel tracking."""
+        # Maps dim_product_classification.categoria → fact_lanzamiento_cobertura.lanzamiento
+        # NOTE: 'VEGGIES' is not present in dim_product_classification because vegetal/plant-based
+        # products were not in CLASIFICACION DE PRODUCTOS AR.xlsx at ETL time. To fix Veggies KG:
+        # 1. Classify veggie product codes in dim_product_classification with categoria='VEGGIES', OR
+        # 2. Ensure the Compradores Lanzamientos.xlsx has the current-month FACT column (e.g. "MAR '26 FACT").
+        # Veggies KG will be populated from the Excel fallback column if available.
         CATEGORY_MAP = {
             'PAPAS':     'Papas',
             'EMBUTIDOS': 'Chorizos',
@@ -1376,14 +1471,15 @@ class SalesETL:
             count = 0
             for row in buyers:
                 cid, kg_real = row[0], row[1]
-                # Only update rows that are not already COMPRADOR
+                # Upgrade non-buyers AND fill missing KG for existing COMPRADORs
+                # (fact_feb=0 means the month column wasn't found in the source Excel)
                 cur = self.conn.execute("""
                     UPDATE fact_lanzamiento_cobertura
                     SET estado   = 'COMPRADOR',
                         fact_feb = CASE WHEN fact_feb = 0 OR fact_feb IS NULL THEN ? ELSE fact_feb END,
                         total_feb = CASE WHEN total_feb = 0 OR total_feb IS NULL THEN ? ELSE total_feb END
                     WHERE cod_cliente = ? AND lanzamiento = ? AND year_month = ?
-                      AND estado != 'COMPRADOR'
+                      AND (estado != 'COMPRADOR' OR fact_feb = 0 OR fact_feb IS NULL)
                 """, (kg_real, kg_real, cid, lanz_name, ym))
                 count += cur.rowcount
             return count

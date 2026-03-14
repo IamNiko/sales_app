@@ -98,6 +98,159 @@
         .tier-cn {
             background: linear-gradient(135deg, #6A5ACD, #483D8B);
             color: #fff;
+        }
+
+        /* Insights panel - 3 cards armónicos */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            align-items: stretch;
+        }
+        @media (max-width: 900px) {
+            .insights-grid { grid-template-columns: 1fr; }
+        }
+        .insight-card {
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
+            max-height: 380px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .insight-card-cierre {
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            border: 1px solid #BFDBFE;
+        }
+        .insight-card-cobranzas {
+            background: linear-gradient(135deg, #FFF5F5, #FEE2E2);
+            border: 1px solid #FECACA;
+        }
+        .insight-card-opp {
+            background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+            border: 1px solid #BBF7D0;
+        }
+        .insight-card-header {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #1D4ED8;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 12px 14px;
+            flex-shrink: 0;
+        }
+        .insight-header-red { color: #DC2626; }
+        .insight-header-green { color: #15803D; }
+        .insight-badge-closed {
+            font-size: 0.6rem;
+            font-weight: 800;
+            background: #E84752;
+            color: white;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 6px;
+        }
+        .insight-count-badge {
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        .insight-count-red { background: #FCA5A5; color: #7F1D1D; }
+        .insight-count-green { background: #86EFAC; color: #14532D; }
+        .insight-card-body {
+            padding: 0 14px 14px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .insight-body-scroll { min-height: 0; }
+        .insight-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        .insight-loading {
+            color: #94A3B8;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .insight-footer {
+            font-size: 0.72rem;
+            color: #94A3B8;
+            font-weight: 500;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        .fc-metrics-row { display: flex; align-items: baseline; gap: 6px; }
+        .fc-pct-wrap { display: flex; align-items: baseline; gap: 2px; }
+        .fc-pct-val { font-size: 2rem; font-weight: 900; color: #1D3557; line-height: 1; }
+        .fc-pct-unit { font-size: 0.9rem; font-weight: 700; color: #64748B; }
+        .fc-ym-label { font-size: 0.72rem; color: #64748B; font-weight: 600; margin-left: 4px; }
+        .fc-range-text { font-size: 0.78rem; color: #475569; font-weight: 600; }
+        .fc-bar-wrap {
+            background: #BFDBFE;
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .fc-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3B82F6, #1D3557);
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+        .fc-grid-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .fc-mini-cell {
+            background: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+        .fc-mini-val { font-size: 1rem; font-weight: 800; color: #1D3557; display: block; }
+        .fc-mini-label { font-size: 0.65rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.8px; }
+        .fc-trend-badge {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            text-align: center;
+        }
+        .fc-situacion, .fc-plan {
+            font-size: 0.78rem;
+            color: #475569;
+            line-height: 1.45;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px;
+        }
+        .fc-plan { background: transparent; padding: 6px 0; }
+        .fc-next {
+            border-top: 1px solid #BFDBFE;
+            padding-top: 10px;
+        }
+        .fc-next-title { font-size: 0.65rem; font-weight: 800; color: #1D4ED8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .fc-next-row { display: flex; align-items: baseline; gap: 4px; }
+        .fc-next-kg { font-size: 1.2rem; font-weight: 900; color: #1D3557; }
+        .fc-next-unit { font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .fc-next-range { font-size: 0.72rem; color: #64748B; margin-top: 2px; }
+        .fc-next-conf { font-size: 0.7rem; color: #94A3B8; margin-top: 3px; }
             box-shadow: 0 0 8px rgba(106, 90, 205, 0.4);
         }
 
@@ -182,6 +335,12 @@
                 <!-- Quick month filter buttons (populated by loadMeses) -->
                 <div id="month-filters" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
                 <div class="month-badge" id="month-badge">—</div>
+                
+                <!-- Botón Configurar Objetivos -->
+                <button onclick="openObjetivosModal()" class="btn-primary" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; padding:8px 12px; margin-left:10px; font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Objetivos
+                </button>
             </div>
         </div>
 
@@ -265,65 +424,78 @@
                 <span id="insights-mes-badge" style="font-size:0.7rem;font-weight:700;background:var(--primary);color:white;padding:2px 8px;border-radius:20px;"></span>
                 <span style="font-size:0.75rem;color:var(--text-muted);font-weight:500;">Generado en tiempo real · actualiza con cada carga de datos</span>
             </div>
-            <div style="display:grid; grid-template-columns: 300px 1fr 1fr; gap:14px; align-items:start;">
-
+            <div class="insights-grid">
                 <!-- FORECAST CARD -->
-                <div id="insight-forecast" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border:1px solid #BFDBFE; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(29,53,87,0.08);">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-                        <span style="font-size:0.68rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1.5px;" id="fc-section-title">📈 Cierre de Mes</span>
-                        <span id="fc-closed-badge" style="display:none;font-size:0.6rem;font-weight:800;background:#E84752;color:white;padding:1px 6px;border-radius:8px;">MES CERRADO</span>
+                <div id="insight-forecast" class="insight-card insight-card-cierre">
+                    <div class="insight-card-header">
+                        <span id="fc-section-title">📈 Cierre de Mes</span>
+                        <span id="fc-closed-badge" class="insight-badge-closed" style="display:none;">MES CERRADO</span>
                     </div>
-                    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
-                        <span id="fc-pct" style="font-size:2.4rem;font-weight:900;color:#1D3557;line-height:1;">—</span>
-                        <span style="font-size:1rem;font-weight:700;color:#64748B;">%</span>
-                        <span id="fc-ym-label" style="font-size:0.72rem;color:#64748B;font-weight:600;"></span>
-                    </div>
-                    <div id="fc-range" style="font-size:0.78rem;color:#475569;font-weight:600;margin-bottom:10px;">rango —</div>
-                    <div style="background:#BFDBFE;border-radius:4px;height:6px;margin-bottom:10px;overflow:hidden;">
-                        <div id="fc-bar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,#3B82F6,#1D3557);transition:width 0.8s ease;width:0%"></div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="fc-grid-current">
-                        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;text-align:center;">
-                            <div id="fc-daily-needed" style="font-size:1rem;font-weight:800;color:#1D3557;">—</div>
-                            <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">KG/día necesarios</div>
+                    <div class="insight-card-body">
+                        <div class="fc-metrics-row">
+                            <div class="fc-pct-wrap">
+                                <span id="fc-pct" class="fc-pct-val">—</span>
+                                <span class="fc-pct-unit">%</span>
+                            </div>
+                            <span id="fc-ym-label" class="fc-ym-label"></span>
                         </div>
-                        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;text-align:center;">
-                            <div id="fc-days-left" style="font-size:1rem;font-weight:800;color:#1D3557;">—</div>
-                            <div style="font-size:0.65rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;">Días restantes</div>
+                        <div id="fc-range" class="fc-range-text">rango —</div>
+                        <div class="fc-bar-wrap">
+                            <div id="fc-bar" class="fc-bar-fill"></div>
                         </div>
-                    </div>
-                    <div id="fc-trend" style="margin-top:8px;font-size:0.78rem;font-weight:700;color:#475569;padding:6px 10px;background:rgba(255,255,255,0.5);border-radius:8px;text-align:center;"></div>
-                    <!-- Next month forecast (shown when current month is closed) -->
-                    <div id="fc-next" style="display:none;margin-top:10px;border-top:1px solid #BFDBFE;padding-top:10px;">
-                        <div style="font-size:0.65rem;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🔮 Previsión <span id="fc-next-ym"></span></div>
-                        <div style="display:flex;align-items:baseline;gap:4px;">
-                            <span id="fc-next-kg" style="font-size:1.3rem;font-weight:900;color:#1D3557;"></span>
-                            <span style="font-size:0.75rem;color:#64748B;font-weight:600;">kg</span>
-                            <span id="fc-next-pct" style="font-size:0.85rem;font-weight:700;margin-left:4px;"></span>
+                        <div class="fc-grid-mini">
+                            <div class="fc-mini-cell">
+                                <span id="fc-daily-needed" class="fc-mini-val">—</span>
+                                <span class="fc-mini-label">KG/día necesarios</span>
+                            </div>
+                            <div class="fc-mini-cell">
+                                <span id="fc-days-left" class="fc-mini-val">—</span>
+                                <span class="fc-mini-label">Días restantes</span>
+                            </div>
                         </div>
-                        <div id="fc-next-range" style="font-size:0.72rem;color:#64748B;margin-top:2px;"></div>
-                        <div id="fc-next-confidence" style="font-size:0.7rem;color:#94A3B8;margin-top:3px;"></div>
+                        <div id="fc-trend" class="fc-trend-badge"></div>
+                        <div id="fc-situacion" class="fc-situacion" style="display:none;"></div>
+                        <div id="fc-plan" class="fc-plan" style="display:none;"></div>
+                        <div id="fc-next" class="fc-next" style="display:none;">
+                            <div class="fc-next-title">🔮 Previsión <span id="fc-next-ym"></span></div>
+                            <div class="fc-next-row">
+                                <span id="fc-next-kg" class="fc-next-kg"></span>
+                                <span class="fc-next-unit">kg</span>
+                                <span id="fc-next-pct" class="fc-next-pct"></span>
+                            </div>
+                            <div id="fc-next-range" class="fc-next-range"></div>
+                            <div id="fc-next-confidence" class="fc-next-conf"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- RISK CARD -->
-                <div style="background:linear-gradient(135deg,#FFF5F5,#FEE2E2); border:1px solid #FECACA; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(232,71,82,0.08);">
-                    <div style="font-size:0.68rem;font-weight:800;color:#DC2626;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🔴 Clientes en Riesgo <span id="risk-count" style="background:#FCA5A5;color:#7F1D1D;padding:1px 7px;border-radius:10px;font-size:0.7rem;">0</span></div>
-                    <div id="risk-list" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;">
-                        <div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">Cargando...</div>
+                <!-- COBRANZAS CARD -->
+                <div class="insight-card insight-card-cobranzas">
+                    <div class="insight-card-header insight-header-red">
+                        🔴 Alertas Cobranzas (<span id="alertas-dia" style="text-transform:none">Mañana</span>)
+                        <span id="alertas-count" class="insight-count-badge insight-count-red">0</span>
                     </div>
-                    <div style="margin-top:10px;font-size:0.72rem;color:#94A3B8;font-weight:500;">Compraron el mes anterior · 0 KG este mes</div>
+                    <div class="insight-card-body insight-body-scroll">
+                        <div id="alertas-list" class="insight-list">
+                            <div class="insight-loading">Cargando...</div>
+                        </div>
+                        <div class="insight-footer">Clientes a visitar mañana con deuda vencida o anticipados.</div>
+                    </div>
                 </div>
 
                 <!-- OPPORTUNITIES CARD -->
-                <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border:1px solid #BBF7D0; border-radius:14px; padding:18px; box-shadow:0 2px 8px rgba(16,185,129,0.08);">
-                    <div style="font-size:0.68rem;font-weight:800;color:#15803D;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🟢 Oportunidades del Día <span id="opp-count" style="background:#86EFAC;color:#14532D;padding:1px 7px;border-radius:10px;font-size:0.7rem;">0</span></div>
-                    <div id="opp-list" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;">
-                        <div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">Cargando...</div>
+                <div class="insight-card insight-card-opp">
+                    <div class="insight-card-header insight-header-green">
+                        🟢 Oportunidades del Día
+                        <span id="opp-count" class="insight-count-badge insight-count-green">0</span>
                     </div>
-                    <div style="margin-top:10px;font-size:0.72rem;color:#94A3B8;font-weight:500;">Activos con mayor pendiente · ordenados por prioridad</div>
+                    <div class="insight-card-body insight-body-scroll">
+                        <div id="opp-list" class="insight-list">
+                            <div class="insight-loading">Cargando...</div>
+                        </div>
+                        <div class="insight-footer">Clientes visitables hoy (por frecuencia) · ordenados por prioridad</div>
+                    </div>
                 </div>
-
             </div>
         </div>
 
@@ -618,16 +790,26 @@
 
             if (!isHistorical) {
                 renderBurnChart(data.chart);
-                // Populate Plan Widget
                 const date = new Date();
                 const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
                 document.getElementById('plan-date').textContent = `${dayNames[date.getDay()]} ${date.getDate()}`;
+                loadPlanningWidget(baseQuery);
             }
 
             renderClientsTable(globalClientes);
 
-            // Load monetary facturacion + Planning Summary (only for live month)
             if (!isHistorical) loadFacturacion(baseQuery);
+        }
+
+        async function loadPlanningWidget(query) {
+            if (!query) return;
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const res = await fetch(`/api/planning?date=${today}&${query}`);
+                const data = await res.json();
+                const elCount = document.getElementById('plan-clients-count');
+                if (elCount) elCount.textContent = data.stats?.count ?? '-';
+            } catch (e) { console.log('Planning widget error', e); }
         }
 
         async function loadFacturacion(query) {
@@ -640,11 +822,21 @@
                     const f = data.facturacion;
                     const o = data.objetivos || {};
 
-                    // Populate Plan Objective (daily estimate)
-                    if (o.objetivo_pesos) {
-                        const dailyObj = o.objetivo_pesos / 20;
-                        const el = document.getElementById('plan-objective');
-                        if (el) el.textContent = formatPesos(dailyObj);
+                    const el = document.getElementById('plan-objective');
+                    const d = new Date();
+                    const isHabil = d.getDay() >= 1 && d.getDay() <= 5;
+                    if (el) {
+                        if (!isHabil) {
+                            el.textContent = 'Día no hábil';
+                            el.style.color = '#94A3B8';
+                        } else if (o.objetivo_pesos) {
+                            const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+                            const totalBd = Array.from({length: lastDay}, (_, i) => new Date(d.getFullYear(), d.getMonth(), i + 1).getDay())
+                                .filter(w => w >= 1 && w <= 5).length;
+                            const dailyObj = o.objetivo_pesos / (totalBd || 20);
+                            el.textContent = formatPesos(dailyObj);
+                            el.style.color = '';
+                        }
                     }
 
                     // Render tachometers with all monetary data
@@ -930,37 +1122,49 @@
         const TIER_COLOR = { AAA: '#D4AF37', AA: '#94A3B8', A: '#CD7F32', B: '#64748B', CN: '#6D28D9' };
         const fmtKg = v => v ? Math.round(v).toLocaleString('es-AR') + ' kg' : '—';
 
-        function renderInsightItem(item, type) {
-            const tier = item.tier || 'B';
-            const tc = TIER_COLOR[tier] || '#94A3B8';
+    // Format currency
+    const formatPesoNum = v => {
+        if (!v) return '$0';
+        if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+        if (v >= 1000) return '$' + (v / 1000).toFixed(0) + 'k';
+        return '$' + Math.round(v).toLocaleString('es-AR');
+    };
+
+    function renderInsightItem(item, type) {
+        if (type === 'alerta') {
+            const esAnt = item.es_anticipado;
+            const bgBadge = esAnt ? '#F59E0B' : '#DC2626';
+            const infoTxt = esAnt 
+                ? 'Condición: Contado Anticipado'
+                : `<span style="color:#DC2626;font-weight:800">${item.cantidad_facturas_vencidas}</span> fact. (${formatPesoNum(item.total_vencido)})`;
+                
+            return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;border-left:3px solid ${bgBadge};"
+                onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:0.78rem;font-weight:800;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
+                    <div style="font-size:0.7rem;color:#64748B;margin-top:2px;">${infoTxt}</div>
+                </div>
+            </div>`;
+        } else {
             const telHtml = item.telefono
                 ? `<a href="tel:${item.telefono}" onclick="event.stopPropagation()" style="font-size:0.7rem;color:#64748B;text-decoration:none;" title="Llamar">📞</a>`
                 : '';
-
-            if (type === 'risk') {
-                return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;"
-                    onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
-                    <span style="font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:4px;background:${tc}22;color:${tc};flex-shrink:0;">${tier}</span>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.78rem;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
-                        <div style="font-size:0.7rem;color:#64748B;">Ant: ${fmtKg(item.kg_prev_month)} · ${item.contacto || ''}</div>
-                    </div>
-                    ${telHtml}
-                </div>`;
-            } else {
-                const pct = item.pct_objetivo || 0;
-                const sc = item.priority_score || 0;
-                return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;"
-                    onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
-                    <span style="font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:4px;background:${tc}22;color:${tc};flex-shrink:0;">${tier}</span>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.78rem;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
-                        <div style="font-size:0.7rem;color:#64748B;">Pend: ${fmtKg(item.pendiente)} · ${pct}% obj · Score ${sc}</div>
-                    </div>
-                    ${telHtml}
-                </div>`;
-            }
+                
+            const tier = item.tier || 'B';
+            const tc = TIER_COLOR[tier] || '#94A3B8';
+            const pct = item.pct_objetivo || 0;
+            const sc = item.priority_score || 0;
+            return `<div style="background:rgba(255,255,255,0.65);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;"
+                onclick="window.location.href='/cliente/${item.cod_cliente}?vendedor=${vendedor||''}'">
+                <span style="font-size:0.65rem;font-weight:800;padding:2px 6px;border-radius:4px;background:${tc}22;color:${tc};flex-shrink:0;">${tier}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:0.78rem;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.nom_cliente}</div>
+                    <div style="font-size:0.7rem;color:#64748B;">Pend: ${fmtKg(item.pendiente)} · ${pct}% obj · Score ${sc}</div>
+                </div>
+                ${telHtml}
+            </div>`;
         }
+    }
 
         async function loadInsights() {
             if (!vendedor && !jefe && !zona) return;
@@ -1030,6 +1234,36 @@
                     document.getElementById('fc-trend').style.display = 'none';
                 }
 
+                // Situación asistida (análisis semanal vs histórico)
+                const sit = fc.situacion || {};
+                const sitEl = document.getElementById('fc-situacion');
+                if (sit.resumen) {
+                    sitEl.style.display = 'block';
+                    sitEl.innerHTML = `<div style="font-weight:700;color:${sit.alerta==='baja'?'#DC2626':'#1D3557'};margin-bottom:6px;">📊 Situación</div>${sit.resumen}`;
+                    if (sit.semanas && sit.semanas.length) {
+                        sitEl.innerHTML += `<div style="margin-top:8px;font-size:0.72rem;color:#64748B;">` +
+                            sit.semanas.map(s => `Sem ${s.semana}: ${Math.round(s.kg).toLocaleString('es-AR')} kg (${s.diff_pct>=0?'+':''}${s.diff_pct}% vs hist.)`).join(' · ') + `</div>`;
+                    }
+                } else {
+                    sitEl.style.display = 'none';
+                }
+
+                // Plan de recuperación
+                const plan = fc.plan_recuperacion || [];
+                const planEl = document.getElementById('fc-plan');
+                if (plan.length && !isClosed) {
+                    planEl.style.display = 'block';
+                    planEl.innerHTML = `<div style="font-weight:800;font-size:0.7rem;color:#1D4ED8;text-transform:uppercase;margin-bottom:8px;">🎯 Plan para alcanzar objetivo</div>` +
+                        plan.map(p => {
+                            if (p.tipo === 'objetivo') return `<div style="padding:8px;background:rgba(59,130,246,0.1);border-radius:8px;margin-bottom:6px;"><strong>${p.titulo}:</strong> ${Math.round(p.valor).toLocaleString('es-AR')} kg/día</div><div style="font-size:0.72rem;color:#64748B;">${p.detalle}</div>`;
+                            if (p.tipo === 'prioridad') return `<div style="margin-top:8px;"><strong>${p.titulo}</strong><ul style="margin:4px 0 0 16px;font-size:0.78rem;">${(p.clientes||[]).map(c=>`<li>${c.nombre}: ${Math.round(c.pendiente).toLocaleString('es-AR')} kg pend.${c.motivo ? ` <span style="color:#DC2626;font-weight:600;">(${c.motivo})</span>` : ''}</li>`).join('')}</ul><div style="font-size:0.72rem;color:#64748B;">${p.detalle}</div></div>`;
+                            if (p.tipo === 'referencia') return `<div style="margin-top:8px;font-size:0.78rem;color:#475569;">${p.titulo}: ${p.detalle}</div>`;
+                            return '';
+                        }).join('');
+                } else {
+                    planEl.style.display = 'none';
+                }
+
                 // Next-month multi-factor forecast
                 if (fc.next_forecast_kg) {
                     document.getElementById('fc-next').style.display = 'block';
@@ -1049,11 +1283,18 @@
                         `Confianza: ${fc.next_confidence || '—'}% · Baseline + Tendencia + Estacionalidad + Recencia`;
                 }
 
-                // Risk
-                document.getElementById('risk-count').textContent = d.risk.length;
-                document.getElementById('risk-list').innerHTML = d.risk.length
-                    ? d.risk.map(r => renderInsightItem(r, 'risk')).join('')
-                    : '<div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">✅ Sin clientes en riesgo</div>';
+                // Alertas Cobranzas
+                try {
+                    const resAlertas = await fetch(`/api/alertas/deuda-manana?${q.join('&')}`);
+                    if (resAlertas.ok) {
+                        const dAlertas = await resAlertas.json();
+                        document.getElementById('alertas-dia').textContent = dAlertas.dia_cobro || 'Mañana';
+                        document.getElementById('alertas-count').textContent = dAlertas.total_alertas;
+                        document.getElementById('alertas-list').innerHTML = dAlertas.alertas.length
+                            ? dAlertas.alertas.map(a => renderInsightItem(a, 'alerta')).join('')
+                            : '<div style="color:#94A3B8;font-size:0.8rem;text-align:center;padding:20px 0;">✅ Sin alertas para mañana</div>';
+                    }
+                } catch(ea) { console.error('Alertas error:', ea); }
 
 
 
@@ -1072,14 +1313,253 @@
         });
 
         loadMeta();
-        loadDashboard();
+        loadDashboard().then(() => loadWelcomeModal());
         loadMeses();
         loadInsights();
+    </script>
+
+    <!-- Modal de Configuración de Objetivos -->
+    <div id="modal-objetivos" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; width:700px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
+            <div style="padding:20px 24px; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#fff; z-index:10;">
+                <div>
+                    <h3 style="margin:0; font-size:1.25rem; color:#0F172A;">⚙️ Configuración de Objetivos</h3>
+                    <div style="color:#64748B; font-size:0.85rem; margin-top:4px;">Define tus metas para el mes activo (<span id="obj-mes-activo"></span>)</div>
+                </div>
+                <button onclick="closeObjetivosModal()" style="background:none; border:none; font-size:1.5rem; color:#94A3B8; cursor:pointer; line-height:1;">&times;</button>
+            </div>
+            
+            <div style="padding:24px;">
+                <form id="form-objetivos" onsubmit="event.preventDefault(); saveObjetivos();">
+                    
+                    <h4 style="margin:0 0 16px 0; color:#1E293B; font-size:1rem; border-bottom:2px solid #F1F5F9; padding-bottom:8px;">🎯 Objetivos Generales</h4>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:24px;">
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Facturación Total ($)</label>
+                            <input type="number" id="input-obj-pesos" class="obj-input" style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Premium Total ($)</label>
+                            <input type="number" id="input-obj-premium" class="obj-input" style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Volumen Global (KG)</label>
+                            <input type="number" id="input-obj-kg" class="obj-input" style="width:100%; padding:10px; border:1px solid #CBD5E1; border-radius:8px; font-size:0.95rem;">
+                        </div>
+                    </div>
+
+                    <h4 style="margin:0 0 16px 0; color:#1E293B; font-size:1rem; border-bottom:2px solid #F1F5F9; padding-bottom:8px;">📦 Volumen por Categorías (KG)</h4>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; background:#F8FAFC; padding:16px; border-radius:12px; border:1px solid #E2E8F0;">
+                        
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Hamburguesas (HG)</label>
+                            <input type="number" id="input-obj-hg" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Salchichas (SCH)</label>
+                            <input type="number" id="input-obj-sch" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Untables Especiales</label>
+                            <input type="number" id="input-obj-unt" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Rebozados (RB)</label>
+                            <input type="number" id="input-obj-rb" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;" title="Este es el mismo del Gauge Principal">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Especialidad Soja (SJ)</label>
+                            <input type="number" id="input-obj-sj" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Grasa Vacuna</label>
+                            <input type="number" id="input-obj-grasa" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Carne Picada</label>
+                            <input type="number" id="input-obj-picada" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Papas</label>
+                            <input type="number" id="input-obj-papas" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Pescados (Atún)</label>
+                            <input type="number" id="input-obj-atun" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:#475569; margin-bottom:6px;">Embutidos (Chorizos)</label>
+                            <input type="number" id="input-obj-chorizos" class="obj-input" style="width:100%; padding:8px; border:1px solid #CBD5E1; border-radius:6px; font-size:0.9rem;">
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
+                        <button type="button" onclick="closeObjetivosModal()" style="padding:10px 16px; border:1px solid #CBD5E1; background:#fff; color:#475569; border-radius:8px; font-weight:600; cursor:pointer;">Cancelar</button>
+                        <button type="submit" id="btn-save-obj" style="padding:10px 24px; border:none; background:#E84752; color:#fff; border-radius:8px; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(232,71,82,0.3);">Guardar Objetivos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function openObjetivosModal() {
+            if (!vendedor) {
+                alert("Debes seleccionar un vendedor válido para cargar objetivos.");
+                return;
+            }
+            document.getElementById('modal-objetivos').style.display = 'flex';
+            document.getElementById('obj-mes-activo').textContent = document.getElementById('month-badge').textContent;
+            await loadObjetivos();
+        }
+
+        function closeObjetivosModal() {
+            document.getElementById('modal-objetivos').style.display = 'none';
+        }
+
+        async function loadObjetivos() {
+            try {
+                const res = await fetch(`/api/objetivos/mensual?vendedor=${vendedor}`);
+                if (!res.ok) throw new Error("Error loading objectives");
+                const data = await res.json();
+                
+                document.getElementById('input-obj-pesos').value = data.objetivo_pesos || 0;
+                document.getElementById('input-obj-premium').value = data.objetivo_premium_pesos || 0;
+                document.getElementById('input-obj-kg').value = data.objetivo_kg || 0;
+                
+                // Keep the original fallback for rebozados logic
+                document.getElementById('input-obj-rb').value = data.objetivo_rebozados_kg || data.obj_rb || 0; 
+                
+                document.getElementById('input-obj-hg').value = data.obj_hg || 0;
+                document.getElementById('input-obj-sch').value = data.obj_sch || 0;
+                document.getElementById('input-obj-unt').value = data.obj_unt || 0;
+                document.getElementById('input-obj-sj').value = data.obj_sj || 0;
+                document.getElementById('input-obj-grasa').value = data.obj_grasa || 0;
+                document.getElementById('input-obj-picada').value = data.obj_picada || 0;
+                document.getElementById('input-obj-papas').value = data.obj_papas || 0;
+                document.getElementById('input-obj-atun').value = data.obj_atun || 0;
+                document.getElementById('input-obj-chorizos').value = data.obj_chorizos || 0;
+
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveObjetivos() {
+            try {
+                const btn = document.getElementById('btn-save-obj');
+                btn.textContent = "Guardando...";
+                btn.disabled = true;
+
+                const payload = {
+                    objetivo_pesos: document.getElementById('input-obj-pesos').value,
+                    objetivo_premium_pesos: document.getElementById('input-obj-premium').value,
+                    objetivo_kg: document.getElementById('input-obj-kg').value,
+                    objetivo_rebozados_kg: document.getElementById('input-obj-rb').value, // Dual mapped
+                    obj_hg: document.getElementById('input-obj-hg').value,
+                    obj_sch: document.getElementById('input-obj-sch').value,
+                    obj_unt: document.getElementById('input-obj-unt').value,
+                    obj_rb: document.getElementById('input-obj-rb').value,
+                    obj_sj: document.getElementById('input-obj-sj').value,
+                    obj_grasa: document.getElementById('input-obj-grasa').value,
+                    obj_picada: document.getElementById('input-obj-picada').value,
+                    obj_papas: document.getElementById('input-obj-papas').value,
+                    obj_atun: document.getElementById('input-obj-atun').value,
+                    obj_chorizos: document.getElementById('input-obj-chorizos').value
+                };
+
+                const res = await fetch(`/api/objetivos/mensual?vendedor=${vendedor}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    closeObjetivosModal();
+                    // Reload UI with new goals
+                    loadDashboard();
+                } else {
+                    alert("Error al guardar objetivos");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Hubo un error de conexión");
+            } finally {
+                const btn = document.getElementById('btn-save-obj');
+                btn.textContent = "Guardar Objetivos";
+                btn.disabled = false;
+            }
+        }
     </script>
 
     <div class="valores-watermark">
         <img src="/static/img/valores_minerva.png" alt="Valores Minerva Foods">
     </div>
-</body>
 
+    <!-- Modal Bienvenida -->
+    <div id="modal-bienvenida" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:20px; padding:2rem; max-width:520px; width:95%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.25); position:relative;">
+            <button type="button" onclick="closeModalBienvenida()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border:none;background:#F1F5F9;color:#64748B;font-size:1.2rem;border-radius:8px;cursor:pointer;">✕</button>
+            <div style="margin-bottom:1.5rem;">
+                <div style="font-size:2rem; margin-bottom:8px;">👋</div>
+                <h2 style="font-size:1.4rem; font-weight:900; color:#1D3557; margin-bottom:4px;">¡Bienvenido a Swift Sales!</h2>
+                <div id="welcome-mes" style="font-size:0.85rem; color:#64748B; font-weight:600;"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.5rem;">
+                <div style="background:linear-gradient(135deg,#1D3557,#457B9D); color:white; border-radius:12px; padding:14px;">
+                    <div style="font-size:0.65rem; font-weight:800; opacity:0.9; text-transform:uppercase;">Venta KG</div>
+                    <div id="welcome-kpi-kg" style="font-size:1.5rem; font-weight:900;">—</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#10B981,#059669); color:white; border-radius:12px; padding:14px;">
+                    <div style="font-size:0.65rem; font-weight:800; opacity:0.9; text-transform:uppercase;">Cumplimiento</div>
+                    <div id="welcome-kpi-pct" style="font-size:1.5rem; font-weight:900;">—</div>
+                </div>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.7rem; font-weight:800; color:#64748B; text-transform:uppercase; margin-bottom:8px;">📋 Alertas del día</div>
+                <div id="welcome-alertas" style="font-size:0.88rem; color:#475569; line-height:1.5;"></div>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <div style="font-size:0.7rem; font-weight:800; color:#64748B; text-transform:uppercase; margin-bottom:8px;">💡 Consejos</div>
+                <ul id="welcome-consejos" style="margin:0; padding-left:1.25rem; font-size:0.88rem; color:#475569; line-height:1.6;"></ul>
+            </div>
+            <button onclick="closeModalBienvenida(); goTo('/crm');" style="width:100%; padding:14px; background:#1D3557; color:white; border:none; border-radius:12px; font-weight:800; font-size:0.9rem; cursor:pointer;">Ir al CRM</button>
+        </div>
+    </div>
+    <script>
+        async function loadWelcomeModal() {
+            const hoy = new Date().toISOString().slice(0, 10);
+            if (sessionStorage.getItem('welcome_seen_' + hoy)) return;
+            const q = [];
+            if (vendedor) q.push('vendedor=' + vendedor);
+            else if (jefe) q.push('jefe=' + encodeURIComponent(jefe));
+            else if (zona) q.push('zona=' + encodeURIComponent(zona));
+            if (!q.length) return;
+            try {
+                const res = await fetch('/api/welcome?' + q.join('&'));
+                const d = await res.json();
+                document.getElementById('welcome-mes').textContent = 'Resumen de ' + (d.mes_label || '');
+                const k = d.kpis || {};
+                document.getElementById('welcome-kpi-kg').textContent = (k.venta_kg >= 1000 ? (k.venta_kg/1000).toFixed(1) + 'K' : k.venta_kg) + ' kg';
+                document.getElementById('welcome-kpi-pct').textContent = (k.cumplimiento_pct || 0) + '%';
+                const a = d.alertas || {};
+                const alertasArr = [];
+                if (a.deuda_hoy) alertasArr.push(a.deuda_hoy + ' con deuda/c.anticipado hoy');
+                if (a.deuda_manana) alertasArr.push(a.deuda_manana + ' mañana');
+                if (a.gestiones_pendientes) alertasArr.push(a.gestiones_pendientes + ' gestiones pendientes');
+                if (a.gestiones_recurrentes_hoy) alertasArr.push(a.gestiones_recurrentes_hoy + ' tarea(s) programada(s) hoy');
+                document.getElementById('welcome-alertas').textContent = alertasArr.length ? alertasArr.join(' · ') : 'Sin alertas críticas';
+                const consejos = d.consejos || [];
+                document.getElementById('welcome-consejos').innerHTML = consejos.map(c => '<li>' + c + '</li>').join('');
+                document.getElementById('modal-bienvenida').style.display = 'flex';
+                sessionStorage.setItem('welcome_seen_' + new Date().toISOString().slice(0, 10), '1');
+            } catch (e) { console.warn('Welcome modal', e); }
+        }
+        function closeModalBienvenida() {
+            document.getElementById('modal-bienvenida').style.display = 'none';
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadWelcomeModal, 1200);
+        });
+    </script>
+</body>
 </html>

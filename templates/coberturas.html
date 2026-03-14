@@ -583,9 +583,9 @@
                         <th>Cliente</th>
                         <th>Producto</th>
                         <th>Estado</th>
-                        <th>Fact Feb (KG)</th>
+                        <th>Fact Actual (KG)</th>
                         <th>Pendiente</th>
-                        <th>Total</th>
+                        <th>Total Actual</th>
                         <th>Prom Últ 3M</th>
                     </tr>
                 </thead>
@@ -834,9 +834,9 @@
                 <td>${d.nom_cliente}</td>
                 <td>${d.lanzamiento}</td>
                 <td><span class="badge ${bcls}">${d.estado}</span></td>
-                <td>${fmt(d.fact_feb)}</td>
-                <td>${fmt(d.pend_feb)}</td>
-                <td>${fmt(d.total_feb)}</td>
+                <td>${fmt(d.fact_current)}</td>
+                <td>${fmt(d.pend_current)}</td>
+                <td>${fmt(d.total_current)}</td>
                 <td>${fmt(d.promedio_u3)}</td>
             </tr>`;
             }).join('');

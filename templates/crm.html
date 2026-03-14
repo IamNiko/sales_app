@@ -169,8 +169,31 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
             max-height: 85vh;
             overflow-y: auto;
+            position: relative;
         }
-        .modal-box h3 { font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 1.25rem; }
+        .modal-close-x {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #F1F5F9;
+            color: #64748B;
+            font-size: 1.2rem;
+            line-height: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+        .modal-close-x:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        .modal-box h3 { font-size: 1rem; font-weight: 800; color: var(--primary); margin-bottom: 1.25rem; padding-right: 36px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; font-size: 0.68rem; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
@@ -303,6 +326,7 @@
                         <th onclick="sortBy('canal')" style="cursor:pointer; user-select:none;">Canal <span id="sort-canal"></span></th>
                         <th onclick="sortBy('nivel')" style="cursor:pointer; user-select:none;">Nivel <span id="sort-nivel"></span></th>
                         <th onclick="sortBy('estado')" style="cursor:pointer; user-select:none;">Estado <span id="sort-estado"></span></th>
+                        <th onclick="sortBy('ponderacion')" style="cursor:pointer; user-select:none;" title="Peso estratégico (%). Editable.">Peso % <span id="sort-ponderacion"></span></th>
                         <th onclick="sortBy('ultima_gestion')" style="cursor:pointer; user-select:none;">Última Gestión <span id="sort-ultima_gestion"></span></th>
                         <th>PDVs</th>
                         <th>Compromisos</th>
@@ -310,7 +334,7 @@
                     </tr>
                 </thead>
                 <tbody id="portfolio-body">
-                    <tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">Cargando cartera...</td></tr>
+                    <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted);">Cargando cartera...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -318,29 +342,36 @@
         <!-- ─── TAB: PLANIFICACIÓN ─── -->
         <div id="tab-planificacion" style="display:none;">
             <div class="plan-day">
-                <!-- Sidebar: week mini-calendar -->
+                <!-- Sidebar: week mini-calendar + recurrentes -->
                 <div class="plan-sidebar">
                     <div class="section-card">
                         <h3>📅 Semana</h3>
-                        <div id="week-nav" style="display:flex; gap:6px; margin-bottom:1rem; flex-wrap:wrap;"></div>
+                        <div id="week-nav" style="display:flex; flex-direction:column; gap:6px; margin-bottom:1rem;"></div>
                         <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Plan mensual activo</div>
                         <div id="plan-mensual-items" style="font-size:0.82rem; color:var(--text-muted);">Sin objetivos mensuales cargados.</div>
                         <button onclick="openPlanModal('MENSUAL')" style="margin-top:12px; width:100%; padding:8px; background:transparent; border:1.5px dashed var(--border); border-radius:10px; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--text-muted);">+ Agregar objetivo mensual</button>
+                    </div>
+                    <div class="section-card" style="margin-top:1rem;">
+                        <h3>🔄 Gestiones recurrentes</h3>
+                        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Tareas que se repiten cada semana (ej. viernes cargar pedidos MUY BARATO).</div>
+                        <div id="plan-recurrentes-list" style="font-size:0.82rem; max-height:200px; overflow-y:auto;"></div>
+                        <button onclick="openRecurrenteModal()" style="margin-top:12px; width:100%; padding:8px; background:transparent; border:1.5px dashed var(--primary); border-radius:10px; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--primary);">+ Agregar gestión recurrente</button>
                     </div>
                 </div>
 
                 <!-- Main: daily checklist -->
                 <div class="plan-main">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
                         <div>
                             <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Agenda del día</div>
                             <div style="font-size:1.1rem; font-weight:800; color:var(--text-primary);" id="plan-fecha-label">—</div>
+                            <div style="font-size:0.75rem; color:var(--primary); font-weight:700; margin-top:4px;" id="plan-dias-restantes">—</div>
                         </div>
-                        <button onclick="openPlanModal('DIARIA')" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.8rem;">+ Agregar visita</button>
+                        <button onclick="openPlanModal('DIARIA')" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.8rem;">+ Agregar tarea</button>
                     </div>
                     <div id="plan-diaria-items">
                         <div style="text-align:center; color:var(--text-muted); padding:50px; font-size:0.85rem;">
-                            Agenda libre hoy.<br>Agregá una visita para comenzar.
+                            Agenda libre hoy.<br>Agregá una tarea para comenzar.
                         </div>
                     </div>
                 </div>
@@ -349,11 +380,30 @@
 
         <!-- ─── TAB: HOY ─── -->
         <div id="tab-hoy" style="display:none;">
-            <!-- Header del día -->
-            <div style="background:linear-gradient(135deg,var(--primary),#1E40AF); border-radius:16px; padding:20px 22px; margin-bottom:1.25rem; color:white;">
-                <div style="font-size:0.7rem; font-weight:800; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">Plan del Día</div>
-                <div style="font-size:1.5rem; font-weight:900; margin:4px 0;" id="hoy-fecha-label">—</div>
-                <div style="font-size:0.78rem; opacity:0.85;" id="hoy-saludo"></div>
+            <!-- Header del día y Alertas -->
+            <div style="background:linear-gradient(135deg,var(--primary),#1E40AF); border-radius:16px; padding:20px 22px; margin-bottom:1.25rem; color:white; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <div style="font-size:0.7rem; font-weight:800; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">Plan del Día</div>
+                    <div style="font-size:1.5rem; font-weight:900; margin:4px 0;" id="hoy-fecha-label">—</div>
+                    <div style="font-size:0.78rem; opacity:0.85;" id="hoy-saludo"></div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <label style="font-size:0.75rem; font-weight:700; opacity:0.9;">Simular fecha:</label>
+                    <input type="date" id="hoy-simulate-date" onchange="onSimulateDateChange()"
+                        style="padding:8px 12px; border-radius:10px; border:none; font-weight:700; font-size:0.88rem; background:rgba(255,255,255,0.95); color:var(--primary); cursor:pointer;" />
+                </div>
+                <div style="text-align:right;">
+                    <button onclick="showAlertsCobranzaModal()" id="btn-alertas-cobranza" style="display:none; background:white; color:#DC2626; border:none; border-radius:12px; padding:10px 16px; font-weight:900; font-size:0.85rem; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        🔔 Alertas Mañana <span id="badge-alertas-cobranza" style="background:#DC2626; color:white; border-radius:10px; padding:2px 8px; font-size:0.7rem; margin-left:6px;">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alertas de Gestión del Día (deuda hoy, contado anticipado, gestiones) -->
+            <div id="hoy-alertas-panel" style="display:none; margin-bottom:1.25rem;">
+                <div style="font-size:0.68rem; font-weight:800; color:#DC2626; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">⚡ Alertas de Gestión <span id="hoy-alertas-count" style="background:#FCA5A5; color:#7F1D1D; padding:1px 7px; border-radius:10px; font-size:0.7rem;">0</span></div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Clientes con deuda o contado anticipado para gestionar desde temprano. Gestiones cargadas por el usuario.</div>
+                <div id="hoy-alertas-list" style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto;"></div>
             </div>
 
             <!-- KPIs del día -->
@@ -379,12 +429,12 @@
             <!-- Cards de visitas -->
             <div id="hoy-visitas-list">
                 <div style="text-align:center; color:var(--text-muted); padding:60px 20px; font-size:0.88rem;">
-                    Agenda libre hoy.<br>Usá el tab Planificación para agregar visitas.
+                    Agenda libre hoy.<br>Usá el tab Planificación para agregar tareas.
                 </div>
             </div>
 
-            <button onclick="openPlanModal('DIARIA')" style="width:100%; margin-top:1rem; padding:14px; background:var(--primary); color:white; border:none; border-radius:14px; cursor:pointer; font-weight:900; font-size:0.9rem;">
-                + Agregar visita de hoy
+            <button onclick="openPlanModal('DIARIA', getSimulateDate())" style="width:100%; margin-top:1rem; padding:14px; background:var(--primary); color:white; border:none; border-radius:14px; cursor:pointer; font-weight:900; font-size:0.9rem;">
+                + Agregar tarea del día
             </button>
         </div>
 
@@ -393,6 +443,7 @@
     <!-- ─── MODAL: NUEVA GESTIÓN ─── -->
     <div class="modal-overlay" id="modal-gestion">
         <div class="modal-box">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-gestion')" title="Cerrar">✕</button>
             <h3>📝 Registrar Gestión</h3>
             <input type="hidden" id="g-cod-cliente">
             <div class="form-row">
@@ -442,7 +493,8 @@
     <!-- ─── MODAL: PLANIFICACIÓN ─── -->
     <div class="modal-overlay" id="modal-plan">
         <div class="modal-box">
-            <h3>📅 <span id="plan-modal-title">Nueva Visita</span></h3>
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-plan')" title="Cerrar">✕</button>
+            <h3>📅 <span id="plan-modal-title">Nueva Tarea</span></h3>
             <input type="hidden" id="plan-tipo">
             <div class="form-group">
                 <label>Cuenta (Distribuidor/Mayorista)</label>
@@ -455,12 +507,47 @@
                 <input type="date" id="plan-fecha">
             </div>
             <div class="form-group">
-                <label>Objetivo de la visita / acción</label>
+                <label>Objetivo de la tarea / acción</label>
                 <textarea id="plan-objetivo" rows="3" placeholder="Qué querés lograr..."></textarea>
             </div>
             <div class="btn-row">
                 <button class="btn-cancel" onclick="closeModal('modal-plan')">Cancelar</button>
                 <button class="btn-save" onclick="savePlan()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── MODAL: GESTIÓN RECURRENTE ─── -->
+    <div class="modal-overlay" id="modal-recurrente">
+        <div class="modal-box">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-recurrente')" title="Cerrar">✕</button>
+            <h3>🔄 <span id="recurrente-modal-title">Nueva gestión recurrente</span></h3>
+            <input type="hidden" id="recurrente-id">
+            <div class="form-group">
+                <label>Cliente (ej. MUY BARATO)</label>
+                <select id="recurrente-cuenta">
+                    <option value="">Seleccionar cuenta...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Día de la semana</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="0"> Lunes</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="1"> Martes</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="2"> Miércoles</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="3"> Jueves</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="4" checked> Viernes</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="5"> Sábado</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.88rem;"><input type="radio" name="recurrente-dia" value="6"> Domingo</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descripción / objetivo</label>
+                <textarea id="recurrente-descripcion" rows="3" placeholder="Ej: Cargar pedidos para todas las bocas para la semana próxima"></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-recurrente')">Cancelar</button>
+                <button class="btn-save" onclick="saveRecurrente()">Guardar</button>
             </div>
         </div>
     </div>
@@ -478,12 +565,37 @@
             if (sortField === field) { sortDir *= -1; }
             else { sortField = field; sortDir = 1; }
             // Update header indicators
-            ['nom_cliente','canal','nivel','estado','ultima_gestion'].forEach(f => {
+            ['nom_cliente','canal','nivel','estado','ponderacion','ultima_gestion'].forEach(f => {
                 const el = document.getElementById('sort-' + f);
                 if (!el) return;
                 el.textContent = f === sortField ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
             });
             renderPortfolio();
+        }
+
+        async function editPonderacion(cod, nombre, valorActual) {
+            const v = prompt(`${nombre}\n\nPeso estratégico (% del objetivo total):\nLos clientes activos deberían sumar 100%.\nAl cambiar el peso se recalculan todos los objetivos (facturación, premium, rebozados, HG, SCH, etc.).`, valorActual != null ? String(valorActual) : '');
+            if (v === null) return;
+            const num = parseFloat(v.replace(',', '.'));
+            if (isNaN(num) || num < 0 || num > 100) {
+                alert('Ingresá un número entre 0 y 100.');
+                return;
+            }
+            try {
+                const res = await fetch(`/api/crm/ponderacion/${cod}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ponderacion_pct: num })
+                });
+                if (res.ok) {
+                    loadPortfolio();
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Error al guardar.');
+                }
+            } catch (e) {
+                alert('Error de conexión.');
+            }
         }
 
         // ─── GESTIONES DEL MES FILTER ───────────────────────────
@@ -608,13 +720,15 @@
 
             const tbody = document.getElementById('portfolio-body');
             if (!filtered.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Sin cuentas con estos filtros.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">Sin cuentas con estos filtros.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = filtered.map(p => {
                 const pdvs = p.pdvs_activos || 0;
                 const comp = p.compromisos_pendientes || 0;
+                const pond = p.ponderacion != null ? p.ponderacion : '—';
+                const pondTitle = p.ponderacion_editable ? 'Editar peso (click)' : 'Peso estratégico';
                 const gestionCell = p.ultima_gestion_tipo
                     ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${tipoIcon(p.ultima_gestion_tipo)} ${p.ultima_gestion || ''}</div>`
                     : `<div style="font-size:0.7rem; color:#94A3B8; margin-top:2px;">Click para ver &rarr;</div>`;
@@ -627,6 +741,9 @@
                     <td><span style="font-size:0.8rem; font-weight:700; color:#475569;">${p.canal || '&mdash;'}</span></td>
                     <td>${nivelBadge(p.nivel)}</td>
                     <td>${estadoBadge(p.estado)}</td>
+                    <td onclick="event.stopPropagation(); editPonderacion('${p.cod_cliente}', '${(p.nom_cliente||'').replace(/'/g,"\\'")}', ${pond === '—' ? 'null' : pond})" style="cursor:pointer;" title="${pondTitle}">
+                        <span class="ponderacion-val" data-cod="${p.cod_cliente}">${pond}${pond !== '—' ? '%' : ''}</span>
+                    </td>
                     <td onclick="event.stopPropagation(); openGestionesHistorial('${p.cod_cliente}', '${p.nom_cliente}')" style="cursor:pointer;" title="Ver gestiones">
                         ${diasBadge(p.ultima_gestion)}
                         ${gestionCell}
@@ -724,17 +841,129 @@
             }
         }
 
+        // ─── ALERTAS DE GESTIÓN (Hoy) ─────────────────────────────
+        async function loadHoyAlertas(simulateDate) {
+            const d = simulateDate || getSimulateDate();
+            const q = [ctxQ, d ? 'date=' + encodeURIComponent(d) : ''].filter(Boolean).join('&');
+            try {
+                const res = await fetch('/api/alertas/gestion-completo' + (q ? '?' + q : ''));
+                const data = await res.json();
+                const deudaHoy = data.deuda_hoy || [];
+                const deudaManana = data.deuda_manana || [];
+                const gestiones = data.gestiones || [];
+                const recurrentes = data.recurrentes || [];
+                const planificacionHoy = data.planificacion_hoy || [];
+                const all = [...deudaHoy, ...deudaManana, ...gestiones, ...recurrentes, ...planificacionHoy];
+
+                const panel = document.getElementById('hoy-alertas-panel');
+                const list = document.getElementById('hoy-alertas-list');
+                const countEl = document.getElementById('hoy-alertas-count');
+
+                if (all.length === 0) {
+                    panel.style.display = 'none';
+                    return;
+                }
+
+                panel.style.display = '';
+                countEl.textContent = all.length;
+
+                const fmtPeso = v => v >= 1000000 ? '$' + (v/1000000).toFixed(1) + 'M' : v >= 1000 ? '$' + (v/1000).toFixed(0) + 'k' : '$' + Math.round(v);
+
+                list.innerHTML = all.map(a => {
+                    let titulo = a.nom_cliente || '—';
+                    let desc = '', tags = '', borderColor = '#DC2626';
+                    const clickAction = (a.seccion === 'recurrentes' || a.seccion === 'planificacion_hoy')
+                        ? `showTab('planificacion'); selectedDate='${a.fecha_vencimiento||''}'; loadPlanificacion();`
+                        : `openFichaModal('${a.cod_cliente||''}','${(a.nom_cliente||'').replace(/'/g,"\\'")}')`;
+                    if (a.seccion === 'deuda_hoy' || a.seccion === 'deuda_manana') {
+                        if (a.es_anticipado) {
+                            tags = '<span style="background:#FEF3C7;color:#D97706;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.65rem;">CONTADO ANTICIPADO</span>';
+                            borderColor = '#F59E0B';
+                        }
+                        if (a.cantidad_facturas_vencidas > 0) {
+                            tags += (tags ? ' ' : '') + `<span style="background:#FEE2E2;color:#DC2626;padding:2px 8px;border-radius:6px;font-weight:800;font-size:0.65rem;">${a.cantidad_facturas_vencidas} FACT. VENCIDAS</span>`;
+                        }
+                        desc = a.total_vencido > 0 ? fmtPeso(a.total_vencido) + ' vencido' : '';
+                        if (a.seccion === 'deuda_manana') desc = (desc ? desc + ' · ' : '') + 'Visita mañana';
+                    } else if (a.seccion === 'recurrentes') {
+                        desc = a.descripcion || '';
+                        tags = `<span style="font-size:0.65rem;background:#7C3AED20;color:#7C3AED;padding:2px 6px;border-radius:6px;font-weight:800;">PROGRAMADA</span>`;
+                        borderColor = '#7C3AED';
+                    } else if (a.seccion === 'planificacion_hoy') {
+                        desc = a.descripcion || 'Tarea programada para hoy';
+                        tags = `<span style="font-size:0.65rem;background:#10B98120;color:#059669;padding:2px 6px;border-radius:6px;font-weight:800;">TAREA HOY</span>`;
+                        borderColor = '#10B981';
+                    } else {
+                        desc = a.descripcion || '';
+                        tags = `<span style="font-size:0.65rem;background:var(--primary)20;color:var(--primary);padding:2px 6px;border-radius:6px;font-weight:800;">${(a.tipo||'').replace(/_/g,' ')}</span>`;
+                        borderColor = a.prioridad === 'ALTA' ? 'var(--accent)' : a.prioridad === 'MEDIA' ? '#F59E0B' : 'var(--primary)';
+                    }
+
+                    return `<div id="alerta-${(a.alert_id||'').replace(/[^a-zA-Z0-9_-]/g,'_')}" style="display:flex;align-items:flex-start;gap:10px;background:#F8FAFC;border-left:4px solid ${borderColor};border-radius:0 12px 12px 0;padding:12px 14px;cursor:pointer;transition:background 0.2s;"
+                        onclick="event.stopPropagation(); ${clickAction}">
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:800;font-size:0.88rem;color:var(--text-primary);">${titulo}</div>
+                            ${desc ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">${desc}</div>` : ''}
+                            ${tags ? `<div style="margin-top:6px;">${tags}</div>` : ''}
+                        </div>
+                        <button onclick="event.stopPropagation(); dismissAlerta('${a.alert_id}', this)" title="Eliminar alerta"
+                            style="flex-shrink:0;background:none;border:none;color:#94A3B8;cursor:pointer;padding:4px;border-radius:6px;font-size:1.1rem;line-height:1;"
+                            onmouseover="this.style.background='#FEE2E2';this.style.color='#DC2626'"
+                            onmouseout="this.style.background='none';this.style.color='#94A3B8'">✕</button>
+                    </div>`;
+                }).join('');
+            } catch (e) { console.warn('Error loading alertas', e); }
+        }
+
+        async function dismissAlerta(alertId, btn) {
+            if (!alertId) return;
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/alertas/dismiss', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ alert_id: alertId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    const el = document.getElementById('alerta-' + alertId.replace(/[^a-zA-Z0-9_-]/g, '_'));
+                    if (el) { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 320); }
+                    const countEl = document.getElementById('hoy-alertas-count');
+                    const n = parseInt(countEl.textContent || '0', 10) - 1;
+                    countEl.textContent = Math.max(0, n);
+                    if (n <= 0) document.getElementById('hoy-alertas-panel').style.display = 'none';
+                }
+            } catch (e) {}
+            btn.disabled = false;
+        }
+
+        // ─── SIMULAR FECHA ────────────────────────────────────────
+        function getSimulateDate() {
+            const inp = document.getElementById('hoy-simulate-date');
+            return (inp && inp.value) ? inp.value : today();
+        }
+        function onSimulateDateChange() {
+            loadHoy();
+        }
+
         // ─── HOY ──────────────────────────────────────────────────
         async function loadHoy() {
-            const t = today();
+            const inp = document.getElementById('hoy-simulate-date');
+            if (inp && !inp.value) inp.value = today();
+            const t = getSimulateDate();
+
             const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
             const d = new Date(t + 'T00:00:00');
             document.getElementById('hoy-fecha-label').textContent =
                 `${d.toLocaleDateString('es-AR',{weekday:'long'})} ${d.getDate()} de ${meses[d.getMonth()]}`;
+            const isSimulated = t !== today();
             const hora = new Date().getHours();
-            document.getElementById('hoy-saludo').textContent =
-                hora < 12 ? '¡Buenos días! Revisá el plan de hoy.' :
-                hora < 18 ? '¡Buenas tardes! Chequeá el progreso.' : '¡Buenas noches! Cerrá el dia.';
+            document.getElementById('hoy-saludo').textContent = isSimulated
+                ? `Simulando actividad del ${t}.`
+                : (hora < 12 ? '¡Buenos días! Revisá el plan de hoy.' : hora < 18 ? '¡Buenas tardes! Chequeá el progreso.' : '¡Buenas noches! Cerrá el dia.');
+
+            loadHoyAlertas(t);
+            checkCobranzasManana(t);
 
             const ctx = ctxParams();
             const q = Object.entries(ctx).filter(([,v])=>v).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
@@ -849,49 +1078,96 @@
 
         // ─── PLANIFICACIÓN ─────────────────────────────────────────
         function loadPlanificacion() {
-            const d = new Date(selectedDate);
+            if (!selectedDate || isNaN(new Date(selectedDate + 'T12:00:00').getTime())) {
+                selectedDate = today();
+            }
+            const d = new Date(selectedDate + 'T12:00:00');
             const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
             document.getElementById('plan-fecha-label').textContent =
                 `${d.toLocaleDateString('es-AR', {weekday:'long'})} ${d.getDate()} de ${meses[d.getMonth()]}`;
 
+            // Días hábiles restantes del mes (desde hoy)
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const lastDay = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            let diasRestantes = 0;
+            const cur = new Date(hoy);
+            while (cur <= lastDay) {
+                const w = cur.getDay();
+                if (w >= 1 && w <= 5) diasRestantes++;
+                cur.setDate(cur.getDate() + 1);
+            }
+            const elRest = document.getElementById('plan-dias-restantes');
+            if (elRest) elRest.textContent = `${diasRestantes} días hábiles restantes en ${meses[hoy.getMonth()]}`;
+
             const weekDiv = document.getElementById('week-nav');
             weekDiv.innerHTML = '';
-            const monday = new Date(d);
-            monday.setDate(d.getDate() - d.getDay() + 1);
-            ['L','M','M','J','V','S','D'].forEach((dia, i) => {
-                const dd = new Date(monday);
-                dd.setDate(monday.getDate() + i);
-                const iso = dd.toISOString().split('T')[0];
-                const btn = document.createElement('button');
-                btn.textContent = `${dia} ${dd.getDate()}`;
-                btn.onclick = () => { selectedDate = iso; loadPlanificacion(); };
-                const isSelected = iso === selectedDate;
-                btn.style.cssText = `padding:5px 8px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer;
-                    border:1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'};
-                    background:${isSelected ? 'var(--primary)' : 'white'};
-                    color:${isSelected ? 'white' : 'var(--text-muted)'};`;
-                weekDiv.appendChild(btn);
+            const year = d.getFullYear(), month = d.getMonth();
+            const monthFirst = new Date(year, month, 1);
+            const monthLast = new Date(year, month + 1, 0);
+            let weekStart = new Date(year, month, 1);
+            weekStart.setDate(1 - (monthFirst.getDay() === 0 ? 6 : monthFirst.getDay() - 1));
+            const dayLabels = ['L','M','M','J','V','S','D'];
+            for (let w = 0; w < 6; w++) {
+                if (weekStart.getMonth() > month) break;
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; gap:4px; margin-bottom:6px; flex-wrap:wrap;';
+                for (let i = 0; i < 7; i++) {
+                    const dd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i);
+                    const iso = dd.getFullYear() + '-' + String(dd.getMonth() + 1).padStart(2, '0') + '-' + String(dd.getDate()).padStart(2, '0');
+                    const inMonth = dd.getMonth() === month;
+                    const btn = document.createElement('button');
+                    btn.textContent = dayLabels[i] + ' ' + dd.getDate();
+                    (function(dt) { btn.onclick = function() { selectedDate = dt; loadPlanificacion(); }; })(iso);
+                    const isSelected = iso === selectedDate;
+                    btn.style.cssText = 'padding:5px 8px; border-radius:8px; font-size:0.7rem; font-weight:800; cursor:pointer;' +
+                        'border:1px solid ' + (isSelected ? 'var(--primary)' : 'var(--border)') + ';' +
+                        'background:' + (isSelected ? 'var(--primary)' : inMonth ? 'white' : '#F1F5F9') + ';' +
+                        'color:' + (isSelected ? 'white' : inMonth ? 'var(--text-muted)' : '#94A3B8') + ';';
+                    row.appendChild(btn);
+                }
+                weekDiv.appendChild(row);
+                weekStart.setDate(weekStart.getDate() + 7);
+            }
+
+            Promise.all([
+                fetch(`/api/crm/planificacion?tipo=DIARIA&fecha=${selectedDate}`).then(r => r.json()),
+                fetch(`/api/crm/planificacion-recurrente-para-fecha?fecha=${selectedDate}`).then(r => r.json())
+            ]).then(([items, recurrentes]) => {
+                const allItems = [
+                    ...items.map(i => ({ ...i, es_recurrente: false })),
+                    ...recurrentes.map(r => ({
+                        id: null,
+                        recurrente_id: r.id,
+                        nom_cliente: r.nom_cliente,
+                        objetivo: r.descripcion,
+                        completado: r.completado_fecha === 1
+                    }))
+                ];
+                const pend = allItems.filter(i => !i.completado).length;
+                const kpiEl = document.getElementById('kpi-plan-hoy');
+                if (kpiEl) kpiEl.textContent = pend;
+                const container = document.getElementById('plan-diaria-items');
+                if (!allItems.length) {
+                    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:50px;font-size:0.85rem;">Agenda libre. Agregá una tarea o una gestión recurrente.</div>';
+                    return;
+                }
+                container.innerHTML = allItems.map(item => {
+                    const isRecurrente = !!item.recurrente_id;
+                    const checkHandler = isRecurrente
+                        ? `onchange="markPlanRecurrente(${item.recurrente_id}, '${selectedDate}', this.checked)"`
+                        : `onchange="markPlan(${item.id}, this.checked)"`;
+                    return `<div class="plan-item ${item.completado ? 'done' : ''}">
+                        <input type="checkbox" class="plan-check" ${item.completado ? 'checked' : ''} ${checkHandler}>
+                        <div>
+                            <div class="plan-title" style="font-weight:700; font-size:0.88rem;">${item.nom_cliente || '&mdash;'}${isRecurrente ? ' <span style="font-size:0.65rem;background:var(--primary)30;color:var(--primary);padding:1px 6px;border-radius:6px;font-weight:700;">recurrente</span>' : ''}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${item.objetivo || ''}</div>
+                        </div>
+                    </div>`;
+                }).join('');
             });
 
-            fetch(`/api/crm/planificacion?tipo=DIARIA&fecha=${selectedDate}`)
-                .then(r => r.json())
-                .then(items => {
-                    document.getElementById('kpi-plan-hoy').textContent = items.filter(i => !i.completado).length;
-                    const container = document.getElementById('plan-diaria-items');
-                    if (!items.length) {
-                        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:50px;font-size:0.85rem;">Agenda libre. Agrega una visita.</div>';
-                        return;
-                    }
-                    container.innerHTML = items.map(item => `
-                        <div class="plan-item ${item.completado ? 'done' : ''}">
-                            <input type="checkbox" class="plan-check" ${item.completado ? 'checked' : ''}
-                                onchange="markPlan(${item.id}, this.checked)">
-                            <div>
-                                <div class="plan-title" style="font-weight:700; font-size:0.88rem;">${item.nom_cliente || '&mdash;'}</div>
-                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${item.objetivo || ''}</div>
-                            </div>
-                        </div>`).join('');
-                });
+                loadPlanificacionRecurrente();
 
             const periodo = selectedDate.slice(0,7);
             fetch('/api/crm/planificacion?tipo=MENSUAL')
@@ -907,10 +1183,10 @@
                 });
         }
 
-        function openPlanModal(tipo) {
+        function openPlanModal(tipo, dateOverride) {
             document.getElementById('plan-tipo').value = tipo;
-            document.getElementById('plan-modal-title').textContent = tipo === 'MENSUAL' ? 'Objetivo Mensual' : 'Nueva Visita';
-            document.getElementById('plan-fecha').value = selectedDate;
+            document.getElementById('plan-modal-title').textContent = tipo === 'MENSUAL' ? 'Objetivo Mensual' : 'Nueva Tarea';
+            document.getElementById('plan-fecha').value = dateOverride || selectedDate;
             document.getElementById('plan-objetivo').value = '';
             document.getElementById('plan-cuenta').value = '';
             openModal('modal-plan');
@@ -940,21 +1216,200 @@
             loadPlanificacion();
         }
 
+        async function markPlanRecurrente(recurrenteId, fecha, done) {
+            await fetch(`/api/crm/planificacion-recurrente/${recurrenteId}/completado`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ fecha, completado: done ? 1 : 0 })
+            });
+            loadPlanificacion();
+        }
+
+        // ─── GESTIONES RECURRENTES ─────────────────────────────────
+        const DIAS_SEMANA = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        async function loadPlanificacionRecurrente() {
+            const res = await fetch('/api/crm/planificacion-recurrente');
+            const items = await res.json();
+            const container = document.getElementById('plan-recurrentes-list');
+            if (!container) return;
+            if (!items.length) {
+                container.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;">Ninguna. Agregá una.</div>';
+                return;
+            }
+            container.innerHTML = items.map(r => `
+                <div style="padding:8px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                    <div>
+                        <div style="font-weight:700; font-size:0.8rem;">${r.nom_cliente || '—'} · ${DIAS_SEMANA[r.dia_semana] ?? r.dia_semana}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">${r.descripcion || ''}</div>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <button onclick="openRecurrenteModal(${r.id})" title="Editar" style="background:none;border:none;cursor:pointer;padding:2px;color:var(--text-muted);font-size:0.9rem;">✎</button>
+                        <button onclick="deleteRecurrente(${r.id})" title="Eliminar" style="background:none;border:none;cursor:pointer;padding:2px;color:#94A3B8;font-size:0.9rem;">✕</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function openRecurrenteModal(editId) {
+            document.getElementById('recurrente-id').value = editId || '';
+            document.getElementById('recurrente-modal-title').textContent = editId ? 'Editar gestión recurrente' : 'Nueva gestión recurrente';
+            document.getElementById('recurrente-descripcion').value = '';
+            document.querySelector('input[name="recurrente-dia"][value="4"]').checked = true;
+            const sel = document.getElementById('recurrente-cuenta');
+            sel.innerHTML = document.getElementById('plan-cuenta').innerHTML;
+            sel.value = '';
+            if (editId) {
+                fetch('/api/crm/planificacion-recurrente').then(r => r.json()).then(items => {
+                    const r = items.find(i => i.id === editId);
+                    if (r) {
+                        document.getElementById('recurrente-descripcion').value = r.descripcion || '';
+                        const radio = document.querySelector(`input[name="recurrente-dia"][value="${r.dia_semana}"]`);
+                        if (radio) radio.checked = true;
+                        sel.value = r.cod_cliente || '';
+                    }
+                });
+            }
+            openModal('modal-recurrente');
+        }
+
+        async function saveRecurrente() {
+            const id = document.getElementById('recurrente-id').value;
+            const dia = document.querySelector('input[name="recurrente-dia"]:checked');
+            const data = {
+                cod_cliente: document.getElementById('recurrente-cuenta').value,
+                descripcion: document.getElementById('recurrente-descripcion').value,
+                dia_semana: parseInt(dia ? dia.value : 4, 10),
+                activo: 1
+            };
+            const url = id ? `/api/crm/planificacion-recurrente/${id}` : '/api/crm/planificacion-recurrente';
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, {
+                method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                closeModal('modal-recurrente');
+                loadPlanificacionRecurrente();
+                loadPlanificacion();
+            }
+        }
+
+        async function deleteRecurrente(id) {
+            if (!confirm('¿Eliminar esta gestión recurrente?')) return;
+            await fetch(`/api/crm/planificacion-recurrente/${id}`, { method: 'DELETE' });
+            loadPlanificacionRecurrente();
+            loadPlanificacion();
+        }
+
         // ─── INIT ─────────────────────────────────────────────────
-        window.onload = () => {
+        window.onload = async () => {
             loadPortfolio();
             updateAlertBadge();
+            checkCobranzasManana();
             document.getElementById('g-fecha').value = today();
             // Auto-switch to Hoy tab if arriving from dashboard button
             if (window.location.hash === '#hoy') {
                 showTab('hoy');
             }
+            // Auto-open ficha when arriving from cliente page (Gestionar cliente)
+            const sp = new URLSearchParams(window.location.search);
+            const clienteParam = sp.get('cliente');
+            if (clienteParam) {
+                await openFichaModal(clienteParam, '');
+                // Clean URL without reload
+                const clean = new URLSearchParams(sp);
+                clean.delete('cliente');
+                const newUrl = window.location.pathname + (clean.toString() ? '?' + clean.toString() : '') + window.location.hash;
+                window.history.replaceState({}, '', newUrl);
+            }
         };
+
+        // ─── ALERTA COBRANZA (MAÑANA) ─────────────────────────────
+        async function checkCobranzasManana(simulateDate) {
+            const q = [ctxQ, simulateDate ? 'date=' + encodeURIComponent(simulateDate) : ''].filter(Boolean).join('&');
+            try {
+                const res = await fetch('/api/alertas/deuda-manana' + (q ? '?' + q : ''));
+                if (!res.ok) return;
+                const d = await res.json();
+                
+                if (d.total_alertas > 0) {
+                    document.getElementById('btn-alertas-cobranza').style.display = 'inline-block';
+                    document.getElementById('badge-alertas-cobranza').textContent = d.total_alertas;
+                    
+                    // We attach the data to the window object so the modal can use it without re-fetching
+                    window.__alertasCobranzaData = d;
+                } else {
+                    document.getElementById('btn-alertas-cobranza').style.display = 'none';
+                }
+            } catch(e) { console.error('Error fetching cobranzas mañana', e); }
+        }
+
+        function showAlertsCobranzaModal() {
+            const container = document.getElementById('list-alertas-cobranza');
+            container.innerHTML = '';
+            const d = window.__alertasCobranzaData;
+            
+            if (!d || !d.alertas || d.alertas.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">Sin alertas.</div>';
+            } else {
+                document.getElementById('modal-cobranzas-subtitle').textContent = `Clientes a visitar: ${d.dia_cobro}`;
+                
+                const formatPesoNum = v => v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'k' : '$' + Math.round(v);
+                container.innerHTML = d.alertas.map(a => {
+                    let tags = '';
+                    if (a.es_anticipado) {
+                        tags += `<span style="background:#FEF3C7; color:#D97706; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.65rem; margin-right:6px;">ANTICIPADO</span>`;
+                    }
+                    if (a.cantidad_facturas_vencidas > 0) {
+                        tags += `<span style="background:#FEE2E2; color:#DC2626; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.65rem;">${a.cantidad_facturas_vencidas} FACT. VENCIDAS</span>`;
+                    }
+                    const debtInfo = a.total_vencido > 0 ? `<span style="font-weight:900; color:#DC2626;">${formatPesoNum(a.total_vencido)}</span>` : '';
+                    const safeId = (a.alert_id || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+                    return `
+                    <div id="modal-alerta-${safeId}" style="display:flex;align-items:flex-start;gap:10px;background:#F8FAFC;border-left:4px solid ${a.es_anticipado ? '#F59E0B' : '#DC2626'};border-radius:0 12px 12px 0;padding:12px 16px;margin-bottom:10px;cursor:pointer;"
+                         onclick="event.stopPropagation(); closeModal('modal-cobranzas'); window.location.href='/cliente/${a.cod_cliente}' + (ctxQ ? '?' + ctxQ : '')">
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="font-weight:800;font-size:0.9rem;color:var(--text-primary);">${a.nom_cliente}</div>
+                                ${debtInfo}
+                            </div>
+                            <div>${tags}</div>
+                        </div>
+                        <button onclick="event.stopPropagation(); dismissAlertaModal('${a.alert_id}', 'modal-alerta-${safeId}')" title="Eliminar alerta"
+                            style="flex-shrink:0;background:none;border:none;color:#94A3B8;cursor:pointer;padding:4px;border-radius:6px;font-size:1rem;"
+                            onmouseover="this.style.background='#FEE2E2';this.style.color='#DC2626'"
+                            onmouseout="this.style.background='none';this.style.color='#94A3B8'">✕</button>
+                    </div>`;
+                }).join('');
+            }
+            openModal('modal-cobranzas');
+        }
+
+        async function dismissAlertaModal(alertId, domId) {
+            if (!alertId) return;
+            try {
+                const res = await fetch('/api/alertas/dismiss', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ alert_id: alertId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    const el = document.getElementById(domId);
+                    if (el) { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 320); }
+                    const badge = document.getElementById('badge-alertas-cobranza');
+                    const n = Math.max(0, parseInt(badge.textContent, 10) - 1);
+                    badge.textContent = n;
+                    if (n === 0) document.getElementById('btn-alertas-cobranza').style.display = 'none';
+                }
+            } catch (e) {}
+        }
 
     </script>
     <!-- ─── MODAL: HISTORIAL DE GESTIONES ─── -->
     <div class="modal-overlay" id="modal-historial">
         <div class="modal-box" style="width:580px;">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-historial')" title="Cerrar">✕</button>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
                 <h3 id="hist-nombre">Gestiones</h3>
                 <button id="hist-nueva-btn" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size:0.8rem;">+ Nueva Gestión</button>
@@ -969,6 +1424,7 @@
     <!-- ─── MODAL: FICHA DE CLIENTE ─── -->
     <div class="modal-overlay" id="modal-ficha">
         <div class="modal-box" style="width:640px;">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-ficha')" title="Cerrar">✕</button>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
                 <div>
                     <h3 style="margin-bottom:2px;" id="ficha-nombre">Ficha de Cliente</h3>
@@ -1128,6 +1584,7 @@
             // Load combined dim_clients + crm_accounts data
             try {
                 const d = await fetch(`/api/crm/account/${cod}`).then(r => r.json());
+                if (d.cliente_name) document.getElementById('ficha-nombre').textContent = d.cliente_name;
 
                 // Master data defaults from dim_clients
                 if (document.getElementById('ficha-canal').querySelector(`option[value="${d.canal}"]`))
@@ -1216,29 +1673,49 @@
                     return;
                 }
                 
+                const safeId = t => (t.alert_id || '').replace(/[^a-zA-Z0-9_-]/g, '_');
                 container.innerHTML = tasks.map(t => {
                     const color = t.prioridad === 'ALTA' ? 'var(--accent)' : t.prioridad === 'MEDIA' ? 'var(--orange)' : 'var(--primary)';
                     const client = t.nom_cliente ? `<div style="font-weight:800; color:var(--text-primary); margin-bottom:2px;">${t.nom_cliente}</div>` : '';
                     const dateInfo = t.fecha_vencimiento ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">📅 ${t.fecha_vencimiento}</div>` : '';
                     const tipoLabel = (t.tipo || 'ALERTA').replace(/_/g, ' ');
-                    
-                    return `<div style="border-left:4px solid ${color}; background:#F8FAFC; padding:12px 16px; border-radius:0 12px 12px 0; margin-bottom:10px; cursor:pointer; transition:background 0.2s;" 
-                                 onclick="closeModal('modal-alertas'); openFichaModal('${t.cod_cliente}', '${t.nom_cliente || ''}')"
+                    const sid = safeId(t);
+                    return `<div id="modal-gestion-alerta-${sid}" style="display:flex;align-items:flex-start;gap:10px;border-left:4px solid ${color};background:#F8FAFC;padding:12px 16px;border-radius:0 12px 12px 0;margin-bottom:10px;cursor:pointer;transition:background 0.2s;" 
+                                 onclick="event.stopPropagation(); closeModal('modal-alertas'); openFichaModal('${t.cod_cliente}', '${(t.nom_cliente || '').replace(/'/g,"\\'")}')"
                                  onmouseover="this.style.background='#F1F5F9'" 
                                  onmouseout="this.style.background='#F8FAFC'">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div style="flex:1;">
-                                ${client}
-                                <div style="font-size:0.85rem; line-height:1.2;">${t.descripcion}</div>
-                                ${dateInfo}
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                                <div>${client}<div style="font-size:0.85rem;line-height:1.2;">${t.descripcion}</div>${dateInfo}</div>
+                                <span style="font-size:0.6rem;background:${color}20;color:${color};padding:2px 6px;border-radius:6px;font-weight:800;text-transform:uppercase;">${tipoLabel}</span>
                             </div>
-                            <span style="font-size:0.6rem; background:${color}20; color:${color}; padding:2px 6px; border-radius:6px; font-weight:800; text-transform:uppercase;">${tipoLabel}</span>
                         </div>
+                        <button onclick="event.stopPropagation(); dismissGestionAlerta('${t.alert_id}', 'modal-gestion-alerta-${sid}')" title="Eliminar alerta"
+                            style="flex-shrink:0;background:none;border:none;color:#94A3B8;cursor:pointer;padding:4px;border-radius:6px;font-size:1rem;"
+                            onmouseover="this.style.background='#FEE2E2';this.style.color='#DC2626'"
+                            onmouseout="this.style.background='none';this.style.color='#94A3B8'">✕</button>
                     </div>`;
                 }).join('');
             } catch (e) {
                 container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);">Error al conectar con el motor de alertas.</div>';
             }
+        }
+
+        async function dismissGestionAlerta(alertId, domId) {
+            if (!alertId) return;
+            try {
+                const res = await fetch('/api/alertas/dismiss', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ alert_id: alertId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    const el = document.getElementById(domId);
+                    if (el) { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 320); }
+                    updateAlertBadge();
+                }
+            } catch (e) {}
         }
 
         async function updateAlertBadge() {
@@ -1261,6 +1738,7 @@
     <!-- ─── MODAL: ALERTAS DE GESTIÓN ─── -->
     <div class="modal-overlay" id="modal-alertas">
         <div class="modal-box" style="width:520px;">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-alertas')" title="Cerrar">✕</button>
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
                 <div style="background:var(--accent); width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.3rem; box-shadow: 0 4px 12px rgba(232,71,82,0.2);">⚡</div>
                 <div>
@@ -1274,5 +1752,26 @@
             </div>
         </div>
     </div>
+
+    <!-- ─── MODAL: ALERTAS COBRANZAS MAÑANA ─── -->
+    <div class="modal-overlay" id="modal-cobranzas">
+        <div class="modal-box" style="width:520px;">
+            <button type="button" class="modal-close-x" onclick="closeModal('modal-cobranzas')" title="Cerrar">✕</button>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+                <div style="background:#DC2626; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.3rem; box-shadow: 0 4px 12px rgba(220,38,38,0.2);">🔔</div>
+                <div>
+                    <h3 style="margin-bottom:0; color:#DC2626;">Alertas de Cobranza</h3>
+                    <div id="modal-cobranzas-subtitle" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Clientes a visitar: Mañana</div>
+                </div>
+            </div>
+            
+            <div id="list-alertas-cobranza" style="max-height:480px; overflow-y:auto; padding-right:6px; margin-bottom:1rem;"></div>
+            
+            <div class="btn-row">
+                <button class="btn-cancel" onclick="closeModal('modal-cobranzas')" style="width:100%; padding:12px; font-weight:800;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

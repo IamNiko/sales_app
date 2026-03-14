@@ -331,6 +331,7 @@
                 <h1 style="display:inline-block; vertical-align:middle" id="client-name">Cargando...</h1>
                 <span id="client-tier" class="tier-badge"></span>
                 <div class="meta" id="client-meta"></div>
+                <a id="btn-gestionar-cliente" href="#" style="display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:8px 16px; background:var(--primary); color:white; border-radius:10px; font-size:0.82rem; font-weight:700; text-decoration:none; width:fit-content; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(29,53,87,0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">📋 Gestionar cliente</a>
             </div>
             <div id="score-section" class="score-card" style="display:none">
                 <div class="score-title">🎯 Ponderación Estratégica <span id="total-score-badge"
@@ -387,10 +388,19 @@
             <a id="contact-mapa-link" href="#" style="display:none; margin-left:auto; background:var(--primary); color:white; text-decoration:none; border-radius:8px; padding:0.5rem 1rem; font-size:0.8rem; font-weight:700; white-space:nowrap;">🗺️ Ver en mapa</a>
         </div>
 
+        <!-- Alertas de Cliente (Anticipado / Deuda) -->
+        <div id="alert-banner" style="display:none; background:#FEF2F2; border:2px solid #FECACA; border-radius:14px; padding:1.2rem 1.5rem; margin-bottom:1.5rem; box-shadow:0 4px 15px rgba(220,38,38,0.1); align-items:flex-start; gap:1.5rem;">
+            <div style="font-size:2rem; display:flex; align-items:center; justify-content:center; width:48px; height:48px; background:#FCA5A5; border-radius:12px; color:#7F1D1D;">⛔</div>
+            <div style="flex:1;">
+                <div style="font-size:1rem; font-weight:900; color:#991B1B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Alerta de Cobranzas</div>
+                <div id="alert-banner-content" style="font-size:0.9rem; color:#7F1D1D; line-height:1.5;"></div>
+            </div>
+        </div>
+
         <!-- Gauge Section: Facturación $, Premium $, Rebozados KG -->
         <div class="gauge-grid">
             <div class="gauge-card">
-                <div class="gauge-label">💰 Facturación $</div>
+                <div class="gauge-label" id="gauge-fact-label">💰 Facturación $</div>
                 <div class="gauge-value" id="gauge-fact-val">$0</div>
                 <div id="gauge-fact" class="gauge-container"></div>
                 <div class="gauge-sub" id="gauge-fact-sub">Obj: $0</div>
@@ -713,6 +723,26 @@
             <div class="lanz-grid" id="lanz-grid"></div>
         </div>
 
+        <!-- Facturas Recientes -->
+        <div id="facturas-section" style="display:none; margin-top:2.5rem;">
+            <div class="lanz-title" style="border-color:#E84752;">Facturas Pendientes <span id="facturas-plazo-badge" style="font-size:0.75rem;font-weight:400;color:#8E96A3;"></span></div>
+            <div style="overflow-x:auto;">
+                <table id="facturas-table" style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+                    <thead>
+                        <tr style="background:var(--card);border-bottom:2px solid var(--border);">
+                            <th style="padding:8px 12px;text-align:left;color:var(--text-secondary);font-weight:600;">Fecha Emisión</th>
+                            <th style="padding:8px 12px;text-align:left;color:var(--text-secondary);font-weight:600;">Vencimiento</th>
+                            <th style="padding:8px 12px;text-align:right;color:var(--text-secondary);font-weight:600;">KG</th>
+                            <th style="padding:8px 12px;text-align:right;color:var(--text-secondary);font-weight:600;">Importe</th>
+                            <th style="padding:8px 12px;text-align:center;color:var(--text-secondary);font-weight:600;">Estado</th>
+                            <th style="padding:8px 12px;text-align:center;color:var(--text-secondary);font-weight:600;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="facturas-body"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -760,17 +790,49 @@
             if (raw.status === 'success') {
                 clienteData = raw.data;
             } else {
-                clienteData = raw;
+                clienteData = raw; // retro-compatibilidad
             }
 
             if (clienteData.error) { alert(clienteData.error); return; }
 
             const cl = clienteData.cliente;
+            
+            // Show Anticipado / Vencidas alerts if relevant
+            let alertsHtml = '';
+            if (clienteData.alerta_anticipado) {
+                alertsHtml += `
+                    <div style="margin-bottom:10px; background:#FEF3C7; color:#B45309; padding:8px 12px; border-radius:8px; font-weight:700;">
+                        ⚠️ El cliente opera bajo condición <strong>CONTADO ANTICIPADO</strong>. Se sugiere realizar llamada para cotizar pedido antes de generar la visita física.
+                    </div>`;
+            }
+            
+            if (clienteData.facturas_vencidas && clienteData.facturas_vencidas.length > 0) {
+                let rows = clienteData.facturas_vencidas.map(f => {
+                    const fmtImp = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits:0 }).format(f.importe);
+                    return `<li style="margin-bottom:4px;">Factura ${f.comprobante ? 'N° ' + f.comprobante + ' ' : ''}emitida el <strong>${f.fecha_emision}</strong> (${f.dias_vencida} días vencida) ~ <span style="font-weight:900">${fmtImp}</span></li>`;
+                }).join('');
+                
+                alertsHtml += `
+                    <div style="background:white; border:1px solid #FECACA; border-radius:8px; padding:10px 14px;">
+                        <div style="font-weight:800; margin-bottom:6px; color:#DC2626;">Facturas Vencidas Detectadas:</div>
+                        <ul style="margin:0; padding-left:1.5rem;">${rows}</ul>
+                    </div>`;
+            }
+            
+            if (alertsHtml !== '') {
+                document.getElementById('alert-banner-content').innerHTML = alertsHtml;
+                document.getElementById('alert-banner').style.display = 'flex';
+            }
 
             // Header
             document.getElementById('client-name').textContent = cl?.nom_cliente || 'Cliente';
             document.getElementById('client-meta').textContent =
                 `Frecuencia: ${cl?.frecuencia || 'N/A'} • Vendedor: ${clienteData.avance?.nom_vendedor || 'N/A'}`;
+            const gestionarBtn = document.getElementById('btn-gestionar-cliente');
+            if (gestionarBtn) {
+                const q = new URLSearchParams(window.location.search);
+                gestionarBtn.href = '/crm?cliente=' + encodeURIComponent(codCliente) + (q.toString() ? '&' + q.toString() : '');
+            }
 
             // Tier & Score
             if (cl?.tier) {
@@ -778,18 +840,20 @@
                 tierBadge.textContent = cl.tier;
                 tierBadge.className = `tier-badge tier-${cl.tier.toLowerCase()}`;
 
-                document.getElementById('score-section').style.display = 'block';
-                document.getElementById('total-score-badge').textContent = `Score: ${cl.score}/100`;
+                if (cl.score) {
+                    document.getElementById('score-section').style.display = 'block';
+                    document.getElementById('total-score-badge').textContent = `Score: ${cl.score}/100`;
 
-                // Details
-                document.getElementById('vol-score-val').textContent = cl.vol_score;
-                document.getElementById('vol-score-bar').style.width = (cl.vol_score / 40 * 100) + '%';
+                    // Details
+                    document.getElementById('vol-score-val').textContent = cl.vol_score;
+                    document.getElementById('vol-score-bar').style.width = (cl.vol_score / 40 * 100) + '%';
 
-                document.getElementById('mix-score-val').textContent = cl.mix_score;
-                document.getElementById('mix-score-bar').style.width = (cl.mix_score / 30 * 100) + '%';
+                    document.getElementById('mix-score-val').textContent = cl.mix_score;
+                    document.getElementById('mix-score-bar').style.width = (cl.mix_score / 30 * 100) + '%';
 
-                document.getElementById('loy-score-val').textContent = cl.loyalty_score;
-                document.getElementById('loy-score-bar').style.width = (cl.loyalty_score / 30 * 100) + '%';
+                    document.getElementById('loy-score-val').textContent = cl.loyalty_score;
+                    document.getElementById('loy-score-bar').style.width = (cl.loyalty_score / 30 * 100) + '%';
+                }
             }
 
             // Contact card
@@ -797,6 +861,7 @@
 
             renderGauges();
             renderCharts();
+            renderFacturasRecientes(clienteData.facturas_recientes, clienteData.plazo_dias || 0);
         }
 
 
@@ -851,12 +916,19 @@
             if (!clienteData.avance) return;
             const av = clienteData.avance;
 
-            const f = av; // Assuming 'f' refers to current actuals
-            const o = av; // Assuming 'o' refers to current objectives
+            renderSingleGauge('gauge-fact', av.facturacion_pesos || 0, av.objetivo_pesos || 0, formatPesos, 'gauge-fact-sub');
+            renderSingleGauge('gauge-prem', av.premium_pesos || 0, av.objetivo_premium_pesos || 0, formatPesos, 'gauge-prem-sub');
+            renderSingleGauge('gauge-reb', av.rebozados_kg || 0, av.objetivo_rebozados_kg || 0, formatKg, 'gauge-reb-sub');
 
-            renderSingleGauge('gauge-fact', f.facturacion_pesos || 0, o.objetivo_pesos || 0, formatPesos, 'gauge-fact-sub');
-            renderSingleGauge('gauge-prem', f.premium_pesos || 0, o.objetivo_premium_pesos || 0, formatPesos, 'gauge-prem-sub');
-            renderSingleGauge('gauge-reb', f.rebozados_kg || 0, o.objetivo_rebozados_kg || 0, formatKg, 'gauge-reb-sub');
+            // Show "estimado" badge when pesos come from historical avg price (no current-month invoices yet)
+            const factLabel = document.getElementById('gauge-fact-label');
+            if (factLabel) {
+                if (av.facturacion_pesos_estimated) {
+                    factLabel.innerHTML = 'Facturación $ <span title="Estimado por precio histórico promedio — sin datos de facturación del mes actual" style="background:#FEF3C7;color:#B45309;font-size:0.65rem;padding:1px 5px;border-radius:4px;font-weight:700;cursor:help;">~estimado</span>';
+                } else {
+                    factLabel.innerHTML = 'Facturación $';
+                }
+            }
         }
 
         function renderSingleGauge(id, actual, objetivo, fmtFn, subId) {
@@ -1430,6 +1502,83 @@
                     </div>`;
                     }).join('');
                 } catch (e) { console.warn('Coberturas not available', e); }
+            }
+
+            // ─── Facturas Pendientes ──────────────────────────────────────────
+            function renderFacturasRecientes(facturas, plazoDias) {
+                if (!facturas || !facturas.length) return;
+                document.getElementById('facturas-section').style.display = '';
+                if (plazoDias > 0) {
+                    document.getElementById('facturas-plazo-badge').textContent = `(plazo: ${plazoDias} días)`;
+                }
+                const fmtPesos = v => new Intl.NumberFormat('es-AR', { style:'currency', currency:'ARS', maximumFractionDigits:0 }).format(v);
+                const fmtKg   = v => v ? v.toLocaleString('es-AR', { maximumFractionDigits:1 }) + ' kg' : '—';
+
+                const rows = facturas.map(f => {
+                    const vencida  = f.vencida;
+                    const negativa = f.importe_total < 0;
+                    let estadoHtml, rowStyle;
+                    if (negativa) {
+                        estadoHtml = `<span style="background:#F1F5F9;color:#64748B;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;">NC/Dev</span>`;
+                        rowStyle = 'background:#F8FAFC;';
+                    } else if (vencida) {
+                        estadoHtml = `<span style="background:#FEE2E2;color:#DC2626;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">VENCIDA +${f.dias_vencida}d</span>`;
+                        rowStyle = 'background:#FFF5F5;border-left:3px solid #EF4444;';
+                    } else if (plazoDias > 0 && f.dias_desde_emision > plazoDias * 0.75) {
+                        estadoHtml = `<span style="background:#FEF3C7;color:#D97706;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;">Por vencer</span>`;
+                        rowStyle = 'background:#FFFBEB;';
+                    } else {
+                        estadoHtml = `<span style="background:#DCFCE7;color:#16A34A;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;">Al día</span>`;
+                        rowStyle = '';
+                    }
+
+                    const pagarBtn = negativa ? '' : `
+                        <button onclick="marcarPagada('${f.fecha_emision}', this)"
+                            title="Marcar como pagada (desaparecerá de este listado)"
+                            style="background:none;border:1px solid #CBD5E1;border-radius:6px;padding:3px 10px;
+                                   font-size:0.75rem;color:#64748B;cursor:pointer;white-space:nowrap;
+                                   transition:background 0.15s,color 0.15s;"
+                            onmouseover="this.style.background='#DCFCE7';this.style.color='#16A34A';this.style.borderColor='#16A34A'"
+                            onmouseout="this.style.background='none';this.style.color='#64748B';this.style.borderColor='#CBD5E1'">
+                            ✓ Pagada
+                        </button>`;
+
+                    return `<tr id="frow-${f.fecha_emision}" style="${rowStyle}border-bottom:1px solid var(--border);">
+                        <td style="padding:8px 12px;font-weight:500;">${f.fecha_emision}</td>
+                        <td style="padding:8px 12px;${vencida?'color:#DC2626;font-weight:700;':''}">${f.fecha_vencimiento || '—'}</td>
+                        <td style="padding:8px 12px;text-align:right;color:var(--text-secondary);">${fmtKg(f.kg_total)}</td>
+                        <td style="padding:8px 12px;text-align:right;font-weight:700;${vencida?'color:#DC2626;':''}${negativa?'color:#64748B;':''}">${fmtPesos(f.importe_total)}</td>
+                        <td style="padding:8px 12px;text-align:center;">${estadoHtml}</td>
+                        <td style="padding:8px 12px;text-align:center;">${pagarBtn}</td>
+                    </tr>`;
+                }).join('');
+
+                document.getElementById('facturas-body').innerHTML = rows ||
+                    `<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-secondary);font-size:0.85rem;">Sin facturas pendientes</td></tr>`;
+            }
+
+            async function marcarPagada(fechaEmision, btn) {
+                btn.disabled = true;
+                btn.textContent = '...';
+                try {
+                    const res = await fetch(`/api/cliente/${codCliente}/facturas/${fechaEmision}/pagar`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.ok) {
+                        const row = document.getElementById(`frow-${fechaEmision}`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.4s';
+                            row.style.opacity = '0';
+                            setTimeout(() => row.remove(), 420);
+                        }
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = '✓ Pagada';
+                        alert('Error: ' + (data.error || 'desconocido'));
+                    }
+                } catch(e) {
+                    btn.disabled = false;
+                    btn.textContent = '✓ Pagada';
+                }
             }
 
             loadCliente();
