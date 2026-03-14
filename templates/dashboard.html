@@ -744,8 +744,7 @@
             const monthLabel   = data.month_label || '';
 
             // Dynamic title
-            const type = data.vendedor.type ? `[${data.vendedor.type}] ` : '';
-            const nombreCompleto = type + data.vendedor.nombre;
+            const nombreCompleto = data.vendedor.nombre || '';
             document.title = `Swift Sales | ${nombreCompleto}`;
 
             // Header
